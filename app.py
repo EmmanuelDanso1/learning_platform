@@ -24,6 +24,20 @@ app = Flask(__name__)
 def home():
     return render_template("home.html",  title="Home")
 
+# about route
+@app.route("/about")
+def about():
+    return render_template("about.html", title="About")
+
+# services route
+@app.route("/services")
+def services():
+    return render_template("services.html", title="Services")
+
+@app.route("/contact")
+def contact():
+    return render_template("contact.html", title="Contact")
+
 @app.route('/user_signup', methods=['GET', 'POST'])
 def user_signup():
     # if request.method == 'POST':

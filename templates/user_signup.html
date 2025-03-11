@@ -1,9 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>User Registration</title>
-</head>
-<body>
+{% extends "index.html"  %}
+
+{% block content %}
     <h2>User Registration</h2>
     <form method="POST">
         <input type="text" name="username" placeholder="Username" required><br>
@@ -11,5 +8,4 @@
         <button type="submit">Register</button>
     </form>
     <a href="#">Already have an account? Login here</a>
-</body>
-</html>
+{% endblock %}
