@@ -3,7 +3,7 @@
         <div class="row align-items-center">
             <!-- Location -->
             <div class="col-md-4 d-flex align-items-center">
-                <i class="bi bi-geo-alt-fill me-2"></i>
+                <i class="fa-solid fa-location-dot me-2"></i>
                 <div>
                     <strong>Dome Pillar 2</strong><br>
                     Near Yellow Washing Bay
@@ -12,19 +12,29 @@
 
             <!-- Contact -->
             <div class="col-md-4 text-center">
-                <i class="bi bi-telephone-fill me-2"></i> +233 558 039 190 <br>
-                <i class="bi bi-whatsapp me-2"></i> +233 551 324 729
+                <i class="fa-solid fa-phone"></i> +233 558 039 190 <br>
+                <i class="fa-brands fa-whatsapp"></i> +233 551 324 729
             </div>
 
             <!-- Social and Email -->
             <div class="col-md-4 text-end">
-                <i class="bi bi-envelope-fill me-2"></i> realmindxgh@gmail.com <br>
-                <a href="#" class="text-white me-2"><i class="bi bi-facebook"></i></a>
-                <a href="#" class="text-white me-2"><i class="bi bi-twitter"></i></a>
-                <a href="#" class="text-white me-2"><i class="bi bi-instagram"></i></a>
-                <a href="#" class="text-white me-2"><i class="bi bi-youtube"></i></a>
+                <i class="fa-solid fa-envelope"></i> realmindxgh@gmail.com <br>
+                <a href="#" class="text-white me-2"><i class="fa-brands fa-facebook"></i></a>
+                <a href="#" class="text-white me-2"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="#" class="text-white me-2"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" class="text-white me-2"><i class="fa-brands fa-youtube"></i></a>
                 <span>@realmindxgh</span>
             </div>
         </div>
+        <!-- Copyright Section -->
+        <div class="text-center mt-3">
+            <small id="copyright"></small>
+        </div>
     </div>
 </footer>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const currentYear = new Date().getFullYear();
+        document.getElementById("copyright").textContent = `© ${currentYear} RealMindX. All rights reserved.`;
+    });
+</script>
