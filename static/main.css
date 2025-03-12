@@ -92,7 +92,9 @@ html,body {
     content: counter(list-item) ") "; /* Changes 'a.' to 'a)' */
 }
 
-
+h2, h3{
+  color: #0C2E60;
+}
 
 /* footer */
 footer .bottom {
