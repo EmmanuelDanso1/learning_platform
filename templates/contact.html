@@ -1,3 +1,34 @@
 {% extends "index.html"  %}
 {% block content %}
+<form id="contactForm" class="p-4 bg-light rounded shadow" method="POST" action="/submit">
+    <h2 class="text-center fw-bold">CONTACT US</h2>
+
+    <!-- Name -->
+    <div class="mb-3">
+        <label for="name" class="form-label">Full Name</label>
+        <input type="text" class="form-control" id="name" name="name" required>
+    </div>
+
+    <!-- Email -->
+    <div class="mb-3">
+        <label for="email" class="form-label">Email Address</label>
+        <input type="email" class="form-control" id="email" name="email" required>
+    </div>
+
+    <!-- Subject -->
+    <div class="mb-3">
+        <label for="subject" class="form-label">Subject</label>
+        <input type="text" class="form-control" id="subject" name="subject" required>
+    </div>
+
+    <!-- Message -->
+    <div class="mb-3">
+        <label for="message" class="form-label">Message</label>
+        <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="btn bottom w-100">Submit</button>
+</form>
+
 {% endblock %}

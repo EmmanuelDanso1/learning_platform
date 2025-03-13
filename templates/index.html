@@ -17,11 +17,13 @@
     <header>
         <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
             <div class="container-fluid">
-                <!-- image should be where the a tag is -->
-                <a class="navbar-brand" href="{{ url_for('home') }}">RealMindX</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar" aria-controls="navbarToggle" aria-expanded="True" aria-label="Toggle navigation">
-                  <span class="navbar-toggler-icon"></span>
-                </button>
+              <a class="navbar-brand d-flex align-items-center" href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='images/brain.jpg') }}" alt="Logo" class="logo" style="height: 40px; width: auto; margin-right: 8px; border-radius: 50%; object-fit: cover;">
+                RealMindX
+              </a>            
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar" aria-controls="navbarToggle" aria-expanded="True" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
             </div>
             <!-- right nav -->
             <div class="navbar-nav ms-auto">

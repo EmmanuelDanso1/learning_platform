@@ -25,9 +25,9 @@ html,body {
   /* text-transform: uppercase; */
   letter-spacing: 1px;
   }
-  .navbar-brand:hover{
+  /* .navbar-brand:hover{
     color: #481d02;
-  }
+  } */
   .bg-steel {
     background-color: #0C2E60;
   }
@@ -94,6 +94,14 @@ html,body {
 
 h2, h3{
   color: #0C2E60;
+}
+/* Contact page */
+.bottom {
+  background-color: #0C2E60;
+  color: #ffffff;
+}
+label, button{
+  font-size: 20px;
 }
 
 /* footer */
