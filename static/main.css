@@ -15,6 +15,11 @@ html,body {
   flex: 1;
   /* overflow: hidden; */
 }
+
+.navbar{
+  margin-bottom: 0;
+  padding-bottom: 20px;
+}
   
 .navbar-brand{
   text-decoration: none;
@@ -71,6 +76,24 @@ html,body {
     font-weight: 500;
   }
 
+  /* homepage */
+  .logo-container {
+    text-align: center;
+}
+.logo-text {
+    font-size: 28px;
+    font-weight: bold;
+    color: #002F6C;
+}
+.logo-subtext {
+    font-size: 14px;
+    color: #002F6C;
+    letter-spacing: 1px;
+}
+.logo-icon {
+    width: 80px; /* Adjust based on actual image size */
+}
+
   /* services */
   .card-container {
     display: flex;
@@ -92,7 +115,7 @@ html,body {
     content: counter(list-item) ") "; /* Changes 'a.' to 'a)' */
 }
 
-h2, h3{
+h2, h3, h4{
   color: #0C2E60;
 }
 /* Contact page */
@@ -110,4 +133,20 @@ footer .bottom {
   padding: 15px 0;
   text-align: center;
   width: 100%;
+}
+
+
+/* media query for screens */
+.logo-icon {
+  width: 60px; /* Adjust based on preference */
+  max-width: 100%;
+}
+
+@media (max-width: 768px) { /* Medium and smaller screens */
+  .row {
+      gap: 5px; /* Reduce spacing */
+  }
+  .logo-icon {
+      width: 50px; /* Smaller logo */
+  }
 }
