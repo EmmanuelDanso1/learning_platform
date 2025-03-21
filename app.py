@@ -64,8 +64,8 @@ def user_signup():
 #         return redirect(url_for('admin_login'))
 #     return render_template('admin_register.html')
 
-# @app.route('/user_login', methods=['GET', 'POST'])
-# def user_login():
+@app.route('/user_login', methods=['GET', 'POST'])
+def user_login():
 #     if request.method == 'POST':
 #         username = request.form['username']
 #         password = request.form['password']
@@ -76,7 +76,7 @@ def user_signup():
 #             return redirect(url_for('user_dashboard'))
 #         else:
 #             flash('Login failed. Check username and password.', 'danger')
-#     return render_template('user_login.html')
+    return render_template('user_login.html')
 
 # @app.route('/admin_login', methods=['GET', 'POST'])
 # def admin_login():
