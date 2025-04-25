@@ -5,7 +5,7 @@ html,body {
   display: flex;
   flex-direction: column;
   margin: 0;
-  margin-top: 3.5rem;
+  margin-top: 1.0rem;
   /* overflow: hidden;  */
   min-height: 100vh;
     
@@ -94,6 +94,13 @@ html,body {
     width: 80px; /* Adjust based on actual image size */
 }
 
+/* fit image at latest news */
+.news_img {
+  height: 250px; /* or any height that works well for you */
+  object-fit: cover;
+  width: 100%;
+}
+
   /* services */
   .card-container {
     display: flex;
@@ -114,8 +121,10 @@ html,body {
 .custom-list li::marker {
     content: counter(list-item) ") "; /* Changes 'a.' to 'a)' */
 }
-
-h2, h3, h4{
+.lead{
+  color:#0C2E60;
+}
+h1, h2, h3, h4{
   color: #0C2E60;
 }
 /* Contact page */

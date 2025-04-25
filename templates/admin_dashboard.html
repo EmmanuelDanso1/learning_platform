@@ -1,27 +1,19 @@
-{% extends "index.html" %}
+{% extends 'index.html' %}
 {% block content %}
-<div class="container mt-5">
-    <h2 class="text-center">Admin Dashboard</h2>
-    <p>Welcome, {{ admin.email }}</p>
+<h2>Admin Dashboard</h2>
+<a href="{{ url_for('post_job') }}" class="btn btn-primary mb-3">+ Post New Job</a>
 
-    <h3>Registered Users</h3>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Email</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in users %}
-            <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.email }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
-</div>
+{% if jobs %}
+    <div class="list-group">
+        {% for job in jobs %}
+            <div class="list-group-item">
+                <h5>{{ job.title }}</h5>
+                <p>{{ job.description }}</p>
+                <a href="{{ url_for('view_applicants', job_id=job.id) }}" class="btn btn-outline-secondary">View Applicants</a>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>No jobs posted yet.</p>
+{% endif %}
 {% endblock %}

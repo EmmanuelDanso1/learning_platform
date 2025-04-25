@@ -7,24 +7,30 @@
                 <div class="card shadow-lg p-4">
                     <h2 class="text-center mb-4"> Admin SignUp</h2>
                     <form method="POST">
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Name</label>
-                            <input type="text" class="form-control" name="username" placeholder="Username" required>
+                        {{ form.hidden_tag() }}  <!-- Ensure CSRF token is included -->
+                        
+                        <div>
+                            <label>Username</label>
+                            {{ form.username(class="form-control", placeholder="Enter username") }}
                         </div>
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="text" class="form-control" name="email" placeholder="Email" required>
+                        
+                        <div>
+                            <label>Email</label>
+                            {{ form.email(class="form-control", placeholder="Enter email") }}
                         </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" name="password" placeholder="Password" required>
+                        
+                        <div>
+                            <label>Password</label>
+                            {{ form.password(class="form-control", placeholder="Enter password") }}
                         </div>
-                        <div class="mb-3">
-                            <label for="confirm_password" class="form-label">Confirm Password</label>
-                            <input type="password" class="form-control" name="confirm_password" placeholder="Confirm Password" required>
+                        
+                        <div>
+                            <label>Confirm Password</label>
+                            {{ form.confirm_password(class="form-control", placeholder="Confirm password") }}
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Submit</button>
-                    </form><br>
+                        
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
                     
                     <a href="{{ url_for('admin_login') }}">Already have an account? Login here</a>                </div>
             </div>

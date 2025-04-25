@@ -1,15 +1,25 @@
 {% extends "index.html" %}
 {% block content %}
-<div class="container mt-5">
-    <h2 class="text-center">User Dashboard</h2>
-    <p>Welcome, {{ user.email }}</p>
+<div class="container py-4">
+    <h2>Available Job Opportunities</h2>
 
-    {% if admin %}
-        <p>Your Admin: {{ admin.email }}</p>
+    {% for job in jobs %}
+    <div class="card mb-3 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title">{{ job.title }}</h5>
+            <p class="card-text">{{ job.description }}</p>
+            {% if job.requirements %}
+            <p><strong>Requirements:</strong> {{ job.requirements }}</p>
+            {% endif %}
+            <form method="post" action="{{ url_for('apply', job_id=job.id) }}">
+                <button type="submit" class="btn btn-primary">Apply</button>
+            </form>
+        </div>
+    </div>
     {% else %}
-        <p>No assigned admin.</p>
-    {% endif %}
-
-    <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+    <div class="alert alert-info" role="alert">
+        No job postings available right now.
+    </div>
+    {% endfor %}
 </div>
 {% endblock %}

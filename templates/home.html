@@ -1,36 +1,118 @@
 {% extends "index.html" %}
 
-{% block content %}
-    <div class="container">
-        <div class="row justify-content-center align-items-center d-flex">
-            <div class="col-auto text-end">
-                <img src="{{ url_for('static', filename='images/brain.jpg') }}" alt="Brain Logo" class="logo-icon">
-            </div>
-            <div class="col text-start">
-                <div class="logo-text">RealMindX Education</div>
-                <div class="logo-subtext">HOLISTIC LEARNING CONVENIENTLY FOR EVERY MIND</div>
-            </div>
-        </div>
-    </div>
+{% block title %}Home{% endblock %}
 
-    <!-- Goals Section -->
-    <div class=" p-4 shadow mt-2">
-        <h4 class="text-center fw-bold">GOALS</h4>
-        <ul class="list-unstyled mt-3">
-            <li><i class="fas fa-check-circle text-warning me-2"></i>  Provide high-quality educational support that helps students improve their academic performance and achieve their educational goals.</li>
-            <li><i class="fas fa-check-circle text-warning me-2"></i>  Offer flexible online and in-person learning options to accommodate the diverse needs and schedules of students.</li>
-            <li><i class="fas fa-check-circle text-warning me-2"></i>  Develop specialized programs and support services tailored to students with special educational needs.</li>
-            <li><i class="fas fa-check-circle text-warning me-2"></i>  Maintain a high level of satisfaction among students, parents, and partner schools by regularly seeking feedback and making necessary improvements.</li>
-        </ul>
+{% block content %}
+<!-- Hero Banner -->
+<section class="mt-4 mb-5 text-center">
+  <img src="{{ url_for('static', filename='images/brain.jpg') }}" class="img-fluid rounded" alt="Hero Image">
+  <h1 class="display-5 mt-3 fw-bold">Welcome to RealMindX Education</h1>
+  <p class="lead">Holistic Learning Conveniently for Every Mind</p>
+</section>
+
+<!-- Goals Section -->
+<section class="p-4 shadow rounded mb-4 bg-light">
+  <h4 class="text-center fw-bold">GOALS</h4>
+  <ul class="list-unstyled mt-3">
+    <li><i class="fas fa-check-circle text-warning me-2"></i>Provide high-quality educational support...</li>
+    <li><i class="fas fa-check-circle text-warning me-2"></i>Offer flexible online and in-person learning...</li>
+    <li><i class="fas fa-check-circle text-warning me-2"></i>Develop specialized programs for special needs...</li>
+    <li><i class="fas fa-check-circle text-warning me-2"></i>Maintain high satisfaction with feedback loops...</li>
+  </ul>
+</section>
+
+<!-- Why Choose Us -->
+<section class="p-4 shadow rounded mb-4">
+  <h4 class="text-center fw-bold">WHY CHOOSE REALMINDX EDUCATION?</h4>
+  <ul class="mt-3">
+    <li><strong>Tailored Solutions:</strong> Customized services to your unique goals.</li>
+    <li><strong>Expert Team:</strong> Highly experienced educators and specialists.</li>
+    <li><strong>Holistic Approach:</strong> Thriving students, teachers, and leaders.</li>
+    <li><strong>Proven Results:</strong> Data-driven, measurable impact.</li>
+  </ul>
+</section>
+
+<!-- Services Section -->
+<section class="my-5">
+  <h4 class="text-center fw-bold mb-4">Our Services</h4>
+  <div class="row text-center">
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <i class="fa-solid fa-chalkboard-teacher fa-2x text-primary mb-3"></i>
+          <h5 class="card-title">Teacher Recruitment</h5>
+          <p class="card-text">Helping schools find the best teaching talent.</p>
+        </div>
+      </div>
     </div>
-    <!-- Why Choose Section -->
-    <div class=" p-4 shadow mt-4">
-        <h4 class="text-center fw-bold">WHY CHOOSE REALMINDX EDUCATION?</h4>
-        <ul class="mt-3">
-            <li><strong>Tailored Solutions:</strong> We understand that each school is unique, so we customize our services to align with your specific needs and goals.</li>
-            <li><strong>Expert Team:</strong> Our team consists of highly experienced educators and specialists dedicated to excellence.</li>
-            <li><strong>Holistic Approach:</strong> We focus on creating an environment where students, teachers, and administrators thrive.</li>
-            <li><strong>Proven Results:</strong> Our interventions are data-driven and results-oriented, ensuring measurable impact.</li>
-        </ul>
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <i class="fa-solid fa-book-open-reader fa-2x text-success mb-3"></i>
+          <h5 class="card-title">Research & Assignment</h5>
+          <p class="card-text">Support for academic research and coursework.</p>
+        </div>
+      </div>
     </div>
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <i class="fa-solid fa-graduation-cap fa-2x text-warning mb-3"></i>
+          <h5 class="card-title">Online CPD</h5>
+          <p class="card-text">Professional development programs for educators.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- News Preview -->
+<section class="my-5 bg-light p-4 rounded shadow-sm">
+  <h4 class="text-center fw-bold mb-4">Latest News</h4>
+  <div class="row">
+    <div class="col-md-6">
+      <img src="{{ url_for('static', filename='images/events.webp') }}" class="img-fluid rounded mb-2 news_img" alt="News">
+      <h5>Upcoming CPD Event</h5>
+      <p class="text-muted">Join us this June for a free webinar on curriculum design. <a href="#">Read More</a></p>
+    </div>
+    <div class="col-md-6">
+      <img src="{{ url_for('static', filename='images/geometry.jpg') }}" class="img-fluid rounded mb-2 news_img" alt="News">
+      <h5>RealMindX Partners with XYZ School</h5>
+      <p class="text-muted">We’re proud to announce our new strategic partnership. <a href="#">Read More</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="my-5">
+  <h4 class="text-center fw-bold mb-4">What Our Clients Say</h4>
+  <div class="carousel slide" id="testimonialCarousel" data-bs-ride="carousel">
+    <div class="carousel-inner text-center">
+      <div class="carousel-item active">
+        <blockquote class="blockquote">
+          <p class="mb-0">"RealMindX transformed our school's teacher recruitment!"</p><br>
+          <footer class="blockquote-footer">Mr. James, Principal of Bright Minds School</footer>
+        </blockquote>
+      </div>
+      <div class="carousel-item">
+        <blockquote class="blockquote">
+          <p class="mb-0">"The CPD sessions were engaging and highly relevant."</p><br>
+          <footer class="blockquote-footer">Ms. Aisha, High School Teacher</footer>
+        </blockquote>
+      </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </button>
+  </div>
+</section>
+
+<!-- Call to Action -->
+<section class="text-center my-5">
+  <h5>Need tailored educational solutions?</h5>
+  <a href="{{ url_for('contact') }}" class="btn btn-primary mt-2">Contact Us</a>
+</section>
 {% endblock %}
