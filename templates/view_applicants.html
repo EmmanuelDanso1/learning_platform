@@ -1,43 +1,25 @@
-{% extends 'base.html' %}
+{% extends 'index.html' %}
 {% block content %}
-<h2>Applicants for: {{ job.title }}</h2>
+{% for application in applications %}
+<div class="card mb-3">
+    <div class="card-body">
+        <h4 class="card-title">Applicant: {{ application.user.username }}</h4>
+        <h5>Email: {{ application.user.email }}</h5>
+        <p>Applied for: {{ application.job.title }}</p>
+        <p>Date Applied: {{ application.date_applied.strftime('%Y-%m-%d') }}</p>
+        <p>Status: {{ application.status }}</p>
 
-<a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary mb-3">← Back to Dashboard</a>
+        <a href="{{ url_for('uploaded_file', filename=application.cv) }}" target="_blank" class="btn btn-primary mb-2">
+            View CV
+        </a>
 
-{% if applications %}
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>User</th>
-                <th>CV</th>
-                <th>Certificate</th>
-                <th>Status</th>
-                <th>Update Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for app in applications %}
-            <tr>
-                <td>{{ app.user.username }}</td>
-                <td><a href="{{ url_for('static', filename='uploads/' ~ app.cv) }}" target="_blank">CV</a></td>
-                <td><a href="{{ url_for('static', filename='uploads/' ~ app.certificate) }}" target="_blank">Certificate</a></td>
-                <td><span class="badge bg-info">{{ app.status }}</span></td>
-                <td>
-                    <form method="post" action="{{ url_for('update_application_status', application_id=app.id) }}">
-                        {{ csrf_token() }}
-                        <select name="status" class="form-select form-select-sm mb-1">
-                            <option value="under review" {% if app.status == 'under review' %}selected{% endif %}>Under Review</option>
-                            <option value="accepted" {% if app.status == 'accepted' %}selected{% endif %}>Accepted</option>
-                            <option value="rejected" {% if app.status == 'rejected' %}selected{% endif %}>Rejected</option>
-                        </select>
-                        <button type="submit" class="btn btn-sm btn-primary">Update</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-{% else %}
-    <p>No applicants for this job yet.</p>
-{% endif %}
+        {% if application.certificate %}
+        <a href="{{ url_for('uploaded_file', filename=application.certificate) }}" target="_blank" class="btn btn-secondary mb-2">
+            View Certificate
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+
 {% endblock %}

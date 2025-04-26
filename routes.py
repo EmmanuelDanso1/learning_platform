@@ -1,7 +1,10 @@
 import os
+import uuid
 from math import ceil
+from werkzeug.utils import secure_filename
+from datetime import datetime
 from dotenv import load_dotenv
-from flask import Flask, render_template, redirect, url_for, request, flash, session
+from flask import Flask, render_template, redirect, url_for, request, flash, session, send_from_directory
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from models import db, bcrypt, User, Admin, JobPost, Application
 from forms import UserSignupForm, AdminSignupForm, LoginForm, JobPostForm
@@ -46,6 +49,23 @@ def services():
 def contact():
     return render_template("contact.html", title="Contact")
 
+@app.route("/job")
+def job():
+    jobs = JobPost.query.order_by(JobPost.id.desc()).all()  # fetch all jobs
+    return render_template("jobs.html", title="Job", jobs=jobs)
+
+
+# applying from homepage
+@app.route('/apply_homepage/<int:job_id>', methods=['POST'])
+def apply_homepage(job_id):
+    if not current_user.is_authenticated:
+        session['next'] = 'users_dashboard'  # Save after login redirection
+        flash('You must sign up or log in first to apply.', 'warning')
+        return redirect(url_for('user_signup'))  # send them to signup
+
+    # If user is already logged in, just send to dashboard
+    return redirect(url_for('users_dashboard'))
+
 # jobs
 @app.route('/jobs')
 def job_listings():
@@ -60,7 +80,7 @@ def job_listings():
     total = query.count()
     jobs = query.order_by(JobPost.id.desc()).paginate(page=page, per_page=per_page, error_out=False)
 
-    return render_template('post_job.html',
+    return render_template('jobs.html',
                            jobs=jobs.items,
                            current_page=page,
                            total_pages=jobs.pages,
@@ -81,10 +101,15 @@ def user_signup():
         new_user = User(username=form.username.data, email=form.email.data, password=hashed_pw)
         db.session.add(new_user)
         db.session.commit()
-        flash('Account created successfully!', 'success')
-        return redirect(url_for('user_login'))
+        login_user(new_user)  # LOGIN directly after signup ✅
+
+        next_page = session.pop('next', None)
+        if next_page:
+            return redirect(url_for(next_page))
+        return redirect(url_for('users_dashboard'))
 
     return render_template('user_signup.html', form=form)
+
 
 @app.route('/admin/signup', methods=['GET', 'POST'])
 def admin_signup():
@@ -111,9 +136,14 @@ def user_login():
         user = User.query.filter_by(email=form.email.data).first()
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
+
+            next_page = session.pop('next', None)
+            if next_page:
+                return redirect(url_for(next_page))
             return redirect(url_for('users_dashboard'))
         flash('Invalid credentials', 'danger')
     return render_template('user_login.html', form=form)
+
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
@@ -131,7 +161,7 @@ def admin_login():
 def logout():
     logout_user()
     session.clear()
-    return redirect(url_for('user_login'))
+    return redirect(url_for('home'))
 
 @app.route('/users/dashboard')
 @login_required
@@ -229,27 +259,66 @@ def delete_job(job_id):
     return redirect(url_for('post_job'))
 
 
-@app.route('/apply/<int:job_id>', methods=['POST'])
-@login_required
-def apply(job_id):
-    if not isinstance(current_user, User):
-        flash("Only users can apply for jobs.", "danger")
-        return redirect(url_for('users_dashboard'))
+# cv uploads
+# Where you want to store uploaded CVs and certificates
+# Constants
+UPLOAD_FOLDER = os.path.join('static', 'uploads')
+ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx'}
 
+# Ensure upload folder exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/apply/<int:job_id>', methods=['GET', 'POST'])
+def apply(job_id):
     job = JobPost.query.get_or_404(job_id)
 
-    # Optional: check if user already applied
-    existing_application = Application.query.filter_by(user_id=current_user.id, job_id=job_id).first()
-    if existing_application:
-        flash('You have already applied for this job.', 'warning')
+    if request.method == 'POST':
+        cv = request.files.get('cv')
+        certificate = request.files.get('certificate')
+
+        # ----- Both CV and Certificate are REQUIRED -----
+        if not cv or not allowed_file(cv.filename):
+            flash('CV upload is required and must be a valid file (PDF, DOC, DOCX).', 'danger')
+            return redirect(request.url)
+
+        if not certificate or not allowed_file(certificate.filename):
+            flash('Certificate upload is required and must be a valid file (PDF, DOC, DOCX).', 'danger')
+            return redirect(request.url)
+
+        # Save CV with a unique filename
+        cv_filename = f"{uuid.uuid4().hex}_{secure_filename(cv.filename)}"
+        cv_path = os.path.join(UPLOAD_FOLDER, cv_filename)
+        cv.save(cv_path)
+
+        # Save Certificate with a unique filename
+        certificate_filename = f"{uuid.uuid4().hex}_{secure_filename(certificate.filename)}"
+        certificate_path = os.path.join(UPLOAD_FOLDER, certificate_filename)
+        certificate.save(certificate_path)
+
+        # Create the application record
+        new_application = Application(
+            date_applied=datetime.now(),
+            status='Under review',
+            cv=cv_filename,
+            certificate=certificate_filename,
+            user_id=current_user.id,
+            job_id=job_id
+        )
+        db.session.add(new_application)
+        db.session.commit()
+
+        flash('Application submitted successfully!', 'success')
         return redirect(url_for('users_dashboard'))
 
-    new_application = Application(user_id=current_user.id, job_id=job_id)
-    db.session.add(new_application)
-    db.session.commit()
-    flash('Application submitted successfully!', 'success')
-    return redirect(url_for('users_dashboard'))
+    return render_template('apply.html', job=job)
 
+# admin to see uploaded files
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(UPLOAD_FOLDER, filename)
 
 @app.route('/admin/applicants/<int:job_id>')
 @login_required

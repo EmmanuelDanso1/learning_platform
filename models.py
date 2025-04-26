@@ -39,7 +39,7 @@ class JobPost(db.Model):
     requirements = db.Column(db.Text, nullable=False)
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False)
-    applications = db.relationship('Application', backref='job', lazy=True)
+    applications = db.relationship('Application', backref='job', cascade='all, delete-orphan', lazy=True)
 
 class Application(db.Model):
     id = db.Column(db.Integer, primary_key=True)

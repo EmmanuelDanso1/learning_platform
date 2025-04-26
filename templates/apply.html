@@ -1,0 +1,17 @@
+{% extends "index.html" %}
+{% block content %}
+    <h2>Apply for {{ job.title }}</h2>
+
+    <form action="{{ url_for('apply', job_id=job.id) }}" method="POST" enctype="multipart/form-data">
+        <label for="cv">Upload your CV (PDF, DOC, DOCX):</label>
+        <input type="file" name="cv" required><br><br>
+
+        <label for="certificate">Upload your Certificate (PDF, DOC, DOCX):</label>
+        <input type="file" name="certificate" required><br><br>
+
+        <button class="btn btn-primary" type="submit">Submit Application</button>
+    </form><br>
+
+    <a href="{{ url_for('users_dashboard') }}">Back to Dashboard</a>
+
+{% endblock %}

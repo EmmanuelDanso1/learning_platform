@@ -3,59 +3,23 @@
 <div class="container mt-4">
     <h2 class="text-center mb-4">Available Job Openings</h2>
 
-    <!-- Search + Filter Form -->
-    <form method="get" action="{{ url_for('job_listings') }}" class="row g-3 mb-4">
-        <div class="col-md-6">
-            <input type="text" class="form-control" name="q" placeholder="Search by title, description..." value="{{ request.args.get('q', '') }}">
-        </div>
-        <div class="col-md-4">
-            <select name="type" class="form-select">
-                <option value="">All Job Types</option>
-                <option value="Full-Time" {% if request.args.get('type') == 'Full-Time' %}selected{% endif %}>Full-Time</option>
-                <option value="Part-Time" {% if request.args.get('type') == 'Part-Time' %}selected{% endif %}>Part-Time</option>
-                <option value="Internship" {% if request.args.get('type') == 'Internship' %}selected{% endif %}>Internship</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-primary w-100">Search</button>
-        </div>
-    </form>
-
-    <!-- Job Listings -->
     {% for job in jobs %}
-    <div class="card mb-3">
+    <div class="card mb-3 shadow-sm">
         <div class="card-body">
-            <h5 class="card-title">{{ job.title }}</h5>
-            <p class="card-text">{{ job.description[:250] }}...</p>
-            <p class="text-muted"><strong>Type:</strong> {{ job.job_type or "Not specified" }}</p>
-            <a href="{{ url_for('user_signup') }}" class="btn btn-primary">Apply Now</a>
+            <h2 class="card-title">{{ job.title }}</h2>
+            <p class="card-title">{{ job.description[:100] }}...</p>
+            <form action="{{ url_for('apply_homepage', job_id=job.id) }}" method="post">
+                <button type="submit" class="btn btn-primary rounded-pill px-4 py-2">
+                    Apply Now
+                </button>
+            </form>
         </div>
     </div>
     {% else %}
-    <p>No job postings yet.</p>
+    <div class="alert alert-info text-center" role="alert">
+        No job openings available at the moment.
+    </div>
     {% endfor %}
-    <!-- Pagination -->
-    <nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center mt-4">
-      {% if jobs.has_prev %}
-      <li class="page-item">
-        <a class="page-link" href="{{ url_for('job_listings', page=jobs.prev_num, q=request.args.get('q'), type=request.args.get('type')) }}">Previous</a>
-      </li>
-      {% else %}
-      <li class="page-item disabled"><span class="page-link">Previous</span></li>
-      {% endif %}
-  
-      <li class="page-item active"><span class="page-link">{{ jobs.page }}</span></li>
-  
-      {% if jobs.has_next %}
-      <li class="page-item">
-        <a class="page-link" href="{{ url_for('job_listings', page=jobs.next_num, q=request.args.get('q'), type=request.args.get('type')) }}">Next</a>
-      </li>
-      {% else %}
-      <li class="page-item disabled"><span class="page-link">Next</span></li>
-      {% endif %}
-    </ul>
-    </nav>
-  
+
 </div>
 {% endblock %}
