@@ -159,3 +159,68 @@ footer .bottom {
       width: 50px; /* Smaller logo */
   }
 }
+
+/* smaller screens */
+@media (max-width: 576px) {
+  /* Navbar Adjustments */
+  .navbar .container-fluid {
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .navbar-brand {
+    text-align: right;
+    margin-left: auto;
+  }
+
+  .navbar-toggler {
+    margin-right: auto;
+  }
+
+  /* Center the Job Card Content */
+  .card-body {
+    text-align: center;
+  }
+  .card-body h2, 
+  .card-body p, 
+  .card-body form
+  {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  /* admin dashboard */
+  .admin-dashboard-one
+  {
+    text-align: center;
+  }
+
+  .admin-dashboard-two {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+  .list-group {
+    text-align: center;
+  }
+  .list-group-item h5, 
+  .list-group-item p, 
+  .list-group-item a
+  {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  /* Center the Footer */
+  footer .row {
+    text-align: center;
+  }
+
+  footer .col-md-4 {
+    margin-bottom: 1.5rem;
+  }
+
+  footer .col-md-4 ul {
+    padding: 0;
+  }
+}
