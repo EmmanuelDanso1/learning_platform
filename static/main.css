@@ -127,6 +127,16 @@ html,body {
 h1, h2, h3, h4{
   color: #0C2E60;
 }
+.card-header {
+  background-color: #0C2E60;
+  color: white;
+  padding: 0.75rem 1.25rem;
+}
+
+.card-title {
+  margin-bottom: 0;
+}
+
 /* Contact page */
 .bottom {
   background-color: #0C2E60;
