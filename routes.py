@@ -166,11 +166,18 @@ def logout():
 @app.route('/users/dashboard')
 @login_required
 def users_dashboard():
+    # Check if current user is a regular User (not admin)
     if not isinstance(current_user, User):
         return redirect(url_for('admin_dashboard'))
 
-    jobs = JobPost.query.order_by(JobPost.id.desc()).all()  # Get all jobs
-    return render_template('users_dashboard.html', jobs=jobs)
+    # Get all job posts
+    jobs = JobPost.query.order_by(JobPost.id.desc()).all()
+
+    # Get job IDs the user has already applied for
+    applied_jobs = [application.job_id for application in current_user.applications]
+
+    return render_template('users_dashboard.html', jobs=jobs, applied_jobs=applied_jobs)
+
 
 
 @app.route('/admin/dashboard')
@@ -271,15 +278,23 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+
+#if users apply to a job, it will show applied after click on apply 
 @app.route('/apply/<int:job_id>', methods=['GET', 'POST'])
+@login_required
 def apply(job_id):
     job = JobPost.query.get_or_404(job_id)
+
+    # Check if the user already applied
+    existing_application = Application.query.filter_by(user_id=current_user.id, job_id=job.id).first()
+    if existing_application:
+        flash('You have already applied for this job.', 'warning')
+        return redirect(url_for('users_dashboard'))
 
     if request.method == 'POST':
         cv = request.files.get('cv')
         certificate = request.files.get('certificate')
 
-        # ----- Both CV and Certificate are REQUIRED -----
         if not cv or not allowed_file(cv.filename):
             flash('CV upload is required and must be a valid file (PDF, DOC, DOCX).', 'danger')
             return redirect(request.url)
@@ -314,6 +329,7 @@ def apply(job_id):
         return redirect(url_for('users_dashboard'))
 
     return render_template('apply.html', job=job)
+
 
 # admin to see uploaded files
 @app.route('/uploads/<filename>')

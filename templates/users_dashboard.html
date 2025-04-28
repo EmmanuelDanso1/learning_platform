@@ -1,23 +1,33 @@
 {% extends "index.html" %}
 {% block content %}
-<div class="container py-4">
-    <h2>Available Job Opportunities</h2>
 
-    {% for job in jobs %}
-    <div class="card mb-3 shadow-sm">
-        <div class="card-body">
-            <h5 class="card-title">{{ job.title }}</h5>
-            <p class="card-text">{{ job.description }}</p>
-            {% if job.requirements %}
-            <p><strong>Requirements:</strong> {{ job.requirements }}</p>
-            {% endif %}
-            <a href="{{ url_for('apply', job_id=job.id) }}" class="btn btn-primary">Apply</a>
+<div class="container py-4">
+    <h2 class="mb-4 fw-bold" style="color: #0C2E60;">Available Job Opportunities</h2>
+
+    {% if jobs %}
+        {% for job in jobs %}
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">{{ job.title }}</h5>
+                <p class="card-text">{{ job.description }}</p>
+                {% if job.requirements %}
+                <p><strong>Requirements:</strong> {{ job.requirements }}</p>
+                {% endif %}
+
+                {% if job.id in applied_jobs %}
+                <span class="text-success fw-bold">Applied!!!</span>
+
+                {% else %}
+                    <a href="{{ url_for('apply', job_id=job.id) }}" class="btn btn-primary">Apply</a>
+                {% endif %}
+            </div>
         </div>
-    </div>
+        {% endfor %}
     {% else %}
-    <div class="alert alert-info" role="alert">
-        No job postings available right now.
-    </div>
-    {% endfor %}
+        <div class="alert alert-info" role="alert">
+            No job postings available right now.
+        </div>
+    {% endif %}
 </div>
+
 {% endblock %}
