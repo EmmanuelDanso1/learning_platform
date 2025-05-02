@@ -10,17 +10,114 @@
   <p class="lead">Holistic Learning Conveniently for Every Mind</p>
 </section>
 
-<!-- Goals Section -->
-<section class="p-4 shadow rounded mb-4 bg-light">
-  <h4 class="text-center fw-bold">GOALS</h4>
-  <ul class="list-unstyled mt-3 text-center">
-    <li><i class="fas fa-check-circle text-warning me-2"></i>Provide high-quality educational support...</li><br>
-    <li><i class="fas fa-check-circle text-warning me-2"></i>Offer flexible online and in-person learning...</li><br>
-    <li><i class="fas fa-check-circle text-warning me-2"></i>Develop specialized programs for special needs...</li><br>
-    <li><i class="fas fa-check-circle text-warning me-2"></i>Maintain high satisfaction with feedback loops...</li><br>
-  </ul>
+<!-- videos Section -->
+<section>
+  <video src="video"></video>
 </section>
 
+<div class="container py-5">
+  <div class="row g-4 justify-content-center cardd">
+
+    <div class="col-12 col-sm-6 col-md-4 col-lg-2 d-flex">
+      <div class="card text-center p-3 w-100 h-100">
+        <div class="card-body d-flex flex-column">
+          <div class="card-icon"><i class="fas fa-book"></i></div>
+          <h6 class="card-title card-decor">Book Sales</h6>
+          <p class="card-text mt-auto">Order for all your stationaries</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-md-4 col-lg-2 d-flex">
+      <div class="card text-center p-3 w-100 h-100">
+        <div class="card-body d-flex flex-column">
+          <div class="card-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+          <h6 class="card-title">Teacher Recruitment</h6>
+          <p class="card-text mt-auto">Join as a Teacher</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-md-4 col-lg-2 d-flex">
+      <div class="card text-center p-3 w-100 h-100">
+        <div class="card-body d-flex flex-column">
+          <div class="card-icon"><i class="fas fa-clipboard-list"></i></div>
+          <h6 class="card-title">Research & Assignment</h6>
+          <p class="card-text mt-auto">All research and assignment needs</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-md-4 col-lg-2 d-flex">
+      <div class="card text-center p-3 w-100 h-100">
+        <div class="card-body d-flex flex-column">
+          <div class="card-icon"><i class="fas fa-graduation-cap"></i></div>
+          <h6 class="card-title">Professional Development</h6>
+          <p class="card-text mt-auto">Stay updated with best practices</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-md-4 col-lg-2 d-flex">
+      <div class="card text-center p-3 w-100 h-100">
+        <div class="card-body d-flex flex-column">
+          <div class="card-icon"><i class="fas fa-user-plus"></i></div>
+          <h6 class="card-title">Get a Teacher</h6>
+          <p class="card-text mt-auto">Get a teacher for your ward and school</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- About us -->
+<section class="container text-center my-5">
+  <a href="{{ url_for('about') }}" class="fw-bold mb-3 d-block text-decoration-none" style="color: #002F6C; font-size: 1.5rem;">
+    About Us
+  </a>
+  <p class="text-center">
+    RealMindX is a dynamic and innovative educational solutions provider dedicated to empowering
+    schools, teachers, and students to achieve excellence. As a registered company with a proven track record,
+    we are committed to delivering comprehensive, tailor-made educational services that meet the unique needs of schools and their
+    communities.
+  </p>
+</section>
+
+<!-- including a count html-file -->
+ {% include 'speed_count.html' %}
+ <!-- Services Section -->
+<section class="my-5">
+  <h4 class="text-center fw-bold mb-4">Our Services</h4>
+  <div class="row text-center">
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <i class="fa-solid fa-chalkboard-teacher fa-2x text-primary mb-3"></i>
+          <h5 class="card-title">Teacher Recruitment</h5>
+          <p class="card-text">Helping schools find the best teaching talent.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <i class="fa-solid fa-book-open-reader fa-2x text-success mb-3"></i>
+          <h5 class="card-title">Research & Assignment</h5>
+          <p class="card-text">Support for academic research and coursework.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <i class="fa-solid fa-graduation-cap fa-2x text-warning mb-3"></i>
+          <h5 class="card-title">Online CPD</h5>
+          <p class="card-text">Professional development programs for educators.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 <!-- Why Choose Us -->
 <section class="p-4 shadow rounded mb-4">
   <h4 class="text-center fw-bold mb-4">WHY CHOOSE REALMINDX EDUCATION?</h4>
@@ -71,39 +168,7 @@
 </section>
 >
 
-<!-- Services Section -->
-<section class="my-5">
-  <h4 class="text-center fw-bold mb-4">Our Services</h4>
-  <div class="row text-center">
-    <div class="col-md-4 mb-3">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <i class="fa-solid fa-chalkboard-teacher fa-2x text-primary mb-3"></i>
-          <h5 class="card-title">Teacher Recruitment</h5>
-          <p class="card-text">Helping schools find the best teaching talent.</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4 mb-3">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <i class="fa-solid fa-book-open-reader fa-2x text-success mb-3"></i>
-          <h5 class="card-title">Research & Assignment</h5>
-          <p class="card-text">Support for academic research and coursework.</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4 mb-3">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <i class="fa-solid fa-graduation-cap fa-2x text-warning mb-3"></i>
-          <h5 class="card-title">Online CPD</h5>
-          <p class="card-text">Professional development programs for educators.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+
 
 <!-- News Preview -->
 <section class="my-5 bg-light p-4 rounded shadow-sm">

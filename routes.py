@@ -4,19 +4,46 @@ from math import ceil
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from dotenv import load_dotenv
-from flask import Flask, render_template, redirect, url_for, request, flash, session, send_from_directory
+from flask import Flask, render_template, redirect, url_for, current_app, request, flash, session, send_from_directory
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from models import db, bcrypt, User, Admin, JobPost, Application
 from forms import UserSignupForm, AdminSignupForm, LoginForm, JobPostForm
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_migrate import Migrate
 
 load_dotenv()
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///platform.db'
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+
+# set max upload file size
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5 MB limit
+
+# File upload settings
+UPLOAD_FOLDER = os.path.join('static', 'uploads')
+PROFILE_PIC_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+DOCUMENT_EXTENSIONS = {'pdf', 'doc', 'docx'}
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# Helpers
+def allowed_profile_pic(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in PROFILE_PIC_EXTENSIONS
+
+def allowed_document(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in DOCUMENT_EXTENSIONS
+
+
+
+
 db.init_app(app)
 bcrypt.init_app(app)
+
+# db miigration
+migrate = Migrate(app, db)
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'user_login'
@@ -268,24 +295,12 @@ def delete_job(job_id):
 
 # cv uploads
 # Where you want to store uploaded CVs and certificates
-# Constants
-UPLOAD_FOLDER = os.path.join('static', 'uploads')
-ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx'}
-
-# Ensure upload folder exists
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
 #if users apply to a job, it will show applied after click on apply 
 @app.route('/apply/<int:job_id>', methods=['GET', 'POST'])
 @login_required
 def apply(job_id):
     job = JobPost.query.get_or_404(job_id)
 
-    # Check if the user already applied
     existing_application = Application.query.filter_by(user_id=current_user.id, job_id=job.id).first()
     if existing_application:
         flash('You have already applied for this job.', 'warning')
@@ -295,25 +310,23 @@ def apply(job_id):
         cv = request.files.get('cv')
         certificate = request.files.get('certificate')
 
-        if not cv or not allowed_file(cv.filename):
-            flash('CV upload is required and must be a valid file (PDF, DOC, DOCX).', 'danger')
+        if not cv or not allowed_document(cv.filename):
+            flash('CV must be a PDF, DOC, or DOCX file.', 'danger')
             return redirect(request.url)
 
-        if not certificate or not allowed_file(certificate.filename):
-            flash('Certificate upload is required and must be a valid file (PDF, DOC, DOCX).', 'danger')
+        if not certificate or not allowed_document(certificate.filename):
+            flash('Certificate must be a PDF, DOC, or DOCX file.', 'danger')
             return redirect(request.url)
 
-        # Save CV with a unique filename
+        # Save CV
         cv_filename = f"{uuid.uuid4().hex}_{secure_filename(cv.filename)}"
-        cv_path = os.path.join(UPLOAD_FOLDER, cv_filename)
-        cv.save(cv_path)
+        cv.save(os.path.join(app.config['UPLOAD_FOLDER'], cv_filename))
 
-        # Save Certificate with a unique filename
+        # Save Certificate
         certificate_filename = f"{uuid.uuid4().hex}_{secure_filename(certificate.filename)}"
-        certificate_path = os.path.join(UPLOAD_FOLDER, certificate_filename)
-        certificate.save(certificate_path)
+        certificate.save(os.path.join(app.config['UPLOAD_FOLDER'], certificate_filename))
 
-        # Create the application record
+        # Save application
         new_application = Application(
             date_applied=datetime.now(),
             status='Under review',
@@ -330,6 +343,98 @@ def apply(job_id):
 
     return render_template('apply.html', job=job)
 
+
+# profile picture  for users
+@app.route('/upload_profile_pic', methods=['POST'])
+@login_required
+def upload_profile_pic():
+    if 'profile_pic' not in request.files:
+        flash('No file selected', 'danger')
+        return redirect(url_for('users_dashboard'))
+
+    file = request.files['profile_pic']
+    if file.filename == '':
+        flash('No file selected', 'danger')
+        return redirect(url_for('users_dashboard'))
+
+    if file:
+        filename = secure_filename(file.filename)
+        upload_path = os.path.join(app.root_path, 'static/uploads/', filename)
+        file.save(upload_path)
+
+        # Delete old pic if exists
+        if current_user.profile_pic:
+            try:
+                os.remove(os.path.join(app.root_path, 'static/uploads/', current_user.profile_pic))
+            except Exception:
+                pass
+
+        current_user.profile_pic = filename
+        db.session.commit()
+        flash('Profile picture updated!', 'success')
+
+    return redirect(url_for('users_dashboard'))
+
+# delete profile
+@app.route('/delete_profile_pic', methods=['POST'])
+@login_required
+def delete_profile_pic():
+    if current_user.profile_pic:
+        try:
+            os.remove(os.path.join(app.root_path, 'static/uploads/', current_user.profile_pic))
+        except Exception:
+            pass
+        current_user.profile_pic = None
+        db.session.commit()
+        flash('Profile picture deleted.', 'info')
+
+    return redirect(url_for('users_dashboard'))
+
+# profile picture uploads for admin
+@app.route('/upload_admin_profile_pic', methods=['POST'])
+@login_required
+def upload_admin_profile_pic():
+    if 'profile_pic' not in request.files:
+        flash('No file selected', 'danger')
+        return redirect(url_for('admin_dashboard'))
+
+    file = request.files['profile_pic']
+    if file.filename == '':
+        flash('No file selected', 'danger')
+        return redirect(url_for('admin_dashboard'))
+
+    if file:
+        filename = secure_filename(file.filename)
+        upload_path = os.path.join(app.root_path, 'static/uploads/', filename)
+        file.save(upload_path)
+
+        # Delete old pic if exists
+        if current_user.profile_pic:
+            try:
+                os.remove(os.path.join(app.root_path, 'static/uploads/', current_user.profile_pic))
+            except Exception:
+                pass
+
+        current_user.profile_pic = filename
+        db.session.commit()
+        flash('Profile picture updated!', 'success')
+
+    return redirect(url_for('admin_dashboard'))
+
+# delete profile
+@app.route('/delete_admin_profile_pic', methods=['POST'])
+@login_required
+def delete_admin_profile_pic():
+    if current_user.profile_pic:
+        try:
+            os.remove(os.path.join(app.root_path, 'static/uploads/', current_user.profile_pic))
+        except Exception:
+            pass
+        current_user.profile_pic = None
+        db.session.commit()
+        flash('Profile picture deleted.', 'info')
+
+    return redirect(url_for('admin_dashboard'))
 
 # admin to see uploaded files
 @app.route('/uploads/<filename>')

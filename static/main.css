@@ -136,7 +136,18 @@ h1, h2, h3, h4{
 .card-title {
   margin-bottom: 0;
 }
-
+.card-icon {
+  font-size: 40px;
+  color: #0C2E60;
+  margin-bottom: 10px;
+}
+.card-text{
+  color:#0C2E60;
+}
+/* .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+} */
 /* Contact page */
 .bottom {
   background-color: #0C2E60;

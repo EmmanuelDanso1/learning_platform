@@ -11,6 +11,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
+    profile_pic = db.Column(db.String(200), nullable=True)
     applications = db.relationship('Application', backref='user', lazy=True)
     def __repr__(self):
         return f"<User {self.username}>"
@@ -23,6 +24,7 @@ class Admin(UserMixin, db.Model):
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
+    profile_pic = db.Column(db.String(200), nullable=True)
     job_posts = db.relationship('JobPost', backref='admin', lazy=True)
     
     def __repr__(self):
