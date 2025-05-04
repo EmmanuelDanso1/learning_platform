@@ -144,10 +144,19 @@ h1, h2, h3, h4{
 .card-text{
   color:#0C2E60;
 }
-/* .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-} */
+/* images carousel at homepage */
+#educationCarousel .carousel-inner img {
+  height: 500px; /* Adjust height as needed */
+  object-fit: cover;
+}
+.custom-control {
+  font-size: 2rem;
+  color: black;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 0 12px;
+  border-radius: 50%;
+  line-height: 1;
+}
 /* Contact page */
 .bottom {
   background-color: #0C2E60;
@@ -243,5 +252,12 @@ footer .bottom {
 
   footer .col-md-4 ul {
     padding: 0;
+  }
+}
+
+/* carousel for smaller screens */
+@media (max-width: 576px) {
+  #educationCarousel .carousel-inner img {
+    max-height: 200px;
   }
 }

@@ -12,7 +12,34 @@
 
 <!-- videos Section -->
 <section>
-  <video src="video"></video>
+  <div id="educationCarousel" class="carousel slide" data-bs-ride="carousel">
+  <div class="carousel-inner">
+    <div class="carousel-item active">
+      <img src="{{url_for('static', filename='images/online_teaching.jpg') }}" class="d-block w-100" alt="Online Teaching">
+    </div>
+    <div class="carousel-item">
+      <img src="{{ url_for('static', filename='images/research.jpg') }}" class="d-block w-100" alt="Research">
+    </div>
+    <div class="carousel-item">
+      <img src="{{ url_for('static', filename='images/teacher_cpd.jpg') }}" class="d-block w-100" alt="teacher_cpd">
+    </div>
+    <div class="carousel-item">
+      <img src="{{ url_for('static', filename='images/teaching jobs.jpg') }}" class="d-block w-100" alt="teaching jobs">
+    </div>
+    <div class="carousel-item">
+      <img src="{{ url_for('static', filename='images/stationery.jpg') }}" class="d-block w-100" alt="stationery">
+    </div>
+  </div>
+  <button class="carousel-control-prev" type="button" data-bs-target="#educationCarousel" data-bs-slide="prev">
+    <span class="custom-control" aria-hidden="true">&lt;</span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#educationCarousel" data-bs-slide="next">
+    <span class="custom-control" aria-hidden="true">&gt;</span>
+    <span class="visually-hidden">Next</span>
+  </button>
+</div>
+
 </section>
 
 <div class="container py-4">
