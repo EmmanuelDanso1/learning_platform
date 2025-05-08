@@ -1,25 +1,36 @@
 {% extends 'index.html' %}
 {% block content %}
-{% for application in applications %}
-<div class="card mb-3">
-    <div class="card-body">
-        <h4 class="card-title">Applicant: {{ application.user.username }}</h4>
-        <h5>Email: {{ application.user.email }}</h5>
-        <p>Applied for: {{ application.job.title }}</p>
-        <p>Date Applied: {{ application.date_applied.strftime('%Y-%m-%d') }}</p>
-        <p>Status: {{ application.status }}</p>
 
-        <a href="{{ url_for('uploaded_file', filename=application.cv) }}" target="_blank" class="btn btn-primary mb-2">
-            View CV
-        </a>
+{% if applications %}
+    {% for application in applications %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h4 class="card-title">Applicant: {{ application.user.username }}</h4>
+            <h5>Email: {{ application.user.email }}</h5>
+            <p>Applied for: {{ application.job.title }}</p>
+            <p>Date Applied: {{ application.date_applied.strftime('%Y-%m-%d') }}</p>
+            <p>Status: {{ application.status }}</p>
 
-        {% if application.certificate %}
-        <a href="{{ url_for('uploaded_file', filename=application.certificate) }}" target="_blank" class="btn btn-secondary mb-2">
-            View Certificate
-        </a>
-        {% endif %}
+            <a href="{{ url_for('uploaded_file', filename=application.cv) }}" target="_blank" class="btn btn-primary mb-2">
+                View CV
+            </a>
+
+            {% if application.certificate %}
+            <a href="{{ url_for('uploaded_file', filename=application.certificate) }}" target="_blank" class="btn btn-secondary mb-2">
+                View Certificate
+            </a>
+            {% endif %}
+
+            {% if application.cover_letter %}
+            <a href="{{ url_for('uploaded_file', filename=application.cover_letter) }}" target="_blank" class="btn btn-info mb-2">
+                View Cover Letter
+            </a>
+            {% endif %}
+        </div>
     </div>
-</div>
-{% endfor %}
+    {% endfor %}
+{% else %}
+    <div class="alert alert-info">No applicant for this job yet.</div>
+{% endif %}
 
 {% endblock %}

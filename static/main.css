@@ -5,10 +5,7 @@ html,body {
   display: flex;
   flex-direction: column;
   margin: 0;
-  margin-top: 1.0rem;
-  /* overflow: hidden;  */
-  min-height: 100vh;
-    
+  margin-top: 1.0rem;  
 }
 
 .container{
@@ -93,6 +90,11 @@ html,body {
 .logo-icon {
     width: 80px; /* Adjust based on actual image size */
 }
+/* images carousel at homepage */
+#educationCarousel .carousel-inner img {
+  height: 100vh;
+  object-fit: cover;
+}
 
 /* fit image at latest news */
 .news_img {
@@ -144,11 +146,7 @@ h1, h2, h3, h4{
 .card-text{
   color:#0C2E60;
 }
-/* images carousel at homepage */
-#educationCarousel .carousel-inner img {
-  height: 500px; /* Adjust height as needed */
-  object-fit: cover;
-}
+
 .custom-control {
   font-size: 2rem;
   color: black;
@@ -252,6 +250,20 @@ footer .bottom {
 
   footer .col-md-4 ul {
     padding: 0;
+  }
+}
+@media (max-width: 768px) {
+  .carousel-caption-wrapper h1 {
+    font-size: 1.3rem;
+  }
+
+  .carousel-caption-wrapper p {
+    font-size: 0.95rem;
+  }
+
+  .carousel-caption-wrapper {
+    top: 60% !important; /* slightly lower */
+    transform: translate(-50%, -50%) !important;
   }
 }
 

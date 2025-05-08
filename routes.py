@@ -309,6 +309,7 @@ def apply(job_id):
     if request.method == 'POST':
         cv = request.files.get('cv')
         certificate = request.files.get('certificate')
+        cover_letter = request.files.get('cover_letter')  # Optional field
 
         if not cv or not allowed_document(cv.filename):
             flash('CV must be a PDF, DOC, or DOCX file.', 'danger')
@@ -326,12 +327,23 @@ def apply(job_id):
         certificate_filename = f"{uuid.uuid4().hex}_{secure_filename(certificate.filename)}"
         certificate.save(os.path.join(app.config['UPLOAD_FOLDER'], certificate_filename))
 
+        # Handle optional cover letter
+        cover_letter_filename = None
+        if cover_letter and cover_letter.filename != '':
+            if not allowed_document(cover_letter.filename):
+                flash('Cover letter must be a PDF, DOC, or DOCX file.', 'danger')
+                return redirect(request.url)
+
+            cover_letter_filename = f"{uuid.uuid4().hex}_{secure_filename(cover_letter.filename)}"
+            cover_letter.save(os.path.join(app.config['UPLOAD_FOLDER'], cover_letter_filename))
+
         # Save application
         new_application = Application(
             date_applied=datetime.now(),
             status='Under review',
             cv=cv_filename,
             certificate=certificate_filename,
+            cover_letter=cover_letter_filename,  # Can be None
             user_id=current_user.id,
             job_id=job_id
         )

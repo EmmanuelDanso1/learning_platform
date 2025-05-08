@@ -1,104 +1,51 @@
 {% extends "index.html" %}
 
 {% block title %}Home{% endblock %}
+{% block fullwidth %}
+<!-- Videos Section with Full Background Overlay and Full-Width Carousel -->
+<section class="position-relative w-100 pt-5" style="overflow: hidden;">
+  <!-- Fullscreen Overlay -->
+  <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 z-2"></div>
 
+  <div class="position-absolute top-50 start-50 translate-middle text-center text-white z-3 carousel-caption-wrapper">
+    <h1 class="text-white">Welcome to RealMindX Education</h1>
+    <p>Holistic Learning Conveniently for Every Mind</p>
+  </div>
+  
+
+  <!-- Carousel (Full Width) -->
+  <div id="educationCarousel" class="carousel slide w-100 position-relative z-1" data-bs-ride="carousel">
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <img src="{{ url_for('static', filename='images/online_teaching.jpg') }}" class="d-block w-100" alt="Online Teaching">
+      </div>
+      <div class="carousel-item">
+        <img src="{{ url_for('static', filename='images/research.jpg') }}" class="d-block w-100" alt="Research">
+      </div>
+      <div class="carousel-item">
+        <img src="{{ url_for('static', filename='images/teacher_cpd.jpg') }}" class="d-block w-100" alt="Teacher CPD">
+      </div>
+      <div class="carousel-item">
+        <img src="{{ url_for('static', filename='images/teaching jobs.jpg') }}" class="d-block w-100" alt="Teaching Jobs">
+      </div>
+      <div class="carousel-item">
+        <img src="{{ url_for('static', filename='images/stationery.jpg') }}" class="d-block w-100" alt="Stationery">
+      </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#educationCarousel" data-bs-slide="prev">
+      <span class="custom-control" aria-hidden="true">&lt;</span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#educationCarousel" data-bs-slide="next">
+      <span class="custom-control" aria-hidden="true">&gt;</span>
+      <span class="visually-hidden">Next</span>
+    </button>
+  </div>
+</section>
+{%endblock%}
 {% block content %}
-<!-- Hero Banner -->
-<section class="mt-4 mb-5 text-center">
-  <img src="{{ url_for('static', filename='images/brain.jpg') }}" class="img-fluid rounded" alt="Hero Image">
-  <h1 class="display-5 mt-3 fw-bold">Welcome to RealMindX Education</h1>
-  <p class="lead">Holistic Learning Conveniently for Every Mind</p>
-</section>
-
-<!-- videos Section -->
-<section>
-  <div id="educationCarousel" class="carousel slide" data-bs-ride="carousel">
-  <div class="carousel-inner">
-    <div class="carousel-item active">
-      <img src="{{url_for('static', filename='images/online_teaching.jpg') }}" class="d-block w-100" alt="Online Teaching">
-    </div>
-    <div class="carousel-item">
-      <img src="{{ url_for('static', filename='images/research.jpg') }}" class="d-block w-100" alt="Research">
-    </div>
-    <div class="carousel-item">
-      <img src="{{ url_for('static', filename='images/teacher_cpd.jpg') }}" class="d-block w-100" alt="teacher_cpd">
-    </div>
-    <div class="carousel-item">
-      <img src="{{ url_for('static', filename='images/teaching jobs.jpg') }}" class="d-block w-100" alt="teaching jobs">
-    </div>
-    <div class="carousel-item">
-      <img src="{{ url_for('static', filename='images/stationery.jpg') }}" class="d-block w-100" alt="stationery">
-    </div>
-  </div>
-  <button class="carousel-control-prev" type="button" data-bs-target="#educationCarousel" data-bs-slide="prev">
-    <span class="custom-control" aria-hidden="true">&lt;</span>
-    <span class="visually-hidden">Previous</span>
-  </button>
-  <button class="carousel-control-next" type="button" data-bs-target="#educationCarousel" data-bs-slide="next">
-    <span class="custom-control" aria-hidden="true">&gt;</span>
-    <span class="visually-hidden">Next</span>
-  </button>
-</div>
-
-</section>
-
-<div class="container py-4">
-  <div class="row g-4 justify-content-center cardd">
-
-    <div class="col-12 col-sm-6 col-md-4 col-lg-2 d-flex">
-      <div class="card text-center p-3 w-100 h-100">
-        <div class="card-body d-flex flex-column">
-          <div class="card-icon"><i class="fas fa-book"></i></div>
-          <h6 class="card-title card-decor">Book Sales</h6>
-          <p class="card-text mt-auto">Order for all your stationaries</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-md-4 col-lg-2 d-flex">
-      <div class="card text-center p-3 w-100 h-100">
-        <div class="card-body d-flex flex-column">
-          <div class="card-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-          <h6 class="card-title">Teacher Recruitment</h6>
-          <p class="card-text mt-auto">Join as a Teacher</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-md-4 col-lg-2 d-flex">
-      <div class="card text-center p-3 w-100 h-100">
-        <div class="card-body d-flex flex-column">
-          <div class="card-icon"><i class="fas fa-clipboard-list"></i></div>
-          <h6 class="card-title">Research & Assignment</h6>
-          <p class="card-text mt-auto">All research and assignment needs</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-md-4 col-lg-2 d-flex">
-      <div class="card text-center p-3 w-100 h-100">
-        <div class="card-body d-flex flex-column">
-          <div class="card-icon"><i class="fas fa-graduation-cap"></i></div>
-          <h6 class="card-title">Professional Development</h6>
-          <p class="card-text mt-auto">Stay updated with best practices</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-md-4 col-lg-2 d-flex">
-      <div class="card text-center p-3 w-100 h-100">
-        <div class="card-body d-flex flex-column">
-          <div class="card-icon"><i class="fas fa-user-plus"></i></div>
-          <h6 class="card-title">Get a Teacher</h6>
-          <p class="card-text mt-auto">Get a teacher for your ward and school</p>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
 <!-- About us -->
-<section class="container text-center my-4">
+<section class="container text-center my-0 py-0">
   <a href="{{ url_for('about') }}" class="fw-bold mb-3 d-block text-decoration-none" style="color: #002F6C; font-size: 1.5rem;">
     About Us
   </a>
@@ -111,40 +58,56 @@
 </section>
 
 <!-- including a count html-file -->
- {% include 'speed_count.html' %}
- <!-- Services Section -->
+{% include 'speed_count.html' %}
+<!-- Services Section -->
 <section class="my-4">
   <h4 class="text-center fw-bold mb-4">Our Services</h4>
   <div class="row text-center">
+    <!-- Card 1 -->
     <div class="col-md-4 mb-3">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <i class="fa-solid fa-chalkboard-teacher fa-2x text-primary mb-3"></i>
-          <h5 class="card-title">Teacher Recruitment</h5>
-          <p class="card-text">Helping schools find the best teaching talent.</p>
+      <a href="{{ url_for('services') }}" class="text-decoration-none text-dark">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <i class="fa-solid fa-chalkboard-teacher fa-2x text-primary mb-3"></i>
+            <h5 class="card-title">Teacher Recruitment</h5>
+            <p class="card-text">Helping schools find the best teaching talent.</p>
+          </div>
         </div>
-      </div>
+      </a>
     </div>
+
+    <!-- Card 2 -->
     <div class="col-md-4 mb-3">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <i class="fa-solid fa-book-open-reader fa-2x text-success mb-3"></i>
-          <h5 class="card-title">Research & Assignment</h5>
-          <p class="card-text">Support for academic research and coursework.</p>
+      <a href="{{ url_for('services') }}" class="text-decoration-none text-dark">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <i class="fa-solid fa-book-open-reader fa-2x text-success mb-3"></i>
+            <h5 class="card-title">Research & Assignment</h5>
+            <p class="card-text">Support for academic research and coursework.</p>
+          </div>
         </div>
-      </div>
+      </a>
     </div>
+
+    <!-- Card 3 -->
     <div class="col-md-4 mb-3">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <i class="fa-solid fa-graduation-cap fa-2x text-warning mb-3"></i>
-          <h5 class="card-title">Online CPD</h5>
-          <p class="card-text">Professional development programs for educators.</p>
+      <a href="{{ url_for('services') }}" class="text-decoration-none text-dark">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <i class="fa-solid fa-graduation-cap fa-2x text-warning mb-3"></i>
+            <h5 class="card-title">Online CPD</h5>
+            <p class="card-text">Professional development programs for educators.</p>
+          </div>
         </div>
-      </div>
+      </a>
     </div>
   </div>
+  <!-- Learn More Button -->
+  <div class="text-center mt-4">
+    <a href="{{ url_for('services') }}" class="btn btn-primary">Read More</a>
+  </div>
 </section>
+
 <!-- Why Choose Us -->
 <section class="p-4 shadow rounded mb-4">
   <h4 class="text-center fw-bold mb-4">WHY CHOOSE REALMINDX EDUCATION?</h4>
@@ -193,10 +156,6 @@
 
   </div>
 </section>
->
-
-
-
 <!-- News Preview -->
 <section class="my-4 bg-light p-4 rounded shadow-sm">
   <h4 class="text-center fw-bold mb-4">Latest News</h4>

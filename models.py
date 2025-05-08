@@ -49,6 +49,7 @@ class Application(db.Model):
     status = db.Column(db.String(20), default='under review')  # Default status is 'under review'
     cv = db.Column(db.String(150), nullable=False)
     certificate = db.Column(db.String(150), nullable=False)
+    cover_letter = db.Column(db.String(150), nullable=True)  # Optional upload
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     job_id = db.Column(db.Integer, db.ForeignKey('job_post.id'), nullable=False)
     

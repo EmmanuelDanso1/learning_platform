@@ -54,6 +54,8 @@
 </nav>
 
   <!-- Page Content -->
+  <!-- wants the carousel to span to full width -->
+   {% block fullwidth %}{% endblock %}
   <main class="container mt-5 pt-4">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
