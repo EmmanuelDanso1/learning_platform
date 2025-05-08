@@ -26,7 +26,7 @@ class Admin(UserMixin, db.Model):
     password = db.Column(db.String(150), nullable=False)
     profile_pic = db.Column(db.String(200), nullable=True)
     job_posts = db.relationship('JobPost', backref='admin', lazy=True)
-    
+    news_posts = db.relationship('News', backref='admin', lazy=True)
     def __repr__(self):
         return f"<Admin {self.username}>"
     
@@ -52,4 +52,16 @@ class Application(db.Model):
     cover_letter = db.Column(db.String(150), nullable=True)  # Optional upload
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     job_id = db.Column(db.Integer, db.ForeignKey('job_post.id'), nullable=False)
+
+# News
+class News(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    image_url = db.Column(db.String(500))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
+    admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False)
+
+    def __repr__(self):
+        return f"<News {self.title}>"

@@ -4,9 +4,9 @@ from math import ceil
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from dotenv import load_dotenv
-from flask import Flask, render_template, redirect, url_for, current_app, request, flash, session, send_from_directory
+from flask import Flask, render_template, redirect, url_for, current_app, request, flash, session, send_from_directory, abort
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from models import db, bcrypt, User, Admin, JobPost, Application
+from models import db, bcrypt, User, Admin, JobPost, Application, News
 from forms import UserSignupForm, AdminSignupForm, LoginForm, JobPostForm
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_migrate import Migrate
@@ -60,9 +60,12 @@ def load_user(user_id):
         return None
 
 
-@app.route("/")
+@app.route('/')
 def home():
-    return render_template("home.html", title="Home")
+    # everyone can see on the homepage
+    latest_news = News.query.order_by(News.created_at.desc()).limit(5).all()
+    return render_template('home.html', latest_news=latest_news)
+
 
 @app.route("/about")
 def about():
@@ -75,6 +78,13 @@ def services():
 @app.route("/contact")
 def contact():
     return render_template("contact.html", title="Contact")
+
+# news
+@app.route('/news')
+def news():
+    news_list = News.query.order_by(News.created_at.desc()).all()
+    return render_template('news.html', news_list=news_list)
+
 
 @app.route("/job")
 def job():
@@ -247,6 +257,77 @@ def post_job():
         total_pages=jobs_paginated.pages,
         current_page=page
     )
+
+# News 
+@app.route('/admin/post-news', methods=['GET', 'POST'])
+@login_required
+def post_news():
+    if request.method == 'POST':
+        title = request.form['title']
+        content = request.form['content']
+        image = request.files.get('image')
+        image_url = None
+
+        if image and image.filename:
+            filename = secure_filename(image.filename)
+            path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            image.save(path)
+            image_url = f'uploads/{filename}'
+
+        news_item = News(title=title, content=content, image_url=image_url, admin_id=current_user.id)
+        db.session.add(news_item)
+        db.session.commit()
+        flash('News posted successfully!', 'success')
+        return redirect(url_for('news'))
+
+    return render_template('admin_post_news.html')
+# Edit News
+@app.route('/admin/edit-news/<int:news_id>', methods=['GET', 'POST'])
+@login_required
+def edit_news(news_id):
+    news_item = News.query.get_or_404(news_id)
+    if news_item.admin_id != current_user.id:
+        abort(403)
+
+    if request.method == 'POST':
+        news_item.title = request.form['title']
+        news_item.content = request.form['content']
+        image = request.files.get('image')
+
+        if image and image.filename:
+            filename = secure_filename(image.filename)
+            path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            image.save(path)
+            news_item.image_url = f'uploads/{filename}'
+
+        db.session.commit()
+        flash('News updated successfully!', 'success')
+        return redirect(url_for('news'))
+
+    return render_template('admin_post_news.html', news_item=news_item, editing=True)
+#Delete News
+@app.route('/admin/delete-news/<int:news_id>', methods=['POST'])
+@login_required
+def delete_news(news_id):
+    news_item = News.query.get_or_404(news_id)
+    if news_item.admin_id != current_user.id:
+        abort(403)
+
+    db.session.delete(news_item)
+    db.session.commit()
+    flash('News deleted successfully.', 'success')
+    return redirect(url_for('news'))
+# managing news on dashboard
+@app.route('/admin/news-dashboard')
+@login_required
+def admin_news_dashboard():
+    if not isinstance(current_user, Admin):
+        flash("Access denied.", "danger")
+        return redirect(url_for('home'))
+
+    news_list = News.query.filter_by(admin_id=current_user.id).order_by(News.created_at.desc()).all()
+    return render_template('admin_news_dashboard.html', news_list=news_list)
+
 # crud
 # Edit job post
 @app.route('/admin/edit-job/<int:job_id>', methods=['GET', 'POST'])

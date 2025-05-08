@@ -159,19 +159,37 @@
 <!-- News Preview -->
 <section class="my-4 bg-light p-4 rounded shadow-sm">
   <h4 class="text-center fw-bold mb-4">Latest News</h4>
-  <div class="row">
-    <div class="col-md-6">
-      <img src="{{ url_for('static', filename='images/events.webp') }}" class="img-fluid rounded mb-2 news_img" alt="News">
-      <h5>Upcoming CPD Event</h5>
-      <p class="text-muted">Join us this June for a free webinar on curriculum design. <a href="#">Read More</a></p>
+
+  {% if latest_news %}
+    <!-- Carousel -->
+    <div id="newsCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        {% for news in latest_news %}
+          <div class="carousel-item {% if loop.index0 == 0 %}active{% endif %}">
+            {% if news.image_url %}
+              <img src="{{ url_for('static', filename=news.image_url) }}" class="d-block w-100 rounded" style="height: 400px; object-fit: cover;" alt="News Image">
+            {% endif %}
+            <div class="carousel-caption d-block bg-dark bg-opacity-50 rounded p-3">
+              <h5>{{ news.title }}</h5>
+              <p>{{ news.content[:150] }}...</p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#newsCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#newsCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+      </button>
     </div>
-    <div class="col-md-6">
-      <img src="{{ url_for('static', filename='images/geometry.jpg') }}" class="img-fluid rounded mb-2 news_img" alt="News">
-      <h5>RealMindX Partners with XYZ School</h5>
-      <p class="text-muted">We’re proud to announce our new strategic partnership. <a href="#">Read More</a></p>
+  {% else %}
+    <div class="col-12 text-center">
+      <p class="text-muted">No current news available.</p>
     </div>
-  </div>
+  {% endif %}
 </section>
+
 
 <!-- Testimonials Section -->
 <section class="my-4">
