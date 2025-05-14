@@ -46,6 +46,7 @@
 
 <script>
   const counters = document.querySelectorAll('.count-number');
+
   counters.forEach(counter => {
     const updateCount = () => {
       const target = +counter.getAttribute('data-target');
@@ -56,12 +57,19 @@
         counter.innerText = Math.ceil(current + increment);
         setTimeout(updateCount, 40);
       } else {
-        counter.innerText = target + (target === 100 ? '%' : '+');
+        const label = counter.nextElementSibling?.innerText.toLowerCase();
+        if (label && label.includes('satisfaction rate')) {
+          counter.innerText = target + '%';
+        } else {
+          counter.innerText = target + '+';
+        }
       }
     };
+
     updateCount();
   });
 </script>
+
 {% endblock %}
 
 {% block styles %}

@@ -4,8 +4,8 @@ from math import ceil
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from dotenv import load_dotenv
-from flask import Flask, render_template, redirect, url_for, current_app, request, flash, session, send_from_directory, abort
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask import Flask, render_template, redirect, url_for, current_app, request, flash, session, send_from_directory,abort
+from flask_login import LoginManager, UserMixin, login_user,login_required, logout_user, current_user
 from models import db, bcrypt, User, Admin, JobPost, Application, News
 from forms import UserSignupForm, AdminSignupForm, LoginForm, JobPostForm
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -85,6 +85,11 @@ def news():
     news_list = News.query.order_by(News.created_at.desc()).all()
     return render_template('news.html', news_list=news_list)
 
+# if users click on carousel, it should direct them to the news section for them to read more
+@app.route('/news/<int:news_id>')
+def news_detail(news_id):
+    news = News.query.get_or_404(news_id)
+    return render_template('news_detail.html', news=news)
 
 @app.route("/job")
 def job():

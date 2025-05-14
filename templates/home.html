@@ -29,6 +29,9 @@
         <img src="{{ url_for('static', filename='images/teaching jobs.jpg') }}" class="d-block w-100" alt="Teaching Jobs">
       </div>
       <div class="carousel-item">
+        <img src="{{ url_for('static', filename='images/secretarial.jpg') }}" class="d-block w-100" alt="Stationery">
+      </div>
+      <div class="carousel-item">
         <img src="{{ url_for('static', filename='images/stationery.jpg') }}" class="d-block w-100" alt="Stationery">
       </div>
     </div>
@@ -169,10 +172,12 @@
             {% if news.image_url %}
               <img src="{{ url_for('static', filename=news.image_url) }}" class="d-block w-100 rounded" style="height: 400px; object-fit: cover;" alt="News Image">
             {% endif %}
-            <div class="carousel-caption d-block bg-dark bg-opacity-50 rounded p-3">
-              <h5>{{ news.title }}</h5>
-              <p>{{ news.content[:150] }}...</p>
-            </div>
+            <a href="{{ url_for('news_detail', news_id=news.id) }}" class="text-white text-decoration-none">
+              <div class="carousel-caption d-block bg-dark bg-opacity-50 rounded p-3">
+                <h5>{{ news.title }}</h5>
+                <p>{{ news.content[:150] }}...</p>
+              </div>
+            </a>
           </div>
         {% endfor %}
       </div>
@@ -189,7 +194,6 @@
     </div>
   {% endif %}
 </section>
-
 
 <!-- Testimonials Section -->
 <section class="my-4">
