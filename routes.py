@@ -22,7 +22,7 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 # token for password reset
 s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 # Email configuration
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # or your email provider
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
@@ -105,10 +105,43 @@ def news_detail(news_id):
     news = News.query.get_or_404(news_id)
     return render_template('news_detail.html', news=news)
 
+# job
 @app.route("/job")
 def job():
     jobs = JobPost.query.order_by(JobPost.id.desc()).all()  # fetch all jobs
     return render_template("jobs.html", title="Job", jobs=jobs)
+
+# contact for users to send email to admin
+@app.route('/submit', methods=['POST'])
+def submit_contact():
+    name = request.form['name']
+    email = request.form['email']
+    subject = request.form['subject']
+    message_body = request.form['message']
+
+    # Construct the email content
+    msg = Message(subject=f"Contact Form: {subject}",
+                  sender=email,
+                  recipients=[os.getenv('MAIL_USERNAME')])  # Realmindx receives it
+
+    msg.body = f"""
+    You have received a new message from your website contact form:
+
+    Name: {name}
+    Email: {email}
+    Subject: {subject}
+    Message:
+    {message_body}
+    """
+
+    try:
+        mail.send(msg)
+        flash("Your message has been sent to Realmindx successfully!", "success")
+    except Exception as e:
+        print(f"Mail sending failed: {e}")
+        flash("An error occurred while sending your message. Please try again later.", "danger")
+
+    return redirect(url_for('contact'))
 
 
 # applying from homepage
