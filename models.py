@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask_bcrypt import Bcrypt
 from datetime import datetime
+from werkzeug.security import generate_password_hash
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
@@ -13,11 +14,19 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(150), nullable=False)
     profile_pic = db.Column(db.String(200), nullable=True)
     applications = db.relationship('Application', backref='user', lazy=True)
+
     def __repr__(self):
         return f"<User {self.username}>"
     
     def get_id(self):
         return f"user:{self.id}"
+    
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+    
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
+  
     
 class Admin(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)

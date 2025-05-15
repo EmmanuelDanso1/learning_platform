@@ -44,3 +44,12 @@ class ApplyJobForm(FlaskForm):
     certificate = FileField('Upload Certificate', validators=[FileAllowed(['pdf', 'jpg', 'jpeg', 'png'])])
     submit = SubmitField('Apply')
 
+# Password reset and forgot password
+class PasswordResetRequestForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Request Password Reset')
+
+class PasswordResetForm(FlaskForm):
+    password = PasswordField('New Password', validators=[DataRequired(), Length(min=6)])
+    confirm = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Reset Password')

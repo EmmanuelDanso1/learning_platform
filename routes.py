@@ -7,15 +7,29 @@ from dotenv import load_dotenv
 from flask import Flask, render_template, redirect, url_for, current_app, request, flash, session, send_from_directory,abort
 from flask_login import LoginManager, UserMixin, login_user,login_required, logout_user, current_user
 from models import db, bcrypt, User, Admin, JobPost, Application, News
-from forms import UserSignupForm, AdminSignupForm, LoginForm, JobPostForm
+from forms import UserSignupForm, AdminSignupForm, LoginForm, JobPostForm, PasswordResetForm, PasswordResetRequestForm
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_mail import Mail, Message
 from flask_migrate import Migrate
+from itsdangerous import URLSafeTimedSerializer
 
 load_dotenv()
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///platform.db'
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+
+# token for password reset
+s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+# Email configuration
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # or your email provider
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+
+# flask mail
+mail = Mail(app)
 
 # set max upload file size
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5 MB limit
@@ -562,3 +576,46 @@ def accept_application(application_id):
     db.session.commit()
     flash('Application accepted.', 'success')
     return redirect(url_for('view_applicants', job_id=application.job_id))
+
+# password reset and forgot password
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    form = PasswordResetRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            token = s.dumps(user.email, salt='password-reset-salt')
+            reset_link = url_for('reset_password', token=token, _external=True)
+
+            try:
+                msg = Message("Password Reset Request",
+                              sender=os.getenv('MAIL_USERNAME'),
+                              recipients=[user.email])
+                msg.body = f"Click the link to reset your password: {reset_link}"
+                mail.send(msg)
+                flash('Password reset link has been sent to your email.', 'info')
+            except Exception as e:
+                print(f"Email sending failed: {e}")
+                flash('Could not send email. Please try again later.', 'danger')
+        else:
+            flash('No account found with that email.', 'danger')
+        return redirect(url_for('user_login'))
+    return render_template('forgot_password.html', form=form)
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        email = s.loads(token, salt='password-reset-salt', max_age=3600)
+    except:
+        flash('The password reset link is invalid or has expired.', 'danger')
+        return redirect(url_for('forgot_password'))
+
+    form = PasswordResetForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=email).first_or_404()
+        user.set_password(form.password.data)  # Ensure your User model supports this
+        db.session.commit()
+        flash('Your password has been updated.', 'success')
+        return redirect(url_for('user_login'))
+    
+    return render_template('reset_password.html', form=form)

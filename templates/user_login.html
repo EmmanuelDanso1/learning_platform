@@ -20,7 +20,11 @@
                             </div><br>
                             <button type="submit" class="btn btn-primary">Submit</button>
                         </form>
-                        <a href="{{ url_for('user_signup') }}">Don't have an account? Sign up</a>
+                        <a href="{{ url_for('user_signup') }}">Don't have an account? Sign up</a><br>
+                        <div class="text-center">
+                            <a href="{{ url_for('forgot_password') }}" class="btn btn-danger">Forgot password?</a>
+
+                        </div>
                 </div>
             </div>
         </div>
