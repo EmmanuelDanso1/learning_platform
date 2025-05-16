@@ -442,7 +442,7 @@ def apply(job_id):
     if request.method == 'POST':
         cv = request.files.get('cv')
         certificate = request.files.get('certificate')
-        cover_letter = request.files.get('cover_letter')  # Optional field
+        cover_letter = request.files.get('cover_letter')
 
         if not cv or not allowed_document(cv.filename):
             flash('CV must be a PDF, DOC, or DOCX file.', 'danger')
@@ -454,40 +454,86 @@ def apply(job_id):
 
         # Save CV
         cv_filename = f"{uuid.uuid4().hex}_{secure_filename(cv.filename)}"
-        cv.save(os.path.join(app.config['UPLOAD_FOLDER'], cv_filename))
+        cv_path = os.path.join(app.config['UPLOAD_FOLDER'], cv_filename)
+        cv.save(cv_path)
 
         # Save Certificate
         certificate_filename = f"{uuid.uuid4().hex}_{secure_filename(certificate.filename)}"
-        certificate.save(os.path.join(app.config['UPLOAD_FOLDER'], certificate_filename))
+        certificate_path = os.path.join(app.config['UPLOAD_FOLDER'], certificate_filename)
+        certificate.save(certificate_path)
 
-        # Handle optional cover letter
+        # Optional Cover Letter
         cover_letter_filename = None
+        cover_letter_path = None
         if cover_letter and cover_letter.filename != '':
             if not allowed_document(cover_letter.filename):
                 flash('Cover letter must be a PDF, DOC, or DOCX file.', 'danger')
                 return redirect(request.url)
 
             cover_letter_filename = f"{uuid.uuid4().hex}_{secure_filename(cover_letter.filename)}"
-            cover_letter.save(os.path.join(app.config['UPLOAD_FOLDER'], cover_letter_filename))
+            cover_letter_path = os.path.join(app.config['UPLOAD_FOLDER'], cover_letter_filename)
+            cover_letter.save(cover_letter_path)
 
-        # Save application
+        # Save Application to DB
         new_application = Application(
             date_applied=datetime.now(),
             status='Under review',
             cv=cv_filename,
             certificate=certificate_filename,
-            cover_letter=cover_letter_filename,  # Can be None
+            cover_letter=cover_letter_filename,
             user_id=current_user.id,
             job_id=job_id
         )
         db.session.add(new_application)
         db.session.commit()
 
-        flash('Application submitted successfully!', 'success')
+        # Send Email to RealMindX
+        try:
+            admin_msg = Message(
+                subject=f"New Job Application for {job.title}",
+                recipients=["realmindx@example.com"],  # Change this to the actual admin email
+                body=(
+                    f"New application received from {current_user.username} ({current_user.email}) "
+                    f"for the job: {job.title}.\n\nPlease find the attached documents."
+                )
+            )
+            with app.open_resource(cv_path) as fp:
+                admin_msg.attach(cv_filename, "application/octet-stream", fp.read())
+            with app.open_resource(certificate_path) as fp:
+                admin_msg.attach(certificate_filename, "application/octet-stream", fp.read())
+            if cover_letter_path:
+                with app.open_resource(cover_letter_path) as fp:
+                    admin_msg.attach(cover_letter_filename, "application/octet-stream", fp.read())
+            mail.send(admin_msg)
+        except Exception as e:
+            print("Admin email error:", e)
+
+        # Send Confirmation Email to Applicant
+        try:
+            user_msg = Message(
+                subject="Application Received - Realmindx Education",
+                sender=os.getenv('MAIL_USERNAME'),
+                recipients=[current_user.email]
+            )
+            user_msg.body = f"""Dear {current_user.username},
+
+Thank you for applying for the position: {job.title}.
+
+We have received your application and our team will review it shortly.
+If you are shortlisted, someone from our team will contact you soon.
+
+Best regards,  
+RealmIndx Recruitment Team
+"""
+            mail.send(user_msg)
+            flash("Application submitted successfully.", "success")
+        except Exception as e:
+            print("User email error:", e)
+            flash("Application submitted, but failed to send confirmation email.", "warning")
+
         return redirect(url_for('users_dashboard'))
 
     return render_template('apply.html', job=job)
-
 
 # profile picture  for users
 @app.route('/upload_profile_pic', methods=['POST'])
