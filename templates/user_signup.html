@@ -10,7 +10,7 @@
                         {{ form.hidden_tag() }}  <!-- Ensure CSRF token is included -->
                         
                         <div>
-                            <label>Username</label>
+                            <label>Full Name</label>
                             {{ form.username(class="form-control", placeholder="Enter username") }}
                         </div>
                         
@@ -28,11 +28,9 @@
                             <label>Confirm Password</label>
                             {{ form.confirm_password(class="form-control", placeholder="Confirm password") }}
                         </div><br>
-                        
+                        <!-- <a href="{{url_for('user_login')}}" class="btn btn-primary">Submit</a> -->
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
-                    
-                    
                     <a href="{{ url_for('user_login') }}">Already have an account? Login</a>
                 </div>
             </div>

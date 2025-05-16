@@ -180,22 +180,34 @@ def job_listings():
 @app.route('/user/signup', methods=['GET', 'POST'])
 def user_signup():
     form = UserSignupForm()
+    
     if form.validate_on_submit():
-        existing_user = User.query.filter_by(email=form.email.data).first()
-        if existing_user:
-            flash('Email already exists. Please log in.', 'danger')
+        # Check if email already exists
+        existing_email = User.query.filter_by(email=form.email.data).first()
+        if existing_email:
+            flash('Email already registered. Please log in.', 'danger')
             return redirect(url_for('user_login'))
 
-        hashed_pw = generate_password_hash(form.password.data)
-        new_user = User(username=form.username.data, email=form.email.data, password=hashed_pw)
+        # Check if username already exists
+        existing_username = User.query.filter_by(username=form.username.data).first()
+        if existing_username:
+            flash('Username already taken. Please choose another.', 'danger')
+            return redirect(url_for('user_signup'))
+
+        # Hash the password and create a new user
+        hashed_password = generate_password_hash(form.password.data)
+        new_user = User(
+            username=form.username.data,
+            email=form.email.data,
+            password=hashed_password
+        )
+
+        # Save to database
         db.session.add(new_user)
         db.session.commit()
-        login_user(new_user)  # LOGIN directly after signup ✅
 
-        next_page = session.pop('next', None)
-        if next_page:
-            return redirect(url_for(next_page))
-        return redirect(url_for('users_dashboard'))
+        flash('Account created successfully! Please log in.', 'success')
+        return redirect(url_for('user_login'))
 
     return render_template('user_signup.html', form=form)
 
