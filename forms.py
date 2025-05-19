@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, TextAreaField, FileField
+from wtforms import StringField, PasswordField, SubmitField, TextAreaField, FileField, DecimalField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from flask_wtf.file import FileAllowed
 from models import User
@@ -32,6 +32,14 @@ class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
+
+# donation form
+class DonationForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    email = StringField('Email', validators=[Email(), DataRequired()])
+    amount = DecimalField('Amount', validators=[DataRequired()])
+    submit = SubmitField('Donate')
+    
 
 class JobPostForm(FlaskForm):
     title = StringField('Job Title', validators=[DataRequired(), Length(min=5, max=100)])

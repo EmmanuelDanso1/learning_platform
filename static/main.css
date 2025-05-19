@@ -274,3 +274,24 @@ footer .bottom {
     max-height: 200px;
   }
 }
+
+@media (max-width: 768px) {
+  footer .row > div {
+    margin-bottom: 1.5rem; /* adds space between stacked columns */
+  }
+
+  footer .text-center {
+    margin-top: 1rem;
+  }
+
+  footer .fa-brands,
+  footer span {
+    display: inline-block;
+    margin-right: 10px;
+    margin-bottom: 5px;
+  }
+
+  footer {
+    text-align: center; /* Center text on smaller screens */
+  }
+}

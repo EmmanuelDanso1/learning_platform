@@ -1,13 +1,14 @@
 import os
 import uuid
+import requests
 from math import ceil
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from dotenv import load_dotenv
 from flask import Flask, render_template, redirect, url_for, current_app, request, flash, session, send_from_directory,abort
 from flask_login import LoginManager, UserMixin, login_user,login_required, logout_user, current_user
-from models import db, bcrypt, User, Admin, JobPost, Application, News
-from forms import UserSignupForm, AdminSignupForm, LoginForm, JobPostForm, PasswordResetForm, PasswordResetRequestForm
+from models import db, bcrypt, User, Admin, JobPost, Application, News, Donation
+from forms import UserSignupForm, AdminSignupForm, LoginForm, DonationForm, JobPostForm, PasswordResetForm, PasswordResetRequestForm
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
 from flask_migrate import Migrate
@@ -27,6 +28,13 @@ app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+
+# Paystack using test mode.
+# Live mode will be implemented later
+PAYSTACK_PUBLIC_KEY = os.getenv("PAYSTACK_PUBLIC_KEY")
+PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY")
+PAYSTACK_INITIALIZE_URL = "https://api.paystack.co/transaction/initialize"
+
 
 # flask mail
 mail = Mail(app)
@@ -111,6 +119,7 @@ def job():
     jobs = JobPost.query.order_by(JobPost.id.desc()).all()  # fetch all jobs
     return render_template("jobs.html", title="Job", jobs=jobs)
 
+
 # contact for users to send email to admin
 @app.route('/submit', methods=['POST'])
 def submit_contact():
@@ -175,7 +184,45 @@ def job_listings():
                            total_pages=jobs.pages,
                            keyword=keyword)
 
+# Donation using Paystack
+@app.route('/donate', methods=['GET', 'POST'])
+def donate():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        amount = int(request.form['amount']) * 100  # Paystack in GHS
+        reference = str(uuid.uuid4())
 
+        donation = Donation(name=name, email=email, amount=amount, reference=reference)
+        db.session.add(donation)
+        db.session.commit()
+
+        headers = {
+            "Authorization": f"Bearer {PAYSTACK_SECRET_KEY}",
+            "Content-Type": "application/json"
+        }
+        data = {
+            "email": email,
+            "amount": amount,
+            "reference": reference,
+            "callback_url": url_for('donation_success', _external=True)
+        }
+
+        response = requests.post(PAYSTACK_INITIALIZE_URL, json=data, headers=headers)
+        if response.status_code == 200:
+            payment_url = response.json()['data']['authorization_url']
+            return redirect(payment_url)
+        else:
+            flash("Payment initialization failed.", "danger")
+            return redirect(url_for('donate'))
+
+    return render_template('donate.html')
+
+@app.route('/donation-success')
+def donation_success():
+    # Add your webhook or verification later if needed
+    flash("Thank you for your donation!", "success")
+    return render_template('donation_success.html')
 
 @app.route('/user/signup', methods=['GET', 'POST'])
 def user_signup():
