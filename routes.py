@@ -190,9 +190,10 @@ def donate():
     if request.method == 'POST':
         name = request.form['name']
         email = request.form['email']
-        amount = int(request.form['amount']) * 100  # Paystack in GHS
+        amount = int(request.form['amount']) * 100  # Convert to pesewas
         reference = str(uuid.uuid4())
 
+        # Save donation record
         donation = Donation(name=name, email=email, amount=amount, reference=reference)
         db.session.add(donation)
         db.session.commit()
@@ -208,13 +209,23 @@ def donate():
             "callback_url": url_for('donation_success', _external=True)
         }
 
-        response = requests.post(PAYSTACK_INITIALIZE_URL, json=data, headers=headers)
-        if response.status_code == 200:
+        try:
+            response = requests.post(PAYSTACK_INITIALIZE_URL, json=data, headers=headers, timeout=10)
+            response.raise_for_status()
             payment_url = response.json()['data']['authorization_url']
             return redirect(payment_url)
-        else:
-            flash("Payment initialization failed.", "danger")
-            return redirect(url_for('donate'))
+
+        except requests.exceptions.Timeout:
+            flash("Request timed out. Please try again.", "warning")
+            return render_template("errors/timeout.html"), 504
+
+        except requests.exceptions.ConnectionError:
+            flash("Could not connect to Paystack. Check your internet and try again.", "danger")
+            return render_template("errors/connection_error.html"), 502
+
+        except requests.exceptions.RequestException as e:
+            flash("Something went wrong while initializing payment.", "danger")
+            return render_template("errors/general_error.html", error=str(e)), 500
 
     return render_template('donate.html')
 

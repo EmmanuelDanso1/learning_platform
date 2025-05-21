@@ -1,0 +1,8 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="container text-center my-5">
+    <h2 class="text-danger">Something Went Wrong</h2>
+    <p>{{ error }}</p>
+    <a href="{{ url_for('donate') }}" class="btn btn-primary">Back to Donation</a>
+</div>
+{% endblock %}
