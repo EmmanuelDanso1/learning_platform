@@ -231,8 +231,6 @@ def donate():
 
 @app.route('/donation-success')
 def donation_success():
-    # Add your webhook or verification later if needed
-    flash("Thank you for your donation!", "success")
     return render_template('donation_success.html')
 
 @app.route('/user/signup', methods=['GET', 'POST'])
