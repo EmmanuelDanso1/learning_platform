@@ -158,7 +158,7 @@ def submit_contact():
 def apply_homepage(job_id):
     if not current_user.is_authenticated:
         session['next'] = 'users_dashboard'  # Save after login redirection
-        flash('You must sign up or log in first to apply.', 'warning')
+        flash('You must create an account first to apply.', 'warning')
         return redirect(url_for('user_signup'))  # send them to signup
 
     # If user is already logged in, just send to dashboard
@@ -257,13 +257,13 @@ def user_signup():
             email=form.email.data,
             password=hashed_password
         )
-
         # Save to database
         db.session.add(new_user)
         db.session.commit()
-
+         
+        login_user(new_user)
         flash('Account created successfully! Please log in.', 'success')
-        return redirect(url_for('user_login'))
+        return redirect(url_for('users_dashboard'))
 
     return render_template('user_signup.html', form=form)
 
@@ -281,8 +281,11 @@ def admin_signup():
         new_admin = Admin(username=form.username.data, email=form.email.data, password=hashed_pw)
         db.session.add(new_admin)
         db.session.commit()
+        
+        # signs admin straight to their dashboard
+        login_user(new_admin)
         flash('Admin account created successfully!', 'success')
-        return redirect(url_for('admin_login'))
+        return redirect(url_for('admin_dashboard'))
 
     return render_template('admin_signup.html', form=form)
 
