@@ -1,0 +1,50 @@
+{% extends 'index.html' %}
+
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-4">
+    <h3 class="mb-4">Profile Settings</h3>
+
+    <div class="mb-4" id="uploadProfileSection">
+        <h5>Upload Profile Picture</h5>
+        <form method="POST" action="{{ url_for('upload_admin_profile_pic') }}" enctype="multipart/form-data" class="mb-2">
+            <div class="input-group">
+                <input type="file" name="profile_pic" class="form-control" required>
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </div>
+        </form>
+
+        {% if current_user.profile_pic %}
+            <div class="mt-3">
+                <img src="{{ url_for('static', filename='uploads/' ~ current_user.profile_pic) }}"
+                     class="rounded-circle" alt="Current Profile" width="100" height="100">
+            </div>
+            <button type="button" class="btn btn-danger mt-3" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
+                Delete Profile Picture
+            </button>
+
+            <!-- Delete confirmation modal -->
+            <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="confirmDeleteLabel">Confirm Deletion</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete your profile picture?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <form method="POST" action="{{ url_for('delete_admin_profile_pic') }}">
+                                <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

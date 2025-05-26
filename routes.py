@@ -119,6 +119,12 @@ def job():
     jobs = JobPost.query.order_by(JobPost.id.desc()).all()  # fetch all jobs
     return render_template("jobs.html", title="Job", jobs=jobs)
 
+# settings at the admin section for profile upload
+@app.route('/settings', methods=['GET'])
+@login_required
+def settings():
+    return render_template('settings.html')
+
 
 # contact for users to send email to admin
 @app.route('/submit', methods=['POST'])

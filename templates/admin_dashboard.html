@@ -1,92 +1,139 @@
 {% extends 'index.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
 {% block content %}
+<style>
+    #sidebar {
+        width: 250px;
+        position: fixed;
+        top: 0;
+        left: -250px;
+        height: 100%;
+        background-color: #f8f9fa;
+        z-index: 1040;
+        overflow-y: auto;
+        transition: left 0.3s ease;
+        padding-top: 60px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    #sidebar.visible {
+        left: 0;
+    }
+
+    #sidebarToggle {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 1050;
+        background-color: #0d6efd;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+    }
+
+    @media (min-width: 768px) {
+        #sidebar {
+            left: 0;
+            position: relative;
+            width: 20%;
+            padding-top: 0;
+        }
+
+        #mainContent {
+            margin-left: 20%;
+        }
+
+        #sidebarToggle {
+            display: none;
+        }
+
+        #sidebar .mobile-only {
+            display: none !important;
+        }
+    }
+</style>
+
+<!-- Toggle button for small screens -->
+<button id="sidebarToggle">☰</button>
+
 <div class="container-fluid">
     <div class="row">
         <!-- Sidebar -->
-        <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-            <div class="position-sticky pt-3">
-                <h4 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mb-3 text-muted">
-                    <span>Post</span>
-                </h4>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('post_job') }}">
-                            Job
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('post_news') }}">
-                            News
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin_news_dashboard') }}">Manage News</a>
-                      </li>
-                      
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            Stationary
-                        </a>
-                    </li>
-                </ul>
+        <nav id="sidebar">
+            <div>
+                <div class="position-sticky pt-3">
+                    <h4 class="sidebar-heading px-3 mb-3 text-muted">Admin Panel</h4>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('post_job') }}">Post Job</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('post_news') }}">Post News</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_news_dashboard') }}">Manage News</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Manage Jobs</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Stationary</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url_for('settings')}}">Settings</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Mobile-only profile and logout -->
+            <div class="text-center py-4 mobile-only border-top">
+                {% if current_user.profile_pic %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ current_user.profile_pic) }}"
+                         class="rounded-circle mb-2" width="70" height="70" alt="Profile Picture">
+                {% else %}
+                    <img src="{{ url_for('static', filename='images/default-profile.webp') }}"
+                         class="rounded-circle mb-2" width="70" height="70" alt="Default Picture">
+                {% endif %}
+                <p class="mb-1"><strong>{{ current_user.username }}</strong></p>
+                <form method="POST" action="{{ url_for('logout') }}">
+                    <button class="btn btn-danger btn-sm w-75">Logout</button>
+                </form>
             </div>
         </nav>
 
-        <!-- Main Content Area -->
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-            <h2 class="admin-dashboard-one text-center">Admin Dashboard</h2>
-
-            <div class="py-4" id="uploadProfileSection">
-                <h4 class="mb-3">Upload Profile Picture</h4>
-                <form method="POST" action="{{ url_for('upload_admin_profile_pic') }}" enctype="multipart/form-data" class="mb-2">
-                    <div class="input-group">
-                        <input type="file" name="profile_pic" class="form-control" required>
-                        <button type="submit" class="btn btn-primary">Upload</button>
-                    </div>
-                </form>
-
-                {% if current_user.profile_pic %}
-                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
-                        Delete Profile Picture
-                    </button>
-
-                    <!-- Modal -->
-                    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="confirmDeleteLabel">Confirm Deletion</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    Are you sure you want to delete your profile picture?
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <form method="POST" action="{{ url_for('delete_admin_profile_pic') }}">
-                                        <button type="submit" class="btn btn-danger">Yes, Delete</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-            <div class="my-2"></div>
+        <!-- Main content -->
+        <main id="mainContent" class="col px-md-4">
+            <h2 class="text-center my-4">Admin Dashboard</h2>
             {% if jobs %}
+                <h5 class="mb-3">Posted Jobs</h5>
                 <div class="list-group">
                     {% for job in jobs %}
                         <div class="list-group-item">
-                            <h5>{{ job.title }}</h5>
+                            <h6>{{ job.title }}</h6>
                             <p>{{ job.description }}</p>
-                            <a href="{{ url_for('view_applicants', job_id=job.id) }}" class="btn btn-outline-secondary">View Applicants</a>
+                            <a href="{{ url_for('view_applicants', job_id=job.id) }}" class="btn btn-outline-secondary btn-sm">View Applicants</a>
                         </div><br>
                     {% endfor %}
                 </div>
             {% else %}
-                <p>No jobs posted yet.</p>
+                <p class="text-muted">No jobs posted yet.</p>
             {% endif %}
         </main>
     </div>
 </div>
+
+<!-- Sidebar toggle script -->
+<script>
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('visible');
+    });
+</script>
 {% endblock %}
