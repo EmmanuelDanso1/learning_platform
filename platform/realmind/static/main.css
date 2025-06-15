@@ -1,0 +1,297 @@
+html,body {
+  position: relative;
+  color: #0f0505;
+  /* height: 100%; */
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  margin-top: 1.0rem;  
+}
+
+
+.container{
+  flex: 1;
+  /* overflow: hidden; */
+}
+
+.navbar{
+  margin-bottom: 0;
+  padding-bottom: 20px;
+}
+  
+.navbar-brand{
+  text-decoration: none;
+  font-family: "Poppins", sans-serif; /* Alternative: Montserrat, Arial */
+  font-size: 23px; /* Adjust as needed */
+  font-weight: bold;
+  color:rgb(233, 236, 243); /* Dark blue */
+  /* text-transform: uppercase; */
+  letter-spacing: 1px;
+  }
+  /* .navbar-brand:hover{
+    color: #481d02;
+  } */
+  .bg-steel {
+    background-color: #0C2E60;
+  }
+  .navbar-nav a{
+    font-size: 16px;
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #ffffff;
+  }
+
+  /* hover */
+  /* .navbar-nav a:hover{
+    color: #0C2E60;
+  } */
+
+  .navbar-nav a i{
+    font-size: 16px;
+    vertical-align: middle;
+  }
+  .navbar-text:hover  {
+    color: #0C2E60;
+    cursor: pointer;
+  }
+  .site-header{
+    height: 10px;
+    padding: 5px 15px;
+  }
+  .site-header .navbar-nav .nav-link {
+    font-size: 14px;
+    padding: 3px 3px;
+    color: #ffffff;
+  }
+  
+  .site-header .navbar-nav a .nav-link:hover {
+    color: #0C2E60;
+  }
+  
+  .site-header .navbar-nav .navbar-text .nav-link.active {
+    font-weight: 500;
+  }
+
+  /* homepage */
+  .logo-container {
+    text-align: center;
+}
+.logo-text {
+    font-size: 28px;
+    font-weight: bold;
+    color: #002F6C;
+}
+.logo-subtext {
+    font-size: 14px;
+    color: #002F6C;
+    letter-spacing: 1px;
+}
+.logo-icon {
+    width: 80px; /* Adjust based on actual image size */
+}
+/* images carousel at homepage */
+#educationCarousel .carousel-inner img {
+  height: 100vh;
+  object-fit: cover;
+}
+
+/* fit image at latest news */
+.news_img {
+  height: 250px; /* or any height that works well for you */
+  object-fit: cover;
+  width: 100%;
+}
+
+  /* services */
+  .card-container {
+    display: flex;
+    gap: 10px; /* Adjust spacing */
+    align-items: stretch; /* Ensures all cards stretch to the same height */
+  }
+  .card {
+    flex: 1; /* Makes all cards take equal space */
+    display: flex;
+    flex-direction: column;
+  }
+
+  .custom-list {
+    list-style-type: lower-alpha; /* Sets the list to a, b, c */
+    padding-left: 20px; /* Adjusts spacing for alignment */
+}
+
+.custom-list li::marker {
+    content: counter(list-item) ") "; /* Changes 'a.' to 'a)' */
+}
+.lead{
+  color:#0C2E60;
+}
+h1, h2, h3, h4{
+  color: #0C2E60;
+}
+.card-header {
+  background-color: #0C2E60;
+  color: white;
+  padding: 0.75rem 1.25rem;
+}
+
+.card-title {
+  margin-bottom: 0;
+}
+.card-icon {
+  font-size: 40px;
+  color: #0C2E60;
+  margin-bottom: 10px;
+}
+.card-text{
+  color:#0C2E60;
+}
+
+.custom-control {
+  font-size: 2rem;
+  color: black;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 0 12px;
+  border-radius: 50%;
+  line-height: 1;
+}
+/* Contact page */
+.bottom {
+  background-color: #0C2E60;
+  color: #ffffff;
+}
+label, button{
+  font-size: 20px;
+}
+
+/* footer */
+footer .bottom {
+  background-color:#0C2E60;
+  padding: 15px 0;
+  text-align: center;
+  width: 100%;
+}
+
+
+/* media query for screens */
+.logo-icon {
+  width: 60px; /* Adjust based on preference */
+  max-width: 100%;
+}
+
+@media (max-width: 768px) { /* Medium and smaller screens */
+  .row {
+      gap: 5px; /* Reduce spacing */
+  }
+  .logo-icon {
+      width: 50px; /* Smaller logo */
+  }
+}
+
+/* smaller screens */
+@media (max-width: 576px) {
+  /* Navbar Adjustments */
+  .navbar .container-fluid {
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .navbar-brand {
+    text-align: right;
+    margin-left: auto;
+  }
+
+  .navbar-toggler {
+    margin-right: auto;
+  }
+
+  /* Center the Job Card Content */
+  .card-body {
+    text-align: center;
+  }
+  .card-body h2, 
+  .card-body p, 
+  .card-body form
+  {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  /* admin dashboard */
+  .admin-dashboard-one
+  {
+    text-align: center;
+  }
+
+  .admin-dashboard-two {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+  .list-group {
+    text-align: center;
+  }
+  .list-group-item h5, 
+  .list-group-item p, 
+  .list-group-item a
+  {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  /* Center the Footer */
+  footer .row {
+    text-align: center;
+  }
+
+  footer .col-md-4 {
+    margin-bottom: 1.5rem;
+  }
+
+  footer .col-md-4 ul {
+    padding: 0;
+  }
+}
+@media (max-width: 768px) {
+  .carousel-caption-wrapper h1 {
+    font-size: 1.3rem;
+  }
+
+  .carousel-caption-wrapper p {
+    font-size: 0.95rem;
+  }
+
+  .carousel-caption-wrapper {
+    top: 60% !important; /* slightly lower */
+    transform: translate(-50%, -50%) !important;
+  }
+}
+
+/* carousel for smaller screens */
+@media (max-width: 576px) {
+  #educationCarousel .carousel-inner img {
+    max-height: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  footer .row > div {
+    margin-bottom: 1.5rem; /* adds space between stacked columns */
+  }
+
+  footer .text-center {
+    margin-top: 1rem;
+  }
+
+  footer .fa-brands,
+  footer span {
+    display: inline-block;
+    margin-right: 10px;
+    margin-bottom: 5px;
+  }
+
+  footer {
+    text-align: center; /* Center text on smaller screens */
+  }
+}

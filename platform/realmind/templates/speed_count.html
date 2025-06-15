@@ -1,0 +1,103 @@
+
+{% block content %}
+<div class="container py-5">
+  <div class="row g-4 justify-content-center">
+
+    <div class="col-12 col-sm-6 col-md-3">
+      <div class="stat-box w-100 h-100">
+        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="count-number" data-target="30">0</div>
+        <p>Successfully completed C.P.D</p>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-md-3">
+      <div class="stat-box w-100 h-100">
+        <div class="stat-icon"><i class="fas fa-flask"></i></div>
+        <div class="count-number" data-target="200">0</div>
+        <p>Completed Research Projects by our Researchers</p>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-md-3">
+      <div class="stat-box w-100 h-100">
+        <div class="stat-icon"><i class="fas fa-user-tie"></i></div>
+        <div class="count-number" data-target="100">0</div>
+        <p>Recruited Teachers</p>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-md-3">
+      <div class="stat-box w-100 h-100">
+        <div class="stat-icon"><i class="fas fa-smile-beam"></i></div>
+        <div class="count-number" data-target="100">0</div>
+        <p>Satisfaction Rate</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<!-- Font Awesome -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
+
+<script>
+  const counters = document.querySelectorAll('.count-number');
+
+  counters.forEach(counter => {
+    const updateCount = () => {
+      const target = +counter.getAttribute('data-target');
+      const current = +counter.innerText;
+      const increment = target / 40;
+
+      if (current < target) {
+        counter.innerText = Math.ceil(current + increment);
+        setTimeout(updateCount, 40);
+      } else {
+        const label = counter.nextElementSibling?.innerText.toLowerCase();
+        if (label && label.includes('satisfaction rate')) {
+          counter.innerText = target + '%';
+        } else {
+          counter.innerText = target + '+';
+        }
+      }
+    };
+
+    updateCount();
+  });
+</script>
+
+{% endblock %}
+
+{% block styles %}
+<style>
+  .stat-box {
+    border: 1px solid #3cb043;
+    padding: 40px 20px 20px;
+    text-align: center;
+    position: relative;
+    min-height: 160px;
+  }
+
+  .stat-icon {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #19537e;
+    color: #fff;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 20px;
+  }
+
+  .count-number {
+    font-size: 28px;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+</style>
+{% endblock %}

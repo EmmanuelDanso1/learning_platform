@@ -1,0 +1,138 @@
+{% extends 'index.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    #sidebar {
+        width: 250px;
+        position: fixed;
+        top: 0;
+        left: -250px;
+        height: 100%;
+        background-color: #f8f9fa;
+        z-index: 1040;
+        overflow-y: auto;
+        transition: left 0.3s ease;
+        padding-top: 60px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    #sidebar.visible {
+        left: 0;
+    }
+
+    #sidebarToggle {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 1050;
+        background-color: #0d6efd;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+    }
+
+    @media (min-width: 768px) {
+        #sidebar {
+            left: 0;
+            position: relative;
+            width: 20%;
+            padding-top: 0;
+        }
+
+        #mainContent {
+            margin-left: 20%;
+        }
+
+        #sidebarToggle {
+            display: none;
+        }
+
+        #sidebar .mobile-only {
+            display: none !important;
+        }
+    }
+</style>
+
+<!-- Toggle button for small screens -->
+<button id="sidebarToggle">☰</button>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div>
+                <div class="position-sticky pt-3">
+                    <h4 class="sidebar-heading px-3 mb-3 text-muted">Admin Panel</h4>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin.post_job') }}">Post Job</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin.post_news') }}">Post News</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin.admin_news_dashboard') }}">Manage News</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin.admin_dashboard') }}">Manage Jobs</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Stationary</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url_for('admin.settings')}}">Settings</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Mobile-only profile and logout -->
+            <div class="text-center py-4 mobile-only border-top">
+                {% if current_user.profile_pic %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ current_user.profile_pic) }}"
+                         class="rounded-circle mb-2" width="70" height="70" alt="Profile Picture">
+                {% else %}
+                    <img src="{{ url_for('static', filename='images/default-profile.webp') }}"
+                         class="rounded-circle mb-2" width="70" height="70" alt="Default Picture">
+                {% endif %}
+                <p class="mb-1"><strong>{{ current_user.username }}</strong></p>
+                <form method="POST" action="{{ url_for('auth.logout') }}">
+                    <button class="btn btn-danger btn-sm w-75">Logout</button>
+                </form>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main id="mainContent" class="col px-md-4">
+            {% if jobs %}
+                <h5 class="mb-3">Posted Jobs</h5>
+                <div class="list-group">
+                    {% for job in jobs %}
+                        <div class="list-group-item">
+                            <h6>{{ job.title }}</h6>
+                            <p>{{ job.description }}</p>
+                            <a href="{{ url_for('admin.view_applicants', job_id=job.id) }}" class="btn btn-outline-secondary btn-sm">View Applicants</a>
+                        </div><br>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">No jobs posted yet.</p>
+            {% endif %}
+        </main>
+    </div>
+</div>
+
+<!-- Sidebar toggle script -->
+<script>
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('visible');
+    });
+</script>
+{% endblock %}
