@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from realmind.models import News
+from realmind.models import News, Gallery
 from flask_mail import Message
 from realmind import mail
 
@@ -33,6 +33,19 @@ def news():
 def news_detail(news_id):
     news = News.query.get_or_404(news_id)
     return render_template('news_detail.html', news=news)
+
+@main_bp.route('/gallery')
+def gallery():
+    page = request.args.get('page', 1, type=int)
+    filter_type = request.args.get('type')  # 'image', 'video', or None
+
+    query = Gallery.query
+    if filter_type in ['image', 'video']:
+        query = query.filter_by(file_type=filter_type)
+
+    pagination = query.order_by(Gallery.date_posted.desc()).paginate(page=page, per_page=9)
+    return render_template('gallery.html', gallery_items=pagination.items, pagination=pagination, filter_type=filter_type)
+
 
 @main_bp.route('/submit', methods=['POST'])
 def submit_contact():

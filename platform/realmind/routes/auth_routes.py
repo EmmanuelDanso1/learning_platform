@@ -85,7 +85,7 @@ def admin_login():
         flash('Invalid credentials', 'danger')
     return render_template('admin_login.html', form=form)
 
-@auth_bp.route('/logout')
+@auth_bp.route('/logout', methods=['POST'])
 @login_required
 def logout():
     logout_user()

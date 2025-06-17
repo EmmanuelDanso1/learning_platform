@@ -1,0 +1,34 @@
+{% extends 'index.html' %}
+{% block title %}Edit Gallery Item{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <h2>Edit Gallery Item</h2>
+
+  <form method="POST" enctype="multipart/form-data">
+    <div class="mb-3">
+      <label for="caption" class="form-label">Caption</label>
+      <input type="text" name="caption" class="form-control" id="caption" value="{{ item.caption }}">
+    </div>
+
+    <div class="mb-3">
+      <label for="file" class="form-label">Replace File (optional)</label>
+      <input type="file" name="file" class="form-control" id="file">
+    </div>
+
+    <div class="mb-3">
+      <label>Current File:</label><br>
+      {% if item.file_type == 'image' %}
+        <img src="{{ url_for('static', filename='uploads/gallery/' ~ item.filename) }}" width="150">
+      {% else %}
+        <video width="150" controls>
+          <source src="{{ url_for('static', filename='uploads/gallery/' ~ item.filename) }}">
+        </video>
+      {% endif %}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update</button>
+    <a href="{{ url_for('admin.manage_gallery') }}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+{% endblock %}

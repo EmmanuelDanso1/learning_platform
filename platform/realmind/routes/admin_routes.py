@@ -2,11 +2,11 @@ from flask import Blueprint, render_template, redirect, url_for, flash, send_fro
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 # using the imports from __init__.py file
-from realmind.models import Admin, Application, JobPost, News
+from realmind.models import Admin, Application, JobPost, News, Gallery
 from realmind.forms import JobPostForm
 from realmind import db
 import os
-from realmind.utils.util import UPLOAD_FOLDER, allowed_profile_pic, allowed_document
+from realmind.utils.util import UPLOAD_FOLDER, allowed_profile_pic, allowed_document, allowed_file
 admin_bp = Blueprint('admin', __name__)
 
 # admin dashbaord
@@ -69,7 +69,101 @@ def delete_admin_profile_pic():
 def settings():
     return render_template('settings.html')
 
+# gallery
+@admin_bp.route('/upload_gallery', methods=['GET', 'POST'])
+@login_required
+def upload_gallery():
+    if not isinstance(current_user, Admin):
+        abort(403)
 
+    if request.method == 'POST':
+        file = request.files.get('file')
+        caption = request.form.get('caption')
+
+        if not file or not allowed_file(file.filename):
+            flash('Invalid or missing file.', 'danger')
+            return redirect(request.url)
+
+        filename = secure_filename(file.filename)
+        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'gallery')
+        os.makedirs(upload_folder, exist_ok=True)  # Ensure the folder exists
+
+        save_path = os.path.join(upload_folder, filename)
+        file.save(save_path)
+
+        file_type = 'video' if filename.lower().endswith(('.mp4', '.mov', '.avi')) else 'image'
+
+        new_item = Gallery(filename=filename, caption=caption, file_type=file_type)
+        db.session.add(new_item)
+        db.session.commit()
+
+        flash('Gallery item uploaded successfully!', 'success')
+        return redirect(url_for('main.gallery'))
+
+    return render_template('admin/upload_gallery.html')
+
+
+@admin_bp.route('/gallery/edit/<int:item_id>', methods=['GET', 'POST'])
+@login_required
+def edit_gallery(item_id):
+    item = Gallery.query.get_or_404(item_id)
+
+    if not isinstance(current_user, Admin):
+        abort(403)
+
+    if request.method == 'POST':
+        caption = request.form.get('caption')
+        file = request.files.get('file')
+
+        if caption:
+            item.caption = caption
+
+        if file and allowed_file(file.filename):
+            # Delete old file
+            old_path = os.path.join(current_app.root_path, 'static/uploads/gallery', item.filename)
+            if os.path.exists(old_path):
+                os.remove(old_path)
+
+            # Save new file
+            filename = secure_filename(file.filename)
+            new_path = os.path.join(current_app.root_path, 'static/uploads/gallery', filename)
+            file.save(new_path)
+
+            item.filename = filename
+            item.file_type = 'video' if filename.lower().endswith(('.mp4', '.mov', '.avi')) else 'image'
+
+        db.session.commit()
+        flash('Gallery item updated successfully.', 'success')
+        return redirect(url_for('admin.manage_gallery'))  # Redirect to gallery dashboard
+
+    return render_template('admin/edit_gallery.html', item=item)
+
+
+@admin_bp.route('/gallery/delete/<int:item_id>', methods=['POST'])
+@login_required
+def delete_gallery(item_id):
+    item = Gallery.query.get_or_404(item_id)
+    file_path = os.path.join(current_app.root_path, 'static/uploads/gallery', item.filename)
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
+    db.session.delete(item)
+    db.session.commit()
+    flash('Gallery item deleted successfully.', 'success')
+    return redirect(url_for('admin.manage_gallery'))
+
+
+# manage admin
+@admin_bp.route('/manage_gallery')
+@login_required
+def manage_gallery():
+    if not isinstance(current_user, Admin):
+        abort(403)
+
+    gallery_items = Gallery.query.order_by(Gallery.date_posted.desc()).all()
+    return render_template('admin/manage_gallery.html', gallery_items=gallery_items)
+
+# post jobs
 @admin_bp.route('/admin/post-job', methods=['GET', 'POST'])
 @login_required
 def post_job():
