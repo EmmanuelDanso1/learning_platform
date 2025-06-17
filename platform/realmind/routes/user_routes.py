@@ -136,7 +136,8 @@ def apply(job_id):
         try:
             admin_msg = Message(
                 subject=f"New Job Application for {job.title}",
-                recipients=["realmindxgh@gmail.com"],
+                sender=os.getenv('MAIL_USERNAME'),
+                recipients=[os.getenv('MAIL_USERNAME')],
                 body=(
                     f"New application received from {current_user.username} ({current_user.email}) "
                     f"for the job: {job.title}.\n\nPlease find the attached documents."
