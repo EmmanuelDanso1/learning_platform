@@ -2,10 +2,11 @@ from flask import Blueprint, render_template, redirect, url_for, flash, send_fro
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 # using the imports from __init__.py file
-from realmind.models import Admin, Application, JobPost, News, Gallery
+from realmind.models import Admin, Application, JobPost, News, Gallery, Product
 from realmind.forms import JobPostForm
 from realmind import db
 import os
+import requests
 from realmind.utils.util import UPLOAD_FOLDER, allowed_profile_pic, allowed_document, allowed_file
 admin_bp = Blueprint('admin', __name__)
 
@@ -268,6 +269,50 @@ def admin_news_dashboard():
 
     news_list = News.query.filter_by(admin_id=current_user.id).order_by(News.created_at.desc()).all()
     return render_template('admin_news_dashboard.html', news_list=news_list)
+
+# product uploads
+@admin_bp.route('/admin/add-product', methods=['GET', 'POST'])
+@login_required
+def add_product():
+    if request.method == 'POST':
+        name = request.form['name']
+        description = request.form['description']
+        price = float(request.form['price'])
+        image_file = request.files['image']
+
+        if image_file and allowed_file(image_file.filename):
+            filename = secure_filename(image_file.filename)
+            upload_path = os.path.join(current_app.root_path, 'static/uploads', filename)
+            image_file.save(upload_path)
+
+            product = Product(
+                name=name,
+                description=description,
+                price=price,
+                image_filename=filename,
+                admin_id=current_user.id
+            )
+            db.session.add(product)
+            db.session.commit()
+            
+            files = {'image': open(upload_path, 'rb')}
+            API_TOKEN = os.getenv('API_TOKEN')
+            # Send to e-commerce API with auth token
+            try:
+                headers = {'Authorization': f'Bearer {API_TOKEN}'}
+                res = requests.post(
+                    "http://localhost:5001/api/products",
+                    json=product.serialize(),
+                    headers=headers
+                )
+                print("E-commerce response:", res.status_code, res.json())
+            except Exception as e:
+                print("Error syncing with e-commerce:", e)
+
+            flash("Product added and synced!", "success")
+            return redirect(url_for('admin.admin_dashboard'))
+
+    return render_template('admin/add_product.html')
 
 # Serve uploaded profile pictures or files
 @admin_bp.route('/admin/uploads/<path:filename>')

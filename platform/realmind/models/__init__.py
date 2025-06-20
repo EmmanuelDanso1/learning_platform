@@ -5,3 +5,4 @@ from .application import Application
 from .job import JobPost
 from .news import News
 from .gallery import Gallery
+from .products import Product
