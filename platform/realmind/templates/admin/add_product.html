@@ -1,4 +1,3 @@
-<!-- templates/admin/add_product.html -->
 {% extends "index.html" %}
 
 {% block title %}Add Product{% endblock %}
@@ -7,6 +6,7 @@
 <div class="container my-5">
   <h2>Add New Product</h2>
   <form method="POST" enctype="multipart/form-data">
+
     <div class="mb-3">
       <label for="name" class="form-label">Product Name</label>
       <input type="text" name="name" id="name" class="form-control" required>
@@ -25,6 +25,19 @@
     <div class="mb-3">
       <label for="image" class="form-label">Product Image</label>
       <input type="file" name="image" id="image" class="form-control" accept="image/*" required>
+    </div>
+
+    <!-- ✅ Stock Status -->
+    <div class="mb-3">
+      <label class="form-label">Stock Status</label><br>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="in_stock" id="in_stock_yes" value="true" checked>
+        <label class="form-check-label" for="in_stock_yes">In Stock</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="in_stock" id="in_stock_no" value="false">
+        <label class="form-check-label" for="in_stock_no">Out of Stock</label>
+      </div>
     </div>
 
     <button type="submit" class="btn btn-primary">Add Product</button>

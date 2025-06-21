@@ -1,0 +1,47 @@
+{% extends "index.html" %}
+{% block title %}Edit Product{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <h2>Edit Product</h2>
+  <form method="POST" enctype="multipart/form-data">
+
+    <div class="mb-3">
+      <label for="name" class="form-label">Product Name</label>
+      <input type="text" name="name" id="name" value="{{ product.name }}" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="description" class="form-label">Description</label>
+      <textarea name="description" id="description" rows="4" class="form-control" required>{{ product.description }}</textarea>
+    </div>
+
+    <div class="mb-3">
+      <label for="price" class="form-label">Price (₵)</label>
+      <input type="number" step="0.01" name="price" id="price" value="{{ product.price }}" class="form-control" required>
+    </div>
+
+    <!-- ✅ Stock Status -->
+    <div class="mb-3">
+      <label for="in_stock" class="form-label">Stock Status</label>
+      <select name="in_stock" id="in_stock" class="form-control">
+        <option value="true" {% if product.in_stock %}selected{% endif %}>In Stock</option>
+        <option value="false" {% if not product.in_stock %}selected{% endif %}>Out of Stock</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="image" class="form-label">Change Product Image (optional)</label>
+      <input type="file" name="image" id="image" class="form-control" accept="image/*">
+    </div>
+
+    {% if product.image_filename %}
+    <div class="mb-3">
+      <img src="{{ url_for('static', filename='uploads/' ~ product.image_filename) }}" width="150" class="img-thumbnail">
+    </div>
+    {% endif %}
+
+    <button type="submit" class="btn btn-primary">Update Product</button>
+  </form>
+</div>
+{% endblock %}

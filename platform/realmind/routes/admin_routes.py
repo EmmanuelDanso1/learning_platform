@@ -279,6 +279,7 @@ def add_product():
         description = request.form['description']
         price = float(request.form['price'])
         image_file = request.files['image']
+        in_stock = request.form.get('in_stock') == 'true'
 
         if image_file and allowed_file(image_file.filename):
             filename = secure_filename(image_file.filename)
@@ -289,23 +290,37 @@ def add_product():
                 name=name,
                 description=description,
                 price=price,
+                in_stock=in_stock,
                 image_filename=filename,
                 admin_id=current_user.id
             )
             db.session.add(product)
-            db.session.commit()
-            
-            files = {'image': open(upload_path, 'rb')}
+            db.session.commit()  # Commit first to get product.id
+
+            # Prepare sync data
+            product_data = {
+                'name': name,
+                'description': description,
+                'price': price,
+                'in_stock': in_stock,
+                'image_filename': filename
+            }
+
+            # Sync to E-Commerce API
             API_TOKEN = os.getenv('API_TOKEN')
-            # Send to e-commerce API with auth token
             try:
                 headers = {'Authorization': f'Bearer {API_TOKEN}'}
                 res = requests.post(
                     "http://localhost:5001/api/products",
-                    json=product.serialize(),
+                    json=product_data,
                     headers=headers
                 )
                 print("E-commerce response:", res.status_code, res.json())
+                if res.status_code == 201:
+                    ecommerce_id = res.json().get('id')
+                    if ecommerce_id:
+                        product.ecommerce_product_id = ecommerce_id
+                        db.session.commit()
             except Exception as e:
                 print("Error syncing with e-commerce:", e)
 
@@ -313,6 +328,106 @@ def add_product():
             return redirect(url_for('admin.admin_dashboard'))
 
     return render_template('admin/add_product.html')
+
+
+# edit product
+@admin_bp.route('/admin/edit-product/<int:product_id>', methods=['GET', 'POST'])
+@login_required
+def edit_product(product_id):
+    product = Product.query.get_or_404(product_id)
+
+    if request.method == 'POST':
+        product.name = request.form['name']
+        product.description = request.form['description']
+        product.price = float(request.form['price'])
+        product.in_stock = request.form.get('in_stock') == 'true'
+
+        image_file = request.files.get('image')
+        if image_file and allowed_file(image_file.filename):
+            filename = secure_filename(image_file.filename)
+            upload_path = os.path.join(current_app.root_path, 'static/uploads', filename)
+            image_file.save(upload_path)
+            product.image_filename = filename
+
+        db.session.commit()
+
+        # Sync update to e-commerce
+        API_TOKEN = os.getenv('API_TOKEN')
+        ecommerce_id = product.ecommerce_product_id
+
+        if ecommerce_id:
+            product_data = {
+                'name': product.name,
+                'description': product.description,
+                'price': product.price,
+                'in_stock': product.in_stock,
+                'image_filename': product.image_filename
+            }
+
+            try:
+                headers = {'Authorization': f'Bearer {API_TOKEN}'}
+                res = requests.put(
+                    f"http://localhost:5001/api/products/{ecommerce_id}",
+                    json=product_data,
+                    headers=headers
+                )
+                print("E-commerce sync update:", res.status_code, res.json())
+            except Exception as e:
+                print("Error syncing product update to e-commerce:", e)
+
+        flash("Product updated successfully.", "success")
+        return redirect(url_for('admin.manage_products'))
+
+    return render_template('admin/edit_product.html', product=product)
+
+
+
+# delete product
+@admin_bp.route('/admin/delete-product/<int:product_id>', methods=['POST'])
+@login_required
+def delete_product(product_id):
+    product = Product.query.get_or_404(product_id)
+
+    # Delete local image
+    try:
+        image_path = os.path.join(current_app.root_path, 'static/uploads', product.image_filename)
+        if os.path.exists(image_path):
+            os.remove(image_path)
+    except Exception as e:
+        print("Image deletion error:", e)
+
+    # Get the e-commerce ID before deleting locally
+    ecommerce_id = product.ecommerce_product_id
+
+    # Delete locally
+    db.session.delete(product)
+    db.session.commit()
+
+    # Sync deletion to E-Commerce
+    if ecommerce_id:
+        API_TOKEN = os.getenv('API_TOKEN')
+        try:
+            headers = {'Authorization': f'Bearer {API_TOKEN}'}
+            res = requests.delete(
+                f"http://localhost:5001/api/products/{ecommerce_id}",
+                headers=headers
+            )
+            print("E-commerce delete response:", res.status_code, res.json())
+        except Exception as e:
+            print("Error deleting from e-commerce:", e)
+
+    flash('Product deleted from both systems.', 'info')
+    return redirect(url_for('admin.manage_products'))
+
+
+
+
+# manage products
+@admin_bp.route('/admin/manage-products')
+@login_required
+def manage_products():
+    products = Product.query.order_by(Product.date_created.desc()).all()
+    return render_template('admin/manage_products.html', products=products)
 
 # Serve uploaded profile pictures or files
 @admin_bp.route('/admin/uploads/<path:filename>')
