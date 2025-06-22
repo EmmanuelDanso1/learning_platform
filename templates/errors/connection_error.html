@@ -1,8 +1,0 @@
-{% extends "index.html" %}
-{% block content %}
-<div class="container text-center my-5">
-    <h2 class="text-danger">Connection Error</h2>
-    <p>Oops! Could not connect to Paystack. Please try again later.</p>
-    <a href="{{ url_for('donate') }}" class="btn btn-primary">Retry</a>
-</div>
-{% endblock %}

@@ -209,7 +209,10 @@ def post_news():
 
         if image and image.filename:
             filename = secure_filename(image.filename)
-            path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+            upload_dir = os.path.join(current_app.root_path, 'static', 'uploads')
+            os.makedirs(upload_dir, exist_ok=True)  # Ensure the directory exists
+
+            path = os.path.join(upload_dir, filename)
             image.save(path)
             image_url = f'uploads/{filename}'
 
@@ -235,13 +238,16 @@ def edit_news(news_id):
 
         if image and image.filename:
             filename = secure_filename(image.filename)
-            path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+            upload_dir = os.path.join(current_app.root_path, 'static', 'uploads')
+            os.makedirs(upload_dir, exist_ok=True)  # Ensure the directory exists
+
+            path = os.path.join(upload_dir, filename)
             image.save(path)
             news_item.image_url = f'uploads/{filename}'
 
         db.session.commit()
         flash('News updated successfully!', 'success')
-        return redirect(url_for('admin.news_dashboard'))
+        return redirect(url_for('admin.admin_news_dashboard'))
 
     return render_template('admin_post_news.html', news_item=news_item, editing=True)
 
@@ -325,7 +331,7 @@ def add_product():
                 print("Error syncing with e-commerce:", e)
 
             flash("Product added and synced!", "success")
-            return redirect(url_for('admin.admin_dashboard'))
+            return redirect(url_for('admin.manage_products'))
 
     return render_template('admin/add_product.html')
 

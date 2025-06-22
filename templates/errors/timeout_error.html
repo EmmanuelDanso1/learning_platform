@@ -1,8 +1,0 @@
-{% extends "index.html" %}
-{% block content %}
-<div class="container text-center my-5">
-    <h2 class="text-danger">Connection Timeout</h2>
-    <p>We couldn't reach the payment service. Please check your internet or try again shortly.</p>
-    <a href="{{ url_for('donate') }}" class="btn btn-primary">Try Again</a>
-</div>
-{% endblock %}

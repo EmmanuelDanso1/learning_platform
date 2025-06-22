@@ -1,6 +1,13 @@
 {% extends 'index.html' %}
 
 {% block content %}
+<style>
+  .gallery-media {
+    height: 250px;
+    object-fit: cover;
+  }
+</style>
+
 <div class="container py-5">
   <h2 class="text-center mb-4">Gallery</h2>
 
@@ -15,68 +22,76 @@
     <div class="row">
       {% for item in gallery_items %}
         <div class="col-md-4 mb-4">
-          <div class="card shadow-sm">
+          <div class="card shadow-sm h-100">
+
             {% if item.file_type == 'image' %}
-              <a href="{{ url_for('static', filename='uploads/gallery/' ~ item.filename) }}" data-lightbox="gallery" data-title="{{ item.caption or '' }}">
-                <img src="{{ url_for('static', filename='uploads/gallery/' ~ item.filename) }}" class="card-img-top" alt="Gallery Image">
+              <a href="{{ url_for('static', filename='uploads/gallery/' ~ item.filename) }}"
+                 data-lightbox="gallery"
+                 data-title="{{ item.caption or '' }}">
+                <img src="{{ url_for('static', filename='uploads/gallery/' ~ item.filename) }}"
+                     class="card-img-top gallery-media"
+                     alt="Gallery Image">
               </a>
             {% elif item.file_type == 'video' %}
-              <video class="w-100" controls>
+              <video class="card-img-top gallery-media" controls>
                 <source src="{{ url_for('static', filename='uploads/gallery/' ~ item.filename) }}" type="video/mp4">
                 Your browser does not support the video tag.
               </video>
             {% endif %}
-          </div>
 
-          <!-- Caption and Date below the card -->
-          <div class="mt-2">
-            <p class="mb-1"><strong>{{ item.caption or 'No caption' }}</strong></p>
-            <p class="text-muted small mb-2">Posted on {{ item.date_posted.strftime('%Y-%m-%d %H:%M') if item.date_posted else 'N/A' }}</p>
-          </div>
-
-          {% if current_user.is_authenticated and current_user.is_admin %}
-            <div class="d-flex justify-content-between mb-4">
-              <a href="{{ url_for('admin.edit_gallery_item', item_id=item.id) }}" class="btn btn-sm btn-warning">Edit</a>
-              <form method="POST" action="{{ url_for('admin.delete_gallery_item', item_id=item.id) }}" onsubmit="return confirm('Are you sure?')">
-                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-              </form>
+            <div class="card-body">
+              <p class="card-text mb-1"><strong>{{ item.caption or 'No caption' }}</strong></p>
+              <p class="text-muted small">Posted on {{ item.date_posted.strftime('%Y-%m-%d %H:%M') if item.date_posted else 'N/A' }}</p>
             </div>
-          {% endif %}
+
+            {% if current_user.is_authenticated and current_user.is_admin %}
+              <div class="card-footer d-flex justify-content-between">
+                <a href="{{ url_for('admin.edit_gallery_item', item_id=item.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                <form method="POST" action="{{ url_for('admin.delete_gallery_item', item_id=item.id) }}" onsubmit="return confirm('Are you sure?')">
+                  <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+              </div>
+            {% endif %}
+
+          </div>
         </div>
       {% endfor %}
     </div>
 
-    <!-- Pagination Controls -->
+    <!-- Pagination -->
     {% if pagination.pages > 1 %}
-    <nav aria-label="Gallery pagination">
-      <ul class="pagination justify-content-center">
-        {% if pagination.has_prev %}
-          <li class="page-item"><a class="page-link" href="{{ url_for('main.gallery', page=pagination.prev_num, type=filter_type) }}">&laquo;</a></li>
-        {% else %}
-          <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
-        {% endif %}
-
-        {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
-          {% if page_num %}
-            {% if page_num == pagination.page %}
-              <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
-            {% else %}
-              <li class="page-item"><a class="page-link" href="{{ url_for('main.gallery', page=page_num, type=filter_type) }}">{{ page_num }}</a></li>
-            {% endif %}
+      <nav aria-label="Gallery pagination">
+        <ul class="pagination justify-content-center">
+          {% if pagination.has_prev %}
+            <li class="page-item">
+              <a class="page-link" href="{{ url_for('main.gallery', page=pagination.prev_num, type=filter_type) }}">&laquo;</a>
+            </li>
           {% else %}
-            <li class="page-item disabled"><span class="page-link">…</span></li>
+            <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
           {% endif %}
-        {% endfor %}
 
-        {% if pagination.has_next %}
-          <li class="page-item"><a class="page-link" href="{{ url_for('main.gallery', page=pagination.next_num, type=filter_type) }}">&raquo;</a></li>
-        {% else %}
-          <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
-        {% endif %}
-      </ul>
-    </nav>
+          {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if page_num %}
+              {% if page_num == pagination.page %}
+                <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+              {% else %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('main.gallery', page=page_num, type=filter_type) }}">{{ page_num }}</a></li>
+              {% endif %}
+            {% else %}
+              <li class="page-item disabled"><span class="page-link">…</span></li>
+            {% endif %}
+          {% endfor %}
+
+          {% if pagination.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="{{ url_for('main.gallery', page=pagination.next_num, type=filter_type) }}">&raquo;</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+          {% endif %}
+        </ul>
+      </nav>
     {% endif %}
-
   {% else %}
     <div class="alert alert-info text-center">No gallery items have been posted yet.</div>
   {% endif %}

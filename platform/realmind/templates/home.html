@@ -159,6 +159,7 @@
 
   </div>
 </section>
+
 <!-- News Preview -->
 <section class="my-4 bg-light p-4 rounded shadow-sm">
   <h4 class="text-center fw-bold mb-4">Latest News</h4>
@@ -194,6 +195,38 @@
     </div>
   {% endif %}
 </section>
+
+<!-- Gallery Preview -->
+<section class="my-4 bg-light p-4 rounded shadow-sm">
+  <h4 class="text-center fw-bold mb-4">Gallery Highlights</h4>
+
+  {% if gallery_slides %}
+    <div id="galleryCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        {% for item in gallery_slides %}
+          <div class="carousel-item {% if loop.first %}active{% endif %}">
+            <img src="{{ url_for('static', filename='uploads/gallery/' ~ item.filename) }}" class="d-block w-100 rounded" style="height: 400px; object-fit: cover;" alt="Gallery Image">
+            <div class="carousel-caption d-block bg-dark bg-opacity-50 rounded p-3">
+              <h5>{{ item.caption or "Untitled" }}</h5>
+              <p class="mb-0 small">Posted on {{ item.date_posted.strftime('%Y-%m-%d') if item.date_posted else 'N/A' }}</p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#galleryCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#galleryCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+      </button>
+    </div>
+  {% else %}
+    <div class="col-12 text-center">
+      <p class="text-muted">No gallery highlights available.</p>
+    </div>
+  {% endif %}
+</section>
+
 
 <!-- Testimonials Section -->
 <section class="my-4">

@@ -1,88 +1,76 @@
-{% extends 'index.html' %}
-{% block title %}Manage Gallery{% endblock %}
-
+{% extends "index.html" %}
+{% block title %}Manage News{% endblock %}
 {% block content %}
-<div class="container py-5">
-  <h2 class="mb-4">Manage Gallery Items</h2>
+<h2 class="mb-4 text-center">Latest News</h2>
 
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      {% for category, message in messages %}
-        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      {% endfor %}
-    {% endif %}
-  {% endwith %}
-
-  {% if gallery_items %}
-  <div class="table-responsive">
-    <table class="table table-bordered align-middle table-hover">
-      <thead class="table-light">
-        <tr>
-          <th>Preview</th>
-          <th>Caption</th>
-          <th>Type</th>
-          <th>Uploaded At</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in gallery_items %}
-        <tr>
-          <td style="max-width: 150px;">
-            {% if item.file_type == 'image' %}
-              <img src="{{ url_for('static', filename='uploads/gallery/' ~ item.filename) }}" class="img-thumbnail" width="100">
-            {% else %}
-              <video width="100" controls>
-                <source src="{{ url_for('static', filename='uploads/gallery/' ~ item.filename) }}" type="video/mp4">
-                Your browser does not support the video tag.
-              </video>
+{% if news_list %}
+  {% for item in news_list %}
+    <div class="card mb-4 shadow-sm rounded">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h5 class="card-title mb-0">{{ item.title }}</h5>
+          <div>
+            {% if current_user.is_authenticated and current_user.is_admin %}
+              <a href="{{ url_for('edit_news', news_id=item.id) }}" class="btn btn-sm btn-warning me-2">Edit</a>
+              <button class="btn btn-sm btn-danger me-2" data-bs-toggle="modal" data-bs-target="#deleteModal{{ item.id }}">Delete</button>
             {% endif %}
-          </td>
-          <td>{{ item.caption or "No caption" }}</td>
-          <td>{{ item.file_type.title() }}</td>
-          <td>
-            {% if item.date_posted %}
-              {{ item.date_posted.strftime('%Y-%m-%d %H:%M') }}
-            {% else %}
-              <span class="text-muted">N/A</span>
-            {% endif %}
-          </td>
-          <td>
-            <a href="{{ url_for('admin.edit_gallery', item_id=item.id) }}" class="btn btn-warning btn-sm">Edit</a>
-            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ item.id }}">Delete</button>
-          </td>
-        </tr>
-
-        <!-- Delete Confirmation Modal -->
-        <div class="modal fade" id="deleteModal{{ item.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ item.id }}" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-              <form action="{{ url_for('admin.delete_gallery', item_id=item.id) }}" method="POST">
-                <div class="modal-header bg-danger text-white">
-                  <h5 class="modal-title" id="deleteModalLabel{{ item.id }}">Confirm Deletion</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  Are you sure you want to delete <strong>{{ item.caption or item.filename }}</strong>?
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                  <button type="submit" class="btn btn-danger">Yes, Delete</button>
-                </div>
-              </form>
-            </div>
+            <button class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#previewModal{{ item.id }}">Read More</button>
           </div>
         </div>
+        <p class="card-text">{{ item.content[:200] }}{% if item.content|length > 200 %}...{% endif %}</p>
+        {% if item.image_url %}
+          <img src="{{ url_for('static', filename=item.image_url) }}" class="img-fluid mt-2 rounded" style="max-height: 250px; object-fit: cover; width: 100%;">
+        {% endif %}
+        <small class="text-muted d-block mt-2">Posted on {{ item.created_at.strftime('%Y-%m-%d') }}</small>
+      </div>
+    </div>
 
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% else %}
-    <div class="alert alert-info text-center">No gallery items found.</div>
-  {% endif %}
-</div>
+    <!-- Preview Modal -->
+    <div class="modal fade" id="previewModal{{ item.id }}" tabindex="-1" aria-labelledby="previewModalLabel{{ item.id }}" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="previewModalLabel{{ item.id }}">{{ item.title }}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>{{ item.content }}</p>
+            {% if item.image_url %}
+              <img src="{{ url_for('static', filename=item.image_url) }}" class="img-fluid mt-3 rounded" style="max-height: 400px; object-fit: contain; width: 100%;">
+            {% endif %}
+          </div>
+          <div class="modal-footer">
+            <small class="text-muted">Posted on {{ item.created_at.strftime('%Y-%m-%d') }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% if current_user.is_authenticated and current_user.is_admin %}
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal{{ item.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ item.id }}" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <form action="{{ url_for('delete_news', news_id=item.id) }}" method="POST">
+            <div class="modal-header">
+              <h5 class="modal-title" id="deleteModalLabel{{ item.id }}">Confirm Delete</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              Are you sure you want to delete <strong>{{ item.title }}</strong>?
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-danger">Yes, Delete</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+  {% endfor %}
+{% else %}
+  <p class="text-muted">You haven't posted any news yet.</p>
+{% endif %}
 {% endblock %}
