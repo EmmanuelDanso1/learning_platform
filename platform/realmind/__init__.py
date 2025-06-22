@@ -52,10 +52,13 @@ def create_app():
 
     @login_manager.user_loader
     def load_user(user_id):
-        if user_id.startswith("admin:"):
-            return Admin.query.get(int(user_id.split(":")[1]))
-        else:
-            return User.query.get(int(user_id))
+        if isinstance(user_id, str):
+            if user_id.startswith("admin:"):
+                return Admin.query.get(int(user_id.split(":")[1]))
+            elif user_id.startswith("user:"):
+                return User.query.get(int(user_id.split(":")[1]))
+        return None
+
 
     # Blueprints
     from .routes.main_routes import main_bp
