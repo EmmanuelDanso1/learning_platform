@@ -289,7 +289,14 @@ def add_product():
 
         if image_file and allowed_file(image_file.filename):
             filename = secure_filename(image_file.filename)
-            upload_path = os.path.join(current_app.root_path, 'static/uploads', filename)
+
+            # This assumes your static folder is inside the 'realmind' package
+            upload_path = os.path.join(current_app.root_path, 'static', 'uploads', filename)
+
+            # Ensure the upload folder exists
+            os.makedirs(os.path.dirname(upload_path), exist_ok=True)
+
+            # Save the uploaded file
             image_file.save(upload_path)
 
             product = Product(
@@ -351,7 +358,15 @@ def edit_product(product_id):
         image_file = request.files.get('image')
         if image_file and allowed_file(image_file.filename):
             filename = secure_filename(image_file.filename)
-            upload_path = os.path.join(current_app.root_path, 'static/uploads', filename)
+            
+
+            # This assumes your static folder is inside the 'realmind' package
+            upload_path = os.path.join(current_app.root_path, 'static', 'uploads', filename)
+
+            # Ensure the upload folder exists
+            os.makedirs(os.path.dirname(upload_path), exist_ok=True)
+
+            # Save the uploaded file
             image_file.save(upload_path)
             product.image_filename = filename
 
