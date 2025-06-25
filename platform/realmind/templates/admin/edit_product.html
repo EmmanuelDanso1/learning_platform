@@ -21,13 +21,19 @@
       <input type="number" step="0.01" name="price" id="price" value="{{ product.price }}" class="form-control" required>
     </div>
 
-    <!-- ✅ Stock Status -->
+    <!-- Stock Status -->
     <div class="mb-3">
       <label for="in_stock" class="form-label">Stock Status</label>
       <select name="in_stock" id="in_stock" class="form-control">
         <option value="true" {% if product.in_stock %}selected{% endif %}>In Stock</option>
         <option value="false" {% if not product.in_stock %}selected{% endif %}>Out of Stock</option>
       </select>
+    </div>
+
+    <!-- Category Edit Field -->
+    <div class="mb-3">
+      <label for="category_name" class="form-label">Category</label>
+      <input type="text" name="category_name" id="category_name" value="{{ product.category.name if product.category else '' }}" class="form-control" required>
     </div>
 
     <div class="mb-3">

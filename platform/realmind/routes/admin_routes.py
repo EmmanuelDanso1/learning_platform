@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, send_fro
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 # using the imports from __init__.py file
-from realmind.models import Admin, Application, JobPost, News, Gallery, Product
+from realmind.models import Admin, Application, JobPost, News, Gallery, Product, Category
 from realmind.forms import JobPostForm
 from realmind import db
 import os
@@ -285,42 +285,47 @@ def add_product():
         description = request.form['description']
         price = float(request.form['price'])
         image_file = request.files['image']
+        category_name = request.form['category_name'].strip().title()
         in_stock = request.form.get('in_stock') == 'true'
 
+        #  Create or find category
+        category = Category.query.filter_by(name=category_name).first()
+        if not category:
+            category = Category(name=category_name)
+            db.session.add(category)
+            db.session.commit()
+
+        # Save image
         if image_file and allowed_file(image_file.filename):
             filename = secure_filename(image_file.filename)
-
-            # This assumes your static folder is inside the 'realmind' package
             upload_path = os.path.join(current_app.root_path, 'static', 'uploads', filename)
-
-            # Ensure the upload folder exists
             os.makedirs(os.path.dirname(upload_path), exist_ok=True)
-
-            # Save the uploaded file
             image_file.save(upload_path)
 
+            # ✅ Save product locally
             product = Product(
                 name=name,
                 description=description,
                 price=price,
                 in_stock=in_stock,
                 image_filename=filename,
-                admin_id=current_user.id
+                admin_id=current_user.id,
+                category_id=category.id
             )
             db.session.add(product)
-            db.session.commit()  # Commit first to get product.id
+            db.session.commit()
 
-            # Prepare sync data
+            # Sync to e-commerce
+            API_TOKEN = os.getenv('API_TOKEN')
             product_data = {
                 'name': name,
                 'description': description,
                 'price': price,
                 'in_stock': in_stock,
-                'image_filename': filename
+                'image_filename': filename,
+                'category': category.name  #  include category name
             }
 
-            # Sync to E-Commerce API
-            API_TOKEN = os.getenv('API_TOKEN')
             try:
                 headers = {'Authorization': f'Bearer {API_TOKEN}'}
                 res = requests.post(
@@ -342,8 +347,6 @@ def add_product():
 
     return render_template('admin/add_product.html')
 
-
-# edit product
 @admin_bp.route('/admin/edit-product/<int:product_id>', methods=['GET', 'POST'])
 @login_required
 def edit_product(product_id):
@@ -355,27 +358,30 @@ def edit_product(product_id):
         product.price = float(request.form['price'])
         product.in_stock = request.form.get('in_stock') == 'true'
 
+        # ✅ Handle category update
+        category_name = request.form.get('category_name', '').strip().title()
+        if category_name:
+            category = Category.query.filter_by(name=category_name).first()
+            if not category:
+                category = Category(name=category_name)
+                db.session.add(category)
+                db.session.commit()
+            product.category_id = category.id
+
+        # ✅ Handle image update (if new file is uploaded)
         image_file = request.files.get('image')
         if image_file and allowed_file(image_file.filename):
             filename = secure_filename(image_file.filename)
-            
-
-            # This assumes your static folder is inside the 'realmind' package
             upload_path = os.path.join(current_app.root_path, 'static', 'uploads', filename)
-
-            # Ensure the upload folder exists
             os.makedirs(os.path.dirname(upload_path), exist_ok=True)
-
-            # Save the uploaded file
             image_file.save(upload_path)
             product.image_filename = filename
 
         db.session.commit()
 
-        # Sync update to e-commerce
+        # ✅ Sync update to e-commerce (optional)
         API_TOKEN = os.getenv('API_TOKEN')
         ecommerce_id = product.ecommerce_product_id
-
         if ecommerce_id:
             product_data = {
                 'name': product.name,
@@ -399,9 +405,8 @@ def edit_product(product_id):
         flash("Product updated successfully.", "success")
         return redirect(url_for('admin.manage_products'))
 
+    # GET method: pre-fill form
     return render_template('admin/edit_product.html', product=product)
-
-
 
 # delete product
 @admin_bp.route('/admin/delete-product/<int:product_id>', methods=['POST'])

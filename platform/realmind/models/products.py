@@ -10,9 +10,14 @@ class Product(db.Model):
     in_stock = db.Column(db.Boolean, default=True) 
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     ecommerce_product_id = db.Column(db.Integer, nullable=True)
+
     # Foreign Key to Admin
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False)
     admin = db.relationship('Admin', backref=db.backref('products', lazy=True))
+
+    # Foreign Key to Category
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=True)
+    category = db.relationship('Category', back_populates='products')
 
     def __repr__(self):
         return f'<Product {self.name}>'

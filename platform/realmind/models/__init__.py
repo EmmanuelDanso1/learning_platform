@@ -6,3 +6,4 @@ from .job import JobPost
 from .news import News
 from .gallery import Gallery
 from .products import Product
+from .category import Category
