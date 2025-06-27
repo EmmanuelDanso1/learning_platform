@@ -9,7 +9,7 @@ main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
 def home():
-    gallery_slides = Gallery.query.filter_by(file_type='image').order_by(Gallery.date_posted.desc()).limit(5).all()
+    gallery_slides = Gallery.query.filter_by(file_type='image').order_by(Gallery.date_posted.desc()).limit(6).all()
     latest_news = News.query.order_by(News.created_at.desc()).limit(5).all()
     return render_template('home.html', latest_news=latest_news,gallery_slides=gallery_slides)
 

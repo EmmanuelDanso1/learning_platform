@@ -2,12 +2,25 @@ from flask import Blueprint, render_template, redirect, url_for, flash, send_fro
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 # using the imports from __init__.py file
-from realmind.models import Admin, Application, JobPost, News, Gallery, Product, Category
+from realmind.models import Admin, Application, JobPost, News, Gallery, Product, Category, InfoDocument
 from realmind.forms import JobPostForm
 from realmind import db
 import os
 import requests
-from realmind.utils.util import UPLOAD_FOLDER, allowed_profile_pic, allowed_document, allowed_file
+from realmind.utils.util import UPLOAD_FOLDER, allowed_profile_pic,allowed_image_file, allowed_document, allowed_file
+
+
+# upload files to the E_commerce
+from urllib.parse import urlparse
+
+def is_url(value):
+    try:
+        result = urlparse(value)
+        return all([result.scheme, result.netloc])
+    except:
+        return False
+    
+
 admin_bp = Blueprint('admin', __name__)
 
 # admin dashbaord
@@ -536,3 +549,148 @@ def delete_job(job_id):
     db.session.commit()
     flash('Job deleted successfully!', 'success')
     return redirect(url_for('admin.post_job'))
+
+
+
+from realmind import db
+from realmind.models import InfoDocument
+
+@admin_bp.route('/upload_info', methods=['GET', 'POST'])
+@login_required
+def upload_info():
+    if request.method == 'POST':
+        title = request.form['title'].strip()
+        source = request.form['source'].strip()
+        doc_file = request.files['file']
+        image_file = request.files.get('image')
+
+        if not title or not source or not doc_file:
+            flash("Please fill out all required fields.", "warning")
+            return redirect(url_for('admin.upload_info'))
+
+        # Save files locally (if you want)
+        doc_filename = secure_filename(doc_file.filename)
+        doc_path = os.path.join(current_app.root_path, 'static/uploads', doc_filename)
+        doc_file.save(doc_path)
+
+        image_filename = None
+        if image_file and image_file.filename:
+            image_filename = secure_filename(image_file.filename)
+            image_path = os.path.join(current_app.root_path, 'static/uploads', image_filename)
+            image_file.save(image_path)
+
+        # Save to local DB
+        new_doc = InfoDocument(
+            title=title,
+            source=source,
+            filename=doc_filename,
+            image=image_filename,
+            admin_id=current_user.id
+        )
+        db.session.add(new_doc)
+        db.session.commit()
+
+        # Send to e-commerce API
+        data = {
+            'title': title,
+            'source': source,
+            'uploaded_by': current_user.username
+        }
+        files = {
+            'file': (doc_file.filename, open(doc_path, 'rb'), doc_file.mimetype),
+        }
+        if image_filename:
+            files['image'] = (image_file.filename, open(image_path, 'rb'), image_file.mimetype)
+
+        headers = {
+            'Authorization': f'Bearer {os.getenv("API_TOKEN")}'
+        }
+
+        try:
+            res = requests.post(
+                'http://127.0.0.1:5001/api/info',
+                data=data,
+                files=files,
+                headers=headers
+            )
+            if res.status_code == 201:
+                flash("Info document uploaded and synced to e-commerce site.", "success")
+            else:
+                flash(f"Failed to sync: {res.status_code} - {res.text}", "danger")
+        except Exception as e:
+            print("Upload error:", e)
+            flash("An error occurred during upload.", "danger")
+
+        return redirect(url_for('admin.upload_info'))
+
+    return render_template('admin/upload_info.html')
+
+
+
+# edit and delete
+@admin_bp.route('/admin/info/<int:id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_info(id):
+    info = InfoDocument.query.get_or_404(id)
+
+    if request.method == 'POST':
+        info.title = request.form['title']
+        info.source = request.form['source']
+
+        file = request.files.get('file')
+        image = request.files.get('image')
+
+        upload_dir = current_app.config['UPLOAD_FOLDER']
+        os.makedirs(upload_dir, exist_ok=True)
+
+        if file and file.filename:
+            if allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(upload_dir, filename)
+                file.save(file_path)
+                info.filename = filename
+
+        if image and image.filename:
+            if allowed_image_file(image.filename):
+                image_filename = secure_filename(image.filename)
+                image_path = os.path.join(upload_dir, image_filename)
+                image.save(image_path)
+                info.image = image_filename
+
+        db.session.commit()
+        flash("Info document updated successfully.", "success")
+        return redirect(url_for('admin.manage_info'))
+
+    return render_template('admin/edit_info.html', info=info)
+
+@admin_bp.route('/admin/info/<int:id>/delete', methods=['POST'])
+@login_required
+def delete_info(id):
+    info = InfoDocument.query.get_or_404(id)
+
+    # Optional: delete the files from the server
+    try:
+        upload_folder = current_app.config['UPLOAD_FOLDER']
+        if info.filename:
+            os.remove(os.path.join(upload_folder, info.filename))
+        if info.image:
+            os.remove(os.path.join(upload_folder, info.image))
+    except Exception as e:
+        print("File deletion failed:", e)
+
+    db.session.delete(info)
+    db.session.commit()
+    flash("Info document deleted.", "success")
+    return redirect(url_for('admin.manage_info'))
+
+@admin_bp.route('/admin/info/manage')
+@login_required
+def manage_info():
+    documents = InfoDocument.query.order_by(InfoDocument.upload_date.desc()).all()
+    print(f"DOCUMENTS FOUND: {len(documents)}")
+    for doc in documents:
+        print(f"Title: {doc.title}, Admin ID: {doc.admin_id}")
+
+    return render_template('admin/manage_info.html', documents=documents)
+
+

@@ -18,6 +18,11 @@ class Admin(UserMixin, db.Model):
 
     def __repr__(self):
         return f"<Admin {self.username}>"
+    
+    @property
+    def is_admin(self):
+        return True
+
 
     def get_id(self):
         return f"admin:{self.id}"

@@ -18,6 +18,11 @@ class User(UserMixin, db.Model):
     def get_id(self):
         return f"user:{self.id}"
     
+    @property
+    def is_admin(self):
+        return False
+
+    
     def set_password(self, password):
         self.password = generate_password_hash(password)
     

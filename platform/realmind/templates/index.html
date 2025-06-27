@@ -13,10 +13,21 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-steel fixed-top">
   <div class="container-fluid">
-    <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.home') }}">
-      <img src="{{ url_for('static', filename='images/brain.jpg') }}" alt="Logo" style="height: 40px; border-radius: 50%; margin-right: 10px;">
-      RealMindX Education
-    </a>
+<a class="navbar-brand d-flex align-items-center"
+   href="{% if current_user.is_authenticated %}
+            {% if current_user.is_admin %}
+              {{ url_for('admin.admin_dashboard') }}
+            {% else %}
+              {{ url_for('user.users_dashboard') }}
+            {% endif %}
+         {% else %}
+            {{ url_for('main.home') }}
+         {% endif %}">
+  <img src="{{ url_for('static', filename='images/brain.jpg') }}" alt="Logo" style="height: 40px; border-radius: 50%; margin-right: 10px;">
+  RealMindX Education
+</a>
+
+    
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -27,12 +38,12 @@
           <div class="d-flex flex-column align-items-center text-white me-3">
             {% if current_user.profile_pic %}
               <img src="{{ url_for('static', filename='uploads/' ~ current_user.profile_pic) }}"
-                  alt="Profile"
-                  style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                   alt="Profile"
+                   style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
             {% else %}
               <img src="{{ url_for('static', filename='images/default-profile.webp') }}"
-                  alt="Default Profile"
-                  style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                   alt="Default Profile"
+                   style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
             {% endif %}
             <small>{{ current_user.username }}</small>
           </div>
@@ -54,23 +65,22 @@
   </div>
 </nav>
 
-  <!-- Page Content -->
-  <!-- wants the carousel to span to full width -->
-   {% block fullwidth %}{% endblock %}
-  <main class="container mt-5 pt-4">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category }} mt-3">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-    
-    {% block content %}{% endblock %}
-  </main>
+<!-- Page Content -->
+{% block fullwidth %}{% endblock %}
+<main class="container mt-5 pt-4">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} mt-3">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  
+  {% block content %}{% endblock %}
+</main>
 
-  {% include 'footer.html' %}
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% include 'footer.html' %}
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
