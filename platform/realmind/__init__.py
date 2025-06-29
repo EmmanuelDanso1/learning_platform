@@ -67,6 +67,8 @@ def create_app():
     from .routes.jobs_routes import job_bp
     from .routes.donation_routes import donation_bp
     from .routes.user_routes import user_bp
+    # recieve orders
+    from .routes.receive_orders_api import api_bp
 
     app.register_blueprint(main_bp, name='main')
     app.register_blueprint(auth_bp, name='auth')
@@ -74,6 +76,7 @@ def create_app():
     app.register_blueprint(job_bp, name='jobs')
     app.register_blueprint(donation_bp, name='donation')
     app.register_blueprint(user_bp, name='user')
+    app.register_blueprint(api_bp, name='api')
 
     # Create tables (optional, only for dev)
     with app.app_context():

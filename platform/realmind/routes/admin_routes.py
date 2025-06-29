@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, send_fro
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 # using the imports from __init__.py file
-from realmind.models import Admin, Application, JobPost, News, Gallery, Product, Category, InfoDocument
+from realmind.models import Admin, Application, JobPost, News, Gallery, Product, Category, InfoDocument, ReceivedOrder, ReceivedOrderItem
 from realmind.forms import JobPostForm
 from realmind import db
 import os
@@ -452,8 +452,34 @@ def edit_product(product_id):
     # GET method: pre-fill form
     return render_template('admin/edit_product.html', product=product)
 
+# delete product
+@admin_bp.route('/admin/delete-product/<int:product_id>', methods=['POST'])
+@login_required
+def delete_product(product_id):
+    product = Product.query.get_or_404(product_id)
 
+    # Optional: remove image file from server
+    if product.image_filename:
+        image_path = os.path.join(current_app.root_path, 'static', 'uploads', product.image_filename)
+        if os.path.exists(image_path):
+            os.remove(image_path)
 
+    # Optional: sync delete to e-commerce
+    ecommerce_id = product.ecommerce_product_id
+    if ecommerce_id:
+        try:
+            API_TOKEN = os.getenv('API_TOKEN')
+            headers = {'Authorization': f'Bearer {API_TOKEN}'}
+            res = requests.delete(f"http://localhost:5001/api/products/{ecommerce_id}", headers=headers)
+            print("E-commerce sync delete:", res.status_code, res.json())
+        except Exception as e:
+            print("Error syncing product deletion to e-commerce:", e)
+
+    # Delete from local DB
+    db.session.delete(product)
+    db.session.commit()
+    flash("Product deleted successfully.", "success")
+    return redirect(url_for('admin.manage_products'))
 
 
 # manage products
@@ -755,3 +781,11 @@ def manage_info():
     return render_template('admin/manage_info.html', documents=documents)
 
 
+# received orders
+@admin_bp.route('/admin/received-orders')
+@login_required
+def received_orders():
+    if not current_user.is_admin:
+        abort(403)
+    orders = ReceivedOrder.query.order_by(ReceivedOrder.date_received.desc()).all()
+    return render_template('admin/received_orders.html', orders=orders)
