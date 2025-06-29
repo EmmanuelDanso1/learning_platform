@@ -21,6 +21,34 @@
       <input type="number" step="0.01" name="price" id="price" value="{{ product.price }}" class="form-control" required>
     </div>
 
+    <!-- ✅ New Fields -->
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="author" class="form-label">Author</label>
+        <input type="text" name="author" id="author" value="{{ product.author or '' }}" class="form-control">
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label for="brand" class="form-label">Brand</label>
+        <input type="text" name="brand" id="brand" value="{{ product.brand or '' }}" class="form-control">
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <label for="grade" class="form-label">Grade</label>
+        <input type="text" name="grade" id="grade" value="{{ product.grade or '' }}" class="form-control">
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <label for="level" class="form-label">Level</label>
+        <input type="text" name="level" id="level" value="{{ product.level or '' }}" class="form-control">
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <label for="subject" class="form-label">Subject</label>
+        <input type="text" name="subject" id="subject" value="{{ product.subject or '' }}" class="form-control">
+      </div>
+    </div>
+
     <!-- Stock Status -->
     <div class="mb-3">
       <label for="in_stock" class="form-label">Stock Status</label>
@@ -30,12 +58,13 @@
       </select>
     </div>
 
-    <!-- Category Edit Field -->
+    <!-- Category -->
     <div class="mb-3">
       <label for="category_name" class="form-label">Category</label>
       <input type="text" name="category_name" id="category_name" value="{{ product.category.name if product.category else '' }}" class="form-control" required>
     </div>
 
+    <!-- Image Upload -->
     <div class="mb-3">
       <label for="image" class="form-label">Change Product Image (optional)</label>
       <input type="file" name="image" id="image" class="form-control" accept="image/*">

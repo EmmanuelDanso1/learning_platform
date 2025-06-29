@@ -301,7 +301,14 @@ def add_product():
         category_name = request.form['category_name'].strip().title()
         in_stock = request.form.get('in_stock') == 'true'
 
-        #  Create or find category
+        # New fields from form
+        author = request.form.get('author')
+        grade = request.form.get('grade')
+        level = request.form.get('level')
+        subject = request.form.get('subject')
+        brand = request.form.get('brand')
+
+        # Create or find category
         category = Category.query.filter_by(name=category_name).first()
         if not category:
             category = Category(name=category_name)
@@ -309,56 +316,68 @@ def add_product():
             db.session.commit()
 
         # Save image
+        filename = None
         if image_file and allowed_file(image_file.filename):
             filename = secure_filename(image_file.filename)
             upload_path = os.path.join(current_app.root_path, 'static', 'uploads', filename)
             os.makedirs(os.path.dirname(upload_path), exist_ok=True)
             image_file.save(upload_path)
 
-            # ✅ Save product locally
-            product = Product(
-                name=name,
-                description=description,
-                price=price,
-                in_stock=in_stock,
-                image_filename=filename,
-                admin_id=current_user.id,
-                category_id=category.id
+        # Save product locally
+        product = Product(
+            name=name,
+            description=description,
+            price=price,
+            in_stock=in_stock,
+            image_filename=filename,
+            admin_id=current_user.id,
+            category_id=category.id,
+            author=author,
+            grade=grade,
+            level=level,
+            subject=subject,
+            brand=brand
+        )
+        db.session.add(product)
+        db.session.commit()
+
+        # Sync to e-commerce
+        API_TOKEN = os.getenv('API_TOKEN')
+        product_data = {
+            'name': name,
+            'description': description,
+            'price': price,
+            'in_stock': in_stock,
+            'image_filename': filename,
+            'category': category.name,
+            'author': author,
+            'grade': grade,
+            'level': level,
+            'subject': subject,
+            'brand': brand
+        }
+
+        try:
+            headers = {'Authorization': f'Bearer {API_TOKEN}'}
+            res = requests.post(
+                "http://localhost:5001/api/products",
+                json=product_data,
+                headers=headers
             )
-            db.session.add(product)
-            db.session.commit()
+            print("E-commerce response:", res.status_code, res.json())
+            if res.status_code == 201:
+                ecommerce_id = res.json().get('id')
+                if ecommerce_id:
+                    product.ecommerce_product_id = ecommerce_id
+                    db.session.commit()
+        except Exception as e:
+            print("Error syncing with e-commerce:", e)
 
-            # Sync to e-commerce
-            API_TOKEN = os.getenv('API_TOKEN')
-            product_data = {
-                'name': name,
-                'description': description,
-                'price': price,
-                'in_stock': in_stock,
-                'image_filename': filename,
-                'category': category.name  #  include category name
-            }
-
-            try:
-                headers = {'Authorization': f'Bearer {API_TOKEN}'}
-                res = requests.post(
-                    "http://localhost:5001/api/products",
-                    json=product_data,
-                    headers=headers
-                )
-                print("E-commerce response:", res.status_code, res.json())
-                if res.status_code == 201:
-                    ecommerce_id = res.json().get('id')
-                    if ecommerce_id:
-                        product.ecommerce_product_id = ecommerce_id
-                        db.session.commit()
-            except Exception as e:
-                print("Error syncing with e-commerce:", e)
-
-            flash("Product added and synced!", "success")
-            return redirect(url_for('admin.manage_products'))
+        flash("Product added and synced!", "success")
+        return redirect(url_for('admin.manage_products'))
 
     return render_template('admin/add_product.html')
+
 
 @admin_bp.route('/admin/edit-product/<int:product_id>', methods=['GET', 'POST'])
 @login_required
@@ -371,7 +390,14 @@ def edit_product(product_id):
         product.price = float(request.form['price'])
         product.in_stock = request.form.get('in_stock') == 'true'
 
-        # ✅ Handle category update
+        # New fields
+        product.author = request.form.get('author')
+        product.grade = request.form.get('grade')
+        product.level = request.form.get('level')
+        product.subject = request.form.get('subject')
+        product.brand = request.form.get('brand')
+
+        # Handle category update
         category_name = request.form.get('category_name', '').strip().title()
         if category_name:
             category = Category.query.filter_by(name=category_name).first()
@@ -381,7 +407,7 @@ def edit_product(product_id):
                 db.session.commit()
             product.category_id = category.id
 
-        # ✅ Handle image update (if new file is uploaded)
+        # Handle image update
         image_file = request.files.get('image')
         if image_file and allowed_file(image_file.filename):
             filename = secure_filename(image_file.filename)
@@ -392,8 +418,7 @@ def edit_product(product_id):
 
         db.session.commit()
 
-        # ✅ Sync update to e-commerce (optional)
-        API_TOKEN = os.getenv('API_TOKEN')
+        # Sync update to e-commerce
         ecommerce_id = product.ecommerce_product_id
         if ecommerce_id:
             product_data = {
@@ -401,10 +426,17 @@ def edit_product(product_id):
                 'description': product.description,
                 'price': product.price,
                 'in_stock': product.in_stock,
-                'image_filename': product.image_filename
+                'image_filename': product.image_filename,
+                'author': product.author,
+                'grade': product.grade,
+                'level': product.level,
+                'subject': product.subject,
+                'brand': product.brand,
+                'category': category_name
             }
 
             try:
+                API_TOKEN = os.getenv('API_TOKEN')
                 headers = {'Authorization': f'Bearer {API_TOKEN}'}
                 res = requests.put(
                     f"http://localhost:5001/api/products/{ecommerce_id}",
@@ -421,42 +453,6 @@ def edit_product(product_id):
     # GET method: pre-fill form
     return render_template('admin/edit_product.html', product=product)
 
-# delete product
-@admin_bp.route('/admin/delete-product/<int:product_id>', methods=['POST'])
-@login_required
-def delete_product(product_id):
-    product = Product.query.get_or_404(product_id)
-
-    # Delete local image
-    try:
-        image_path = os.path.join(current_app.root_path, 'static/uploads', product.image_filename)
-        if os.path.exists(image_path):
-            os.remove(image_path)
-    except Exception as e:
-        print("Image deletion error:", e)
-
-    # Get the e-commerce ID before deleting locally
-    ecommerce_id = product.ecommerce_product_id
-
-    # Delete locally
-    db.session.delete(product)
-    db.session.commit()
-
-    # Sync deletion to E-Commerce
-    if ecommerce_id:
-        API_TOKEN = os.getenv('API_TOKEN')
-        try:
-            headers = {'Authorization': f'Bearer {API_TOKEN}'}
-            res = requests.delete(
-                f"http://localhost:5001/api/products/{ecommerce_id}",
-                headers=headers
-            )
-            print("E-commerce delete response:", res.status_code, res.json())
-        except Exception as e:
-            print("Error deleting from e-commerce:", e)
-
-    flash('Product deleted from both systems.', 'info')
-    return redirect(url_for('admin.manage_products'))
 
 
 
