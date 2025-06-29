@@ -8,6 +8,7 @@ class InfoDocument(db.Model):
     filename = db.Column(db.String(255), nullable=False)  # PDF or Word file
     image = db.Column(db.String(255))  # thumbnail
     upload_date = db.Column(db.DateTime, default=datetime.utcnow)
+    ecommerce_id = db.Column(db.Integer, nullable=True)
 
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False)
     admin = db.relationship('Admin', backref='info_documents')

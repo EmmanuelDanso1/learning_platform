@@ -378,7 +378,6 @@ def add_product():
 
     return render_template('admin/add_product.html')
 
-
 @admin_bp.route('/admin/edit-product/<int:product_id>', methods=['GET', 'POST'])
 @login_required
 def edit_product(product_id):
@@ -547,10 +546,6 @@ def delete_job(job_id):
     return redirect(url_for('admin.post_job'))
 
 
-
-from realmind import db
-from realmind.models import InfoDocument
-
 @admin_bp.route('/upload_info', methods=['GET', 'POST'])
 @login_required
 def upload_info():
@@ -564,18 +559,22 @@ def upload_info():
             flash("Please fill out all required fields.", "warning")
             return redirect(url_for('admin.upload_info'))
 
-        # Save files locally (if you want)
+        # Save locally
+        upload_dir = os.path.join(current_app.root_path, 'static/uploads')
+        os.makedirs(upload_dir, exist_ok=True)
+
         doc_filename = secure_filename(doc_file.filename)
-        doc_path = os.path.join(current_app.root_path, 'static/uploads', doc_filename)
+        doc_path = os.path.join(upload_dir, doc_filename)
         doc_file.save(doc_path)
 
         image_filename = None
+        image_path = None
         if image_file and image_file.filename:
             image_filename = secure_filename(image_file.filename)
-            image_path = os.path.join(current_app.root_path, 'static/uploads', image_filename)
+            image_path = os.path.join(upload_dir, image_filename)
             image_file.save(image_path)
 
-        # Save to local DB
+        # Save to local DB first
         new_doc = InfoDocument(
             title=title,
             source=source,
@@ -586,22 +585,24 @@ def upload_info():
         db.session.add(new_doc)
         db.session.commit()
 
-        # Send to e-commerce API
+        # Prepare sync
         data = {
             'title': title,
             'source': source,
             'uploaded_by': current_user.username
         }
+
         files = {
-            'file': (doc_file.filename, open(doc_path, 'rb'), doc_file.mimetype),
+            'file': (doc_file.filename, open(doc_path, 'rb'), doc_file.mimetype)
         }
-        if image_filename:
+        if image_file and image_filename:
             files['image'] = (image_file.filename, open(image_path, 'rb'), image_file.mimetype)
 
         headers = {
             'Authorization': f'Bearer {os.getenv("API_TOKEN")}'
         }
 
+        # Send to e-commerce platform
         try:
             res = requests.post(
                 'http://127.0.0.1:5001/api/info',
@@ -610,6 +611,13 @@ def upload_info():
                 headers=headers
             )
             if res.status_code == 201:
+                res_data = res.json()
+                ecommerce_id = res_data.get('id')
+
+                # Store ecommerce_id for future syncing
+                new_doc.ecommerce_id = ecommerce_id
+                db.session.commit()
+
                 flash("Info document uploaded and synced to e-commerce site.", "success")
             else:
                 flash(f"Failed to sync: {res.status_code} - {res.text}", "danger")
@@ -639,22 +647,53 @@ def edit_info(id):
         upload_dir = current_app.config['UPLOAD_FOLDER']
         os.makedirs(upload_dir, exist_ok=True)
 
-        if file and file.filename:
-            if allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                file_path = os.path.join(upload_dir, filename)
-                file.save(file_path)
-                info.filename = filename
+        if file and file.filename and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(upload_dir, filename)
+            file.save(file_path)
+            info.filename = filename
 
-        if image and image.filename:
-            if allowed_image_file(image.filename):
-                image_filename = secure_filename(image.filename)
-                image_path = os.path.join(upload_dir, image_filename)
-                image.save(image_path)
-                info.image = image_filename
+        if image and image.filename and allowed_image_file(image.filename):
+            image_filename = secure_filename(image.filename)
+            image_path = os.path.join(upload_dir, image_filename)
+            image.save(image_path)
+            info.image = image_filename
 
         db.session.commit()
         flash("Info document updated successfully.", "success")
+
+        # Sync with e-commerce platform
+        try:
+            if info.ecommerce_id:  # Make sure we know the remote ID
+                ecommerce_base_url = os.getenv('ECOMMERCE_API_BASE_URL')
+                api_token = os.getenv('API_TOKEN')
+
+                payload = {
+                    'title': info.title,
+                    'source': info.source
+                }
+                files = {}
+                if file:
+                    files['file'] = open(file_path, 'rb')
+                if image:
+                    files['image'] = open(image_path, 'rb')
+
+                response = requests.patch(
+                    f"{ecommerce_base_url}/api/info/{info.ecommerce_id}",
+                    data=payload,
+                    files=files,
+                    headers={'Authorization': f'Bearer {api_token}'}
+                )
+
+                if response.status_code != 200:
+                    print("E-commerce update sync failed:", response.text)
+                else:
+                    print("E-commerce update sync successful.")
+            else:
+                print("No ecommerce_id set. Skipping update sync.")
+        except Exception as e:
+            print("E-commerce sync error:", e)
+
         return redirect(url_for('admin.manage_info'))
 
     return render_template('admin/edit_info.html', info=info)
@@ -664,20 +703,46 @@ def edit_info(id):
 def delete_info(id):
     info = InfoDocument.query.get_or_404(id)
 
-    # Optional: delete the files from the server
     try:
         upload_folder = current_app.config['UPLOAD_FOLDER']
         if info.filename:
-            os.remove(os.path.join(upload_folder, info.filename))
+            file_path = os.path.join(upload_folder, info.filename)
+            if os.path.exists(file_path):
+                os.remove(file_path)
         if info.image:
-            os.remove(os.path.join(upload_folder, info.image))
+            image_path = os.path.join(upload_folder, info.image)
+            if os.path.exists(image_path):
+                os.remove(image_path)
     except Exception as e:
         print("File deletion failed:", e)
 
     db.session.delete(info)
     db.session.commit()
     flash("Info document deleted.", "success")
+
+    # Sync deletion to e-commerce
+    try:
+        if info.ecommerce_id:
+            ecommerce_base_url = os.getenv('ECOMMERCE_API_BASE_URL')
+            api_token = os.getenv('API_TOKEN')
+
+            delete_url = f"{ecommerce_base_url}/api/info/{info.ecommerce_id}"
+            headers = {'Authorization': f'Bearer {api_token}'}
+
+            response = requests.delete(delete_url, headers=headers)
+
+            if response.status_code != 200:
+                print(f"E-commerce delete sync failed: {response.status_code}")
+                print("Response content:", response.text)
+            else:
+                print("E-commerce delete sync successful.")
+        else:
+            print("No ecommerce_id set. Skipping delete sync.")
+    except Exception as e:
+        print("E-commerce sync error:", e)
+
     return redirect(url_for('admin.manage_info'))
+
 
 @admin_bp.route('/admin/info/manage')
 @login_required
