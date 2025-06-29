@@ -496,7 +496,6 @@ def uploaded_file(filename):
     upload_folder = current_app.config.get('UPLOAD_FOLDER') or os.path.join(current_app.root_path, 'static/uploads/')
     return send_from_directory(upload_folder, filename)
 
-
 # View applicants for a job
 @admin_bp.route('/admin/applicants/<int:job_id>')
 @login_required
@@ -789,3 +788,20 @@ def received_orders():
         abort(403)
     orders = ReceivedOrder.query.order_by(ReceivedOrder.date_received.desc()).all()
     return render_template('admin/received_orders.html', orders=orders)
+
+# delete order
+@admin_bp.route('/admin/delete-received-order/<int:order_id>', methods=['POST'])
+@login_required
+def delete_received_order(order_id):
+    order = ReceivedOrder.query.get_or_404(order_id)
+
+    try:
+        db.session.delete(order)
+        db.session.commit()
+        flash(f"Order ID {order_id} deleted successfully.", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"An error occurred while deleting the order: {e}", "danger")
+
+    return redirect(url_for('admin.received_orders'))
+ 

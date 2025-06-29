@@ -1,7 +1,7 @@
 {% extends "index.html" %}
 {% block content %}
 <div class="container my-5">
-  <h2 class="mb-4">Received Orders</h2>
+  <h2 class="text-center mb-4">Received Orders</h2>
 
   {% if orders %}
     <table class="table table-bordered table-striped">
@@ -10,12 +10,13 @@
           <th>Order ID</th>
           <th>Customer</th>
           <th>Email</th>
-          <th>Address</th>
+          <th>Address/Phone Number</th>
           <th>Total</th>
           <th>Payment</th>
           <th>Status</th>
           <th>Date</th>
           <th>Items</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -35,6 +36,33 @@
               <li>{{ item.product_name }} (x{{ item.quantity }}) - GH₵{{ '%.2f' % item.price }}</li>
               {% endfor %}
             </ul>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ order.id }}">
+              Delete
+            </button>
+
+            <!-- Delete Modal -->
+            <div class="modal fade" id="deleteModal{{ order.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ order.id }}" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteModalLabel{{ order.id }}">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    Are you sure you want to delete. This action cannot be undone.
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form method="POST" action="{{ url_for('admin.delete_received_order', order_id=order.id) }}">
+                      <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End Modal -->
           </td>
         </tr>
         {% endfor %}
