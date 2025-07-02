@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, send_from_directory, abort, request, current_app
+from flask import Blueprint, render_template, redirect, url_for,jsonify, flash, send_from_directory, abort, request, current_app
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 # using the imports from __init__.py file
@@ -804,4 +804,37 @@ def delete_received_order(order_id):
         flash(f"An error occurred while deleting the order: {e}", "danger")
 
     return redirect(url_for('admin.received_orders'))
- 
+
+
+# update order status
+@admin_bp.route('/update-received-order-status/<int:order_id>', methods=['POST'])
+@login_required
+def update_received_order_status(order_id):
+    order = ReceivedOrder.query.get_or_404(order_id)
+    new_status = request.form.get('status')
+    if new_status not in ['Received', 'In Process', 'Delivered']:
+        return jsonify({'error': 'Invalid status'}), 400
+
+    # Update local DB
+    order.status = new_status
+    db.session.commit()
+
+    # Send update to e-commerce API
+    api_url = f"http://127.0.0.1:5001/api/orders/{order.original_order_id}/status"
+    token = os.getenv('API_TOKEN')
+    headers = {'Authorization': f'Bearer {token}'}
+    payload = {'status': new_status}
+
+    try:
+        response = requests.post(api_url, json=payload, headers=headers)
+        if response.status_code != 200:
+            current_app.logger.error(f"API update failed: {response.text}")
+            return jsonify({'error': 'API sync failed'}), 500
+    except Exception as e:
+        current_app.logger.error(f"API request error: {e}")
+        return jsonify({'error': 'API request error'}), 500
+
+    return jsonify({'success': True, 'status': new_status})
+
+
+
