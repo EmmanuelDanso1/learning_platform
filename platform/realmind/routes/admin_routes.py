@@ -308,6 +308,10 @@ def add_product():
         subject = request.form.get('subject')
         brand = request.form.get('brand')
 
+        # ✅ Discount percentage (optional)
+        discount_percentage = request.form.get('discount_percentage')
+        discount_percentage = float(discount_percentage) if discount_percentage else 0.0
+
         # Create or find category
         category = Category.query.filter_by(name=category_name).first()
         if not category:
@@ -336,7 +340,8 @@ def add_product():
             grade=grade,
             level=level,
             subject=subject,
-            brand=brand
+            brand=brand,
+            discount_percentage=discount_percentage 
         )
         db.session.add(product)
         db.session.commit()
@@ -354,7 +359,8 @@ def add_product():
             'grade': grade,
             'level': level,
             'subject': subject,
-            'brand': brand
+            'brand': brand,
+            'discount_percentage': discount_percentage
         }
 
         try:
@@ -378,6 +384,7 @@ def add_product():
 
     return render_template('admin/add_product.html')
 
+
 @admin_bp.route('/admin/edit-product/<int:product_id>', methods=['GET', 'POST'])
 @login_required
 def edit_product(product_id):
@@ -389,12 +396,16 @@ def edit_product(product_id):
         product.price = float(request.form['price'])
         product.in_stock = request.form.get('in_stock') == 'true'
 
-        # New fields
+        # New metadata fields
         product.author = request.form.get('author')
         product.grade = request.form.get('grade')
         product.level = request.form.get('level')
         product.subject = request.form.get('subject')
         product.brand = request.form.get('brand')
+
+        # Discount
+        discount_raw = request.form.get('discount_percentage')
+        product.discount_percentage = float(discount_raw) if discount_raw else 0.0
 
         # Handle category update
         category_name = request.form.get('category_name', '').strip().title()
@@ -431,6 +442,7 @@ def edit_product(product_id):
                 'level': product.level,
                 'subject': product.subject,
                 'brand': product.brand,
+                'discount_percentage': product.discount_percentage,
                 'category': category_name
             }
 
@@ -451,6 +463,7 @@ def edit_product(product_id):
 
     # GET method: pre-fill form
     return render_template('admin/edit_product.html', product=product)
+
 
 # delete product
 @admin_bp.route('/admin/delete-product/<int:product_id>', methods=['POST'])
