@@ -1,0 +1,30 @@
+{% extends 'index.html' %} 
+{% block title %}Post Promotion Flier{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">Post Promotion Flier</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" enctype="multipart/form-data">
+    <div class="mb-3">
+      <label for="title" class="form-label">Title (Optional)</label>
+      <input type="text" class="form-control" name="title" id="title" placeholder="e.g. Back to School Promo">
+    </div>
+
+    <div class="mb-3">
+      <label for="image" class="form-label">Upload Flier Image <span class="text-danger">*</span></label>
+      <input type="file" class="form-control" name="image" id="image" accept="image/*" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Post Flier</button>
+  </form>
+</div>
+{% endblock %}

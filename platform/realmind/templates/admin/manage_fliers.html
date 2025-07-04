@@ -1,0 +1,69 @@
+{% extends 'index.html' %}
+{% block title %}Manage Fliers{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">Manage Promotion Fliers</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  {% if fliers %}
+    <div class="row">
+      {% for flier in fliers %}
+        <div class="col-md-4">
+          <div class="card mb-4 shadow-sm">
+            {% if flier.image_filename %}
+              <img src="{{ url_for('static', filename='fliers/' + flier.image_filename) }}"
+                   class="card-img-top" alt="{{ flier.title or 'Flier' }}"
+                   style="height: 200px; object-fit: cover;">
+            {% endif %}
+            <div class="card-body">
+              <h5 class="card-title">{{ flier.title or 'Untitled Flier' }}</h5>
+              <div class="d-flex justify-content-between">
+                <a href="{{ url_for('admin.update_flier', flier_id=flier.id) }}"
+                   class="btn btn-sm btn-outline-primary">Update</a>
+
+                <!-- Trigger Delete Modal -->
+                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
+                        data-bs-target="#deleteModal{{ flier.id }}">
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delete Modal -->
+        <div class="modal fade" id="deleteModal{{ flier.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ flier.id }}" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel{{ flier.id }}">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                Are you sure you want to delete <strong>{{ flier.title or "this flier" }}</strong>?
+              </div>
+              <div class="modal-footer">
+                <form method="POST" action="{{ url_for('admin.delete_flier', flier_id=flier.id) }}">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No fliers posted yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

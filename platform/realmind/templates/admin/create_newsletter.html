@@ -1,0 +1,18 @@
+{% extends "index.html" %}
+{% block title %}Create Newsletter{% endblock %}
+{% block content %}
+<div class="container my-5">
+  <h2>Create & Send Newsletter</h2>
+  <form method="POST">
+    <div class="mb-3">
+      <label class="form-label">Title</label>
+      <input type="text" name="title" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Content</label>
+      <textarea name="content" class="form-control" rows="8" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Send Newsletter</button>
+  </form>
+</div>
+{% endblock %}

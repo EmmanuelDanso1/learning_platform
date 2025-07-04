@@ -1,0 +1,12 @@
+{% extends "index.html" %}
+{% block title %}View Newsletter{% endblock %}
+{% block content %}
+<div class="container my-5">
+  <h2>{{ newsletter.title }}</h2>
+  <p class="text-muted">Sent on {{ newsletter.created_on.strftime('%Y-%m-%d %H:%M') }}</p>
+  <div class="border p-3">
+    {{ newsletter.content | safe }}
+  </div>
+  <a href="{{ url_for('admin.list_newsletters') }}" class="btn btn-secondary mt-3">Back</a>
+</div>
+{% endblock %}

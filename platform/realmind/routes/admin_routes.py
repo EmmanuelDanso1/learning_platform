@@ -2,10 +2,12 @@ from flask import Blueprint, render_template, redirect, url_for,jsonify, flash, 
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 # using the imports from __init__.py file
-from realmind.models import Admin, Application, JobPost, News, Gallery, Product, Category, InfoDocument, ReceivedOrder, ReceivedOrderItem
+from realmind.models import Admin, Application, JobPost, News, Gallery, Newsletter, Product, Category, PromotionFlier, InfoDocument, ReceivedOrder, ReceivedOrderItem
 from realmind.forms import JobPostForm
-from realmind import db
+from realmind import db, mail
+from flask_mail import Message
 import os
+import json
 import requests
 from realmind.utils.util import UPLOAD_FOLDER, allowed_profile_pic,allowed_image_file, allowed_document, allowed_file
 
@@ -308,7 +310,7 @@ def add_product():
         subject = request.form.get('subject')
         brand = request.form.get('brand')
 
-        # ✅ Discount percentage (optional)
+        # Discount percentage (optional)
         discount_percentage = request.form.get('discount_percentage')
         discount_percentage = float(discount_percentage) if discount_percentage else 0.0
 
@@ -319,8 +321,9 @@ def add_product():
             db.session.add(category)
             db.session.commit()
 
-        # Save image
+        # Save image locally
         filename = None
+        upload_path = None
         if image_file and allowed_file(image_file.filename):
             filename = secure_filename(image_file.filename)
             upload_path = os.path.join(current_app.root_path, 'static', 'uploads', filename)
@@ -341,7 +344,7 @@ def add_product():
             level=level,
             subject=subject,
             brand=brand,
-            discount_percentage=discount_percentage 
+            discount_percentage=discount_percentage
         )
         db.session.add(product)
         db.session.commit()
@@ -353,7 +356,6 @@ def add_product():
             'description': description,
             'price': price,
             'in_stock': in_stock,
-            'image_filename': filename,
             'category': category.name,
             'author': author,
             'grade': grade,
@@ -365,12 +367,20 @@ def add_product():
 
         try:
             headers = {'Authorization': f'Bearer {API_TOKEN}'}
+
+            files = {
+                'data': (None, json.dumps(product_data)),
+                'image': open(upload_path, 'rb')
+            }
+
             res = requests.post(
                 "http://localhost:5001/api/products",
-                json=product_data,
+                files=files,
                 headers=headers
             )
+
             print("E-commerce response:", res.status_code, res.json())
+
             if res.status_code == 201:
                 ecommerce_id = res.json().get('id')
                 if ecommerce_id:
@@ -383,6 +393,7 @@ def add_product():
         return redirect(url_for('admin.manage_products'))
 
     return render_template('admin/add_product.html')
+
 
 
 @admin_bp.route('/admin/edit-product/<int:product_id>', methods=['GET', 'POST'])
@@ -465,6 +476,7 @@ def edit_product(product_id):
     return render_template('admin/edit_product.html', product=product)
 
 
+ 
 # delete product
 @admin_bp.route('/admin/delete-product/<int:product_id>', methods=['POST'])
 @login_required
@@ -850,4 +862,216 @@ def update_received_order_status(order_id):
     return jsonify({'success': True, 'status': new_status})
 
 
+# admin to post flyer
+@admin_bp.route('/admin/post-flier', methods=['GET', 'POST'])
+@login_required
+def post_flier():
+    if request.method == 'POST':
+        title = request.form.get('title', '').strip()
+        image_file = request.files.get('image')  #  Upload comes from this
 
+        if image_file and allowed_image_file(image_file.filename):
+            filename = secure_filename(image_file.filename)
+            save_path = os.path.join(current_app.root_path, 'static', 'fliers', filename)
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            image_file.save(save_path)
+
+            #  Save flier locally with filename
+            new_flier = PromotionFlier(
+                title=title,
+                image_filename=filename  #  This is the string stored in DB
+            )
+            db.session.add(new_flier)
+            db.session.commit()
+
+            #  Send to E-Commerce with multipart/form-data
+            API_TOKEN = os.getenv('API_TOKEN')
+            headers = {'Authorization': f'Bearer {API_TOKEN}'}
+            data = {'title': title}
+            files = {'image': open(save_path, 'rb')}
+
+            try:
+                res = requests.post(
+                    'http://localhost:5001/api/fliers',
+                    data=data,
+                    files=files,
+                    headers=headers
+                )
+                if res.status_code == 201:
+                    flash("Flier posted and sent to e-commerce!", "success")
+                else:
+                    flash("Flier posted locally, but failed to sync.", "warning")
+            except Exception as e:
+                print("Error posting flier to e-commerce:", e)
+                flash("Flier posted locally. Failed to send to e-commerce.", "danger")
+            finally:
+                files['image'].close()
+
+        else:
+            flash("Invalid or missing image file.", "danger")
+
+        return redirect(url_for('admin.post_flier'))
+
+    return render_template('admin/post_flier.html')
+
+# update flier
+@admin_bp.route('/admin/update-flier/<int:flier_id>', methods=['GET', 'POST'])
+@login_required
+def update_flier(flier_id):
+    flier = PromotionFlier.query.get_or_404(flier_id)
+
+    if request.method == 'POST':
+        new_title = request.form.get('title', '').strip()
+        new_image = request.files.get('image')
+
+        if new_title:
+            flier.title = new_title
+
+        if new_image and allowed_image_file(new_image.filename):
+            filename = secure_filename(new_image.filename)
+            path = os.path.join(current_app.root_path, 'static', 'fliers', filename)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            new_image.save(path)
+            flier.image_filename = filename
+        db.session.commit()
+
+        # Sync to e-commerce
+        try:
+            API_TOKEN = os.getenv('API_TOKEN')
+            headers = {'Authorization': f'Bearer {API_TOKEN}'}
+            data = {'title': flier.title}
+            files = {}
+            if new_image:
+                files['image'] = open(path, 'rb')
+
+            res = requests.put(f"http://localhost:5001/api/fliers/{flier.id}", data=data, files=files, headers=headers)
+            if files:
+                files['image'].close()
+
+            if res.status_code == 200:
+                flash("Flier updated and synced with e-commerce.", "success")
+            else:
+                flash("Flier updated locally, but failed to sync with e-commerce.", "warning")
+        except Exception as e:
+            print("Error updating flier on e-commerce:", e)
+            flash("Flier updated locally. Failed to sync.", "danger")
+
+        return redirect(url_for('admin.post_flier'))
+
+    return render_template('admin/update_flier.html', flier=flier)
+
+# delete flier
+@admin_bp.route('/admin/delete-flier/<int:flier_id>', methods=['POST'])
+@login_required
+def delete_flier(flier_id):
+    flier = PromotionFlier.query.get_or_404(flier_id)
+    image_path = os.path.join(current_app.root_path, 'static', 'fliers', flier.image_filename)
+
+    # Delete from DB
+    db.session.delete(flier)
+    db.session.commit()
+
+    # Delete image file (optional)
+    if os.path.exists(image_path):
+        os.remove(image_path)
+
+    # Sync delete to e-commerce
+    try:
+        API_TOKEN = os.getenv('API_TOKEN')
+        headers = {'Authorization': f'Bearer {API_TOKEN}'}
+        res = requests.delete(f"http://localhost:5001/api/fliers/{flier.id}", headers=headers)
+        if res.status_code == 200:
+            flash("Flier deleted from both platforms.", "success")
+        else:
+            flash("Flier deleted locally, but not on e-commerce.", "warning")
+    except Exception as e:
+        print("Error deleting flier from e-commerce:", e)
+        flash("Flier deleted locally. Failed to delete from e-commerce.", "danger")
+
+    return redirect(url_for('admin.manage_fliers'))
+
+@admin_bp.route('/admin/manage-fliers')
+@login_required
+def manage_fliers():
+    fliers = PromotionFlier.query.order_by(PromotionFlier.id.desc()).all()
+    return render_template('admin/manage_fliers.html', fliers=fliers)
+
+# Newsletter
+@admin_bp.route('/admin/newsletter', methods=['GET', 'POST'])
+def create_newsletter():
+    if request.method == 'POST':
+        title = request.form.get('title')
+        content = request.form.get('content')
+
+        if not title or not content:
+            flash("Title and content are required.", "danger")
+            return redirect(url_for('admin.create_newsletter'))
+
+        # Save to admin DB
+        newsletter = Newsletter(title=title, content=content)
+        db.session.add(newsletter)
+        db.session.commit()
+
+        # Fetch subscribers from e-commerce API
+        API_TOKEN = os.getenv('API_TOKEN')
+        try:
+            res = requests.get(
+                "http://127.0.0.1:5001/api/newsletter-subscribers",
+                headers={'Authorization': f'Bearer {API_TOKEN}'}
+            )
+            subscribers = res.json().get('subscribers', [])
+
+            for email in subscribers:
+                msg = Message(
+                    subject=title,
+                    recipients=[email],
+                    html=content
+                )
+                mail.send(msg)
+
+            flash("Newsletter sent to subscribers.", "success")
+
+        except Exception as e:
+            print("Error sending newsletter:", e)
+            flash("Failed to send newsletter to subscribers.", "danger")
+
+        return redirect(url_for('admin.list_newsletters'))
+
+    return render_template('admin/create_newsletter.html')
+
+# list newsletter
+@admin_bp.route('/admin/newsletters')
+def list_newsletters():
+    newsletters = Newsletter.query.order_by(Newsletter.created_on.desc()).all()
+    return render_template('admin/list_newsletters.html', newsletters=newsletters)
+
+@admin_bp.route('/admin/newsletter/<int:id>')
+def view_newsletter(id):
+    newsletter = Newsletter.query.get_or_404(id)
+    return render_template('admin/view_newsletter.html', newsletter=newsletter)
+
+@admin_bp.route('/admin/newsletter/<int:id>/edit', methods=['GET', 'POST'])
+def edit_newsletter(id):
+    newsletter = Newsletter.query.get_or_404(id)
+
+    if request.method == 'POST':
+        newsletter.title = request.form.get('title')
+        newsletter.content = request.form.get('content')
+
+        if not newsletter.title or not newsletter.content:
+            flash("Title and content are required.", "danger")
+            return redirect(url_for('admin.edit_newsletter', id=id))
+
+        db.session.commit()
+        flash("Newsletter updated successfully.", "success")
+        return redirect(url_for('admin.view_newsletter', id=id))
+
+    return render_template('admin/edit_newsletter.html', newsletter=newsletter)
+
+@admin_bp.route('/admin/newsletter/<int:id>/delete', methods=['POST'])
+def delete_newsletter(id):
+    newsletter = Newsletter.query.get_or_404(id)
+    db.session.delete(newsletter)
+    db.session.commit()
+    flash("Newsletter deleted successfully.", "success")
+    return redirect(url_for('admin.list_newsletters'))

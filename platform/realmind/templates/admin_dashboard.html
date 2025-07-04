@@ -4,99 +4,238 @@
 
 {% block content %}
 <style>
-    
+#sidebar {
+  position: fixed;
+  top: 56px; /* navbar height */
+  left: 0;
+  width: 250px;
+  height: calc(100vh - 56px);
+  background: #f8f9fa;
+  padding: 10px;
+  overflow-y: auto;
+  border-right: 1px solid #ddd;
+  transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+}
+
+#sidebar.collapsed {
+  width: 70px;
+}
+
+#sidebar.collapsed .nav-link span {
+  display: none;
+}
+
+#sidebar.collapsed h5,
+#sidebar.collapsed h6 {
+  display: none;
+}
+
+#sidebar.collapsed .mobile-only {
+  display: none;
+}
+
+#mainContent {
+  margin-left: 250px;
+  padding-top: 20px;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+#sidebar.collapsed ~ #mainContent {
+  margin-left: 70px;
+}
+
+#sidebarToggle {
+  position: fixed;
+  top: 60px;
+  left: 10px;
+  z-index: 1050;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #sidebar {
+    transform: translateX(-250px);
+  }
+
+  #sidebar.visible {
+    transform: translateX(0);
+  }
+
+  #mainContent {
+    margin-left: 0;
+  }
+
+  #sidebar.collapsed {
+    width: 250px;
+  }
+
+  #sidebarToggle {
+    display: block;
+  }
+}
 </style>
 
-<!-- Toggle button for small screens -->
+<!-- Toggle button -->
 <button id="sidebarToggle">☰</button>
 
 <div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <nav id="sidebar">
-            <div>
-                <h5 class="mb-3">Admin Panel</h5>
+  <div class="row">
+    <!-- Sidebar -->
+    <nav id="sidebar">
+      <div>
+        <h5 class="mb-3 text-center">Admin Panel</h5>
 
-                <h6>Jobs</h6>
-                <ul class="nav flex-column mb-2">
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.post_job') }}">Post Job</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.admin_dashboard') }}">Manage Jobs</a></li>
-                </ul>
+        <h6>Jobs</h6>
+        <ul class="nav flex-column mb-2">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin.post_job') }}">
+              <i class="fas fa-plus-circle"></i> <span>Post Job</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin.admin_dashboard') }}">
+              <i class="fas fa-tasks"></i> <span>Manage Jobs</span>
+            </a>
+          </li>
+        </ul>
 
-                <h6>News</h6>
-                <ul class="nav flex-column mb-2">
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.post_news') }}">Post News</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.admin_news_dashboard') }}">Manage News</a></li>
-                </ul>
+        <h6>News</h6>
+        <ul class="nav flex-column mb-2">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin.post_news') }}">
+              <i class="fas fa-newspaper"></i> <span>Post News</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin.admin_news_dashboard') }}">
+              <i class="fas fa-edit"></i> <span>Manage News</span>
+            </a>
+          </li>
+        </ul>
 
-                <h6>Gallery</h6>
-                <ul class="nav flex-column mb-2">
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.upload_gallery') }}">Upload Gallery</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.manage_gallery') }}">Manage Gallery</a></li>
-                </ul>
+        <h6>Gallery</h6>
+        <ul class="nav flex-column mb-2">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin.upload_gallery') }}">
+              <i class="fas fa-upload"></i> <span>Upload Gallery</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin.manage_gallery') }}">
+              <i class="fas fa-images"></i> <span>Manage Gallery</span>
+            </a>
+          </li>
+        </ul>
 
-                <h6>Products</h6>
-                <ul class="nav flex-column mb-2">
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.add_product') }}">Add Product</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.manage_products') }}">Manage Products</a></li>
-                </ul>
-                <h6>Resources Info</h6>
-                <ul class="nav flex-column mb-2">
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.upload_info') }}">Upload Resources Info</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.manage_info') }}">Manage Resources Info</a></li>
-                </ul>
-                <h6>Orders</h6>
-                <ul class="nav flex-column mb-2">
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.received_orders') }}">View Orders</a></li>
-                </ul>
+        <h6>Products</h6>
+        <ul class="nav flex-column mb-2">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin.add_product') }}">
+              <i class="fas fa-box"></i> <span>Add Product</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin.manage_products') }}">
+              <i class="fas fa-boxes"></i> <span>Manage Products</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin.post_flier') }}">
+              <i class="fas fa-ad"></i> <span>Post Promotion Flier</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin.manage_fliers') }}">
+              <i class="fas fa-bullhorn"></i> <span>Manage Flier</span>
+            </a>
+          </li>
+        </ul>
 
-                <h6>Settings</h6>
-                <ul class="nav flex-column mb-2">
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.settings') }}">Settings</a></li>
-                </ul>
-            </div>
+        <h6>Resources Info</h6>
+        <ul class="nav flex-column mb-2">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin.upload_info') }}">
+              <i class="fas fa-upload"></i> <span>Upload Info</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin.manage_info') }}">
+              <i class="fas fa-cogs"></i> <span>Manage Info</span>
+            </a>
+          </li>
+        </ul>
 
-            <!-- Mobile-only logout -->
-            <div class="text-center py-4 mobile-only border-top mt-3">
-                {% if current_user.profile_pic %}
-                    <img src="{{ url_for('static', filename='uploads/' ~ current_user.profile_pic) }}"
-                         class="rounded-circle mb-2" width="70" height="70" alt="Profile Picture">
-                {% else %}
-                    <img src="{{ url_for('static', filename='images/default-profile.webp') }}"
-                         class="rounded-circle mb-2" width="70" height="70" alt="Default Picture">
-                {% endif %}
-                <p class="mb-1"><strong>{{ current_user.username }}</strong></p>
-                <form method="POST" action="{{ url_for('auth.logout') }}">
-                    <button class="btn btn-danger btn-sm w-75">Logout</button>
-                </form>
-            </div>
-        </nav>
+        <h6>Orders</h6>
+        <ul class="nav flex-column mb-2">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin.received_orders') }}">
+              <i class="fas fa-shopping-cart"></i> <span>View Orders</span>
+            </a>
+          </li>
+        </ul>
 
-        <!-- Main content -->
-        <main id="mainContent" class="col px-md-4">
-            {% if jobs %}
-                <h5 class="mb-3">Posted Jobs</h5>
-                <div class="list-group">
-                    {% for job in jobs %}
-                        <div class="list-group-item">
-                            <h6>{{ job.title }}</h6>
-                            <p>{{ job.description }}</p>
-                            <a href="{{ url_for('admin.view_applicants', job_id=job.id) }}" class="btn btn-outline-secondary btn-sm">View Applicants</a>
-                        </div><br>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-muted">No jobs posted yet.</p>
-            {% endif %}
-        </main>
-    </div>
+        <h6>NewsLetter</h6>
+        <ul class="nav flex-column mb-2">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin.create_newsletter') }}">
+              <i class="fas fa-upload"></i> <span>Upload Newsletter</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin.list_newsletters') }}">
+              <i class="fas fa-newspaper"></i> <span>Manage Newsletter</span>
+            </a>
+          </li>
+        </ul>
+
+        <h6>Settings</h6>
+        <ul class="nav flex-column mb-2">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin.settings') }}">
+              <i class="fas fa-cog"></i> <span>Settings</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main content -->
+    <main id="mainContent" class="col">
+      {% if jobs %}
+        <h5 class="mb-3">Posted Jobs</h5>
+        <div class="list-group">
+          {% for job in jobs %}
+            <div class="list-group-item">
+              <h6>{{ job.title }}</h6>
+              <p>{{ job.description }}</p>
+              <a href="{{ url_for('admin.view_applicants', job_id=job.id) }}" class="btn btn-outline-secondary btn-sm">View Applicants</a>
+            </div><br>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-muted">No jobs posted yet.</p>
+      {% endif %}
+    </main>
+  </div>
 </div>
 
 <script>
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebar = document.getElementById('sidebar');
-    sidebarToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('visible');
-    });
+const sidebarToggle = document.getElementById('sidebarToggle');
+const sidebar = document.getElementById('sidebar');
+
+sidebarToggle.addEventListener('click', () => {
+  if (window.innerWidth <= 768) {
+    // Small screen toggle
+    sidebar.classList.toggle('visible');
+  } else {
+    // Large screen collapse/expand
+    sidebar.classList.toggle('collapsed');
+  }
+});
 </script>
 {% endblock %}
