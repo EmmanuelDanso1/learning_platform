@@ -4,12 +4,20 @@
 
 {% block content %}
 <style>
+  h5{
+    color: #0C2E60 !important;
+  }
+  .nav-link,
+  .nav-link i,
+  .nav-link  span {
+    color: #0C2E60 !important;
+  }
 #sidebar {
   position: fixed;
-  top: 56px; /* navbar height */
+  top: 95px; /* navbar height */
   left: 0;
   width: 250px;
-  height: calc(100vh - 56px);
+  height: calc(100vh - 80px);
   background: #f8f9fa;
   padding: 10px;
   overflow-y: auto;
@@ -88,10 +96,13 @@
     <!-- Sidebar -->
     <nav id="sidebar">
       <div>
-        <h5 class="mb-3 text-center">Admin Panel</h5>
+        <div class="text-center mb-3">
+          <h4 style="color:#0C2E60;">Admin Panel</h4>
+          <div style="height: 4px; width: 120px; background-color: #0C2E60; margin: 0 auto; border-radius: 2px;"></div>
+        </div>
 
-        <h6>Jobs</h6>
-        <ul class="nav flex-column mb-2">
+        <h5 style="color:#0C2E60">Jobs</h5>
+        <ul class="nav flex-column mb-2" >
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('admin.post_job') }}">
               <i class="fas fa-plus-circle"></i> <span>Post Job</span>
@@ -104,7 +115,7 @@
           </li>
         </ul>
 
-        <h6>News</h6>
+        <h5>News</h5>
         <ul class="nav flex-column mb-2">
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('admin.post_news') }}">
@@ -118,7 +129,7 @@
           </li>
         </ul>
 
-        <h6>Gallery</h6>
+        <h5>Gallery</h5>
         <ul class="nav flex-column mb-2">
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('admin.upload_gallery') }}">
@@ -132,7 +143,7 @@
           </li>
         </ul>
 
-        <h6>Products</h6>
+        <h5>Products</h5>
         <ul class="nav flex-column mb-2">
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('admin.add_product') }}">
@@ -156,7 +167,7 @@
           </li>
         </ul>
 
-        <h6>Resources Info</h6>
+        <h5>Resources Info</h5>
         <ul class="nav flex-column mb-2">
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('admin.upload_info') }}">
@@ -170,7 +181,7 @@
           </li>
         </ul>
 
-        <h6>Orders</h6>
+        <h5>Orders</h5>
         <ul class="nav flex-column mb-2">
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('admin.received_orders') }}">
@@ -179,7 +190,7 @@
           </li>
         </ul>
 
-        <h6>NewsLetter</h6>
+        <h5>NewsLetter</h5>
         <ul class="nav flex-column mb-2">
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('admin.create_newsletter') }}">
@@ -193,7 +204,7 @@
           </li>
         </ul>
 
-        <h6>Settings</h6>
+        <h5>Settings</h5>
         <ul class="nav flex-column mb-2">
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('admin.settings') }}">
@@ -207,7 +218,7 @@
     <!-- Main content -->
     <main id="mainContent" class="col">
       {% if jobs %}
-        <h5 class="mb-3">Posted Jobs</h5>
+        <h2 class="mb-3 text-center" style="color:#0C2E60">Posted Jobs</h2>
         <div class="list-group">
           {% for job in jobs %}
             <div class="list-group-item">

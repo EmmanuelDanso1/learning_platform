@@ -3,7 +3,7 @@ from realmind import db
 
 class ReceivedOrder(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    original_order_id = db.Column(db.Integer)
+    original_order_id = db.Column(db.String(50))
     user_id = db.Column(db.Integer)
     full_name = db.Column(db.String(120))
     email = db.Column(db.String(120))
