@@ -9,6 +9,7 @@ from flask_mail import Message
 import os
 import json
 import requests
+from realmind.utils.email import send_order_status_email
 from realmind.utils.util import UPLOAD_FOLDER, allowed_profile_pic,allowed_image_file, allowed_document, allowed_file
 
 
@@ -831,38 +832,6 @@ def delete_received_order(order_id):
     return redirect(url_for('admin.received_orders'))
 
 
-# update order status
-@admin_bp.route('/update-received-order-status/<int:order_id>', methods=['POST'])
-@login_required
-def update_received_order_status(order_id):
-    # 1. Fetch local received order
-    order = ReceivedOrder.query.get_or_404(order_id)
-    new_status = request.form.get('status')
-
-    if new_status not in ['Received', 'In Process', 'Delivered']:
-        return jsonify({'error': 'Invalid status'}), 400
-
-    # 2. Update status locally
-    order.status = new_status
-    db.session.commit()
-
-    # 3. Send update to e-commerce backend
-    api_url = f"http://127.0.0.1:5001/api/orders/{order.original_order_id}/status"
-    token = os.getenv('API_TOKEN')
-    headers = {'Authorization': f'Bearer {token}'}
-    payload = {'status': new_status}
-
-    try:
-        response = requests.post(api_url, json=payload, headers=headers)
-        if response.status_code != 200:
-            current_app.logger.error(f"API update failed: {response.text}")
-            return jsonify({'error': 'API sync failed'}), 500
-    except Exception as e:
-        current_app.logger.error(f"API request error: {e}")
-        return jsonify({'error': 'API request error'}), 500
-
-    return jsonify({'success': True, 'status': new_status})
-
 
 # admin to post flyer
 @admin_bp.route('/admin/post-flier', methods=['GET', 'POST'])
@@ -1077,3 +1046,46 @@ def delete_newsletter(id):
     db.session.commit()
     flash("Newsletter deleted successfully.", "success")
     return redirect(url_for('admin.list_newsletters'))
+
+# send order status mail
+@admin_bp.route('/update-received-order-status/<int:order_id>', methods=['POST'])
+@login_required
+def update_received_order_status(order_id):
+    order = ReceivedOrder.query.get_or_404(order_id)
+    new_status = request.form.get('status')
+
+    if new_status not in ['Received', 'In Process', 'Delivered']:
+        return jsonify({'error': 'Invalid status'}), 400
+
+    # Update local DB
+    order.status = new_status
+    db.session.commit()
+
+    # Send email to user if delivered
+    if new_status == 'Delivered':
+        try:
+            send_order_status_email(
+                to=order.email,
+                full_name=order.full_name,
+                order_id=order.original_order_id,
+                status=new_status
+            )
+        except Exception as e:
+            current_app.logger.error(f"Failed to send delivery email: {e}")
+
+    # Send API update to e-commerce
+    api_url = f"http://127.0.0.1:5001/api/orders/{order.original_order_id}/status"
+    token = os.getenv('API_TOKEN')
+    headers = {'Authorization': f'Bearer {token}'}
+    payload = {'status': new_status}
+
+    try:
+        response = requests.post(api_url, json=payload, headers=headers)
+        if response.status_code != 200:
+            current_app.logger.error(f"API update failed: {response.text}")
+            return jsonify({'error': 'API sync failed'}), 500
+    except Exception as e:
+        current_app.logger.error(f"API request error: {e}")
+        return jsonify({'error': 'API request error'}), 500
+
+    return jsonify({'success': True, 'status': new_status})
