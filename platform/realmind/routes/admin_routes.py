@@ -8,6 +8,7 @@ from realmind import db, mail
 from flask_mail import Message
 import os
 import json
+from datetime import datetime
 import requests
 from realmind.utils.email import send_order_status_email
 from realmind.utils.util import UPLOAD_FOLDER, allowed_profile_pic,allowed_image_file, allowed_document, allowed_file
@@ -1068,7 +1069,8 @@ def update_received_order_status(order_id):
                 to=order.email,
                 full_name=order.full_name,
                 order_id=order.original_order_id,
-                status=new_status
+                status=new_status,
+                order_date=datetime.now().strftime('%d %B %Y %I:%M%p').lower()
             )
         except Exception as e:
             current_app.logger.error(f"Failed to send delivery email: {e}")
