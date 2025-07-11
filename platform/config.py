@@ -2,7 +2,7 @@ import os
 
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY')
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///site.db'
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
 
     # Flask session cookie (avoid conflict with other apps)
     SESSION_COOKIE_NAME = "learning_platform_session"

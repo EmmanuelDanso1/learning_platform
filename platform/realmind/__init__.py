@@ -27,7 +27,7 @@ def create_app():
     app = Flask(__name__)
 
     # Base config
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///platform.db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
     app.config['MAIL_SERVER'] = 'smtp.gmail.com'
     app.config['MAIL_PORT'] = 587
