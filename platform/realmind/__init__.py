@@ -1,4 +1,5 @@
 import os
+from flask_wtf import CSRFProtect
 from flask import Flask, current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
@@ -21,11 +22,12 @@ login_manager.login_view = 'auth.user_login'
 # Optional: serializer instance for password reset
 serializer = URLSafeTimedSerializer(os.getenv("SECRET_KEY"))
 
-
-
+# csrf token
+csrf = CSRFProtect()
 def create_app():
     app = Flask(__name__)
-
+    # csrf token
+    csrf.init_app(app)
     # Base config
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')

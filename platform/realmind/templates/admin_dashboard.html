@@ -1,252 +1,212 @@
-{% extends 'index.html' %}
-
-{% block title %}Admin Dashboard{% endblock %}
-
 {% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
 <style>
-  h5{
-    color: #0C2E60 !important;
+  body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
   }
-  .nav-link,
-  .nav-link i,
-  .nav-link  span {
-    color: #0C2E60 !important;
+  .bg-steel {
+    background-color: #0C2E60;
   }
-#sidebar {
-  position: fixed;
-  top: 95px; /* navbar height */
-  left: 0;
-  width: 250px;
-  height: calc(100vh - 80px);
-  background: #f8f9fa;
-  padding: 10px;
-  overflow-y: auto;
-  border-right: 1px solid #ddd;
-  transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
-}
 
-#sidebar.collapsed {
-  width: 70px;
-}
+  #mainWrapper {
+    display: flex;
+    margin-top: 80px;
+    height: calc(100vh - 80px);
+  }
 
-#sidebar.collapsed .nav-link span {
-  display: none;
-}
-
-#sidebar.collapsed h5,
-#sidebar.collapsed h6 {
-  display: none;
-}
-
-#sidebar.collapsed .mobile-only {
-  display: none;
-}
-
-#mainContent {
-  margin-left: 250px;
-  padding-top: 20px;
-  transition: margin-left 0.3s ease-in-out;
-}
-
-#sidebar.collapsed ~ #mainContent {
-  margin-left: 70px;
-}
-
-#sidebarToggle {
-  position: fixed;
-  top: 60px;
-  left: 10px;
-  z-index: 1050;
-  background: #007bff;
-  color: #fff;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
   #sidebar {
-    transform: translateX(-250px);
-  }
-
-  #sidebar.visible {
-    transform: translateX(0);
-  }
-
-  #mainContent {
-    margin-left: 0;
+    width: 250px;
+    background: #f8f9fa;
+    padding: 10px;
+    overflow-y: auto;
+    border-right: 1px solid #ddd;
+    transition: all 0.3s ease-in-out;
   }
 
   #sidebar.collapsed {
-    width: 250px;
+    width: 70px;
+  }
+
+  #sidebar.collapsed .nav-link span,
+  #sidebar.collapsed .accordion-button:not(.collapsed)::after,
+  #sidebar.collapsed .accordion-button::after,
+  #sidebar.collapsed .accordion-header span {
+    display: none !important;
+  }
+
+  #sidebar.collapsed .accordion-button {
+    padding-left: 0.75rem !important;
+  }
+
+  #mainContent {
+    flex: 1;
+    overflow-y: auto;
+    padding: 30px;
   }
 
   #sidebarToggle {
-    display: block;
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    color: white;
+    margin-left: 10px;
+    margin-right: 10px;
   }
-}
+
+  @media (max-width: 768px) {
+    #sidebar {
+      transform: translateX(-250px);
+      position: absolute;
+      height: 100vh;
+      z-index: 999;
+    }
+
+    #sidebar.visible {
+      transform: translateX(0);
+    }
+
+    #sidebar.collapsed {
+      width: 250px;
+    }
+
+    #mainWrapper {
+      flex-direction: column;
+    }
+
+    #mainContent {
+      margin-left: 0;
+    }
+  }
+
+  .dashboard-banner {
+    color:#0C2E60;
+    padding: 30px;
+    border-radius: 0 0 10px 10px;
+    margin-bottom: 20px;
+  }
+
+  .dashboard-title {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+  }
+
+  .dashboard-subtitle {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 400;
+  }
+
+  .accordion-button::after {
+    margin-left: auto;
+  }
+  
+
 </style>
 
-<!-- Toggle button -->
-<button id="sidebarToggle">☰</button>
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-steel fixed-top">
+  <div class="container-fluid">
+    <div class="d-flex align-items-center">
+      <button id="sidebarToggle">☰</button>
+      <a class="navbar-brand d-flex align-items-center ms-2"
+         href="{% if current_user.is_authenticated %}
+                  {% if current_user.is_admin %}
+                    {{ url_for('admin.admin_dashboard') }}
+                  {% else %}
+                    {{ url_for('user.users_dashboard') }}
+                  {% endif %}
+               {% else %}
+                  {{ url_for('main.home') }}
+               {% endif %}">
+        <img src="{{ url_for('static', filename='images/brain.jpg') }}" alt="Logo" style="height: 40px; border-radius: 50%; margin-right: 10px;">
+        RealMindX Education
+      </a>
+    </div>
 
-<div class="container-fluid">
-  <div class="row">
-    <!-- Sidebar -->
-    <nav id="sidebar">
-      <div>
-        <div class="text-center mb-3">
-          <h4 style="color:#0C2E60;">Admin Panel</h4>
-          <div style="height: 4px; width: 120px; background-color: #0C2E60; margin: 0 auto; border-radius: 2px;"></div>
-        </div>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-        <h5 style="color:#0C2E60">Jobs</h5>
-        <ul class="nav flex-column mb-2" >
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin.post_job') }}">
-              <i class="fas fa-plus-circle"></i> <span>Post Job</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin.admin_dashboard') }}">
-              <i class="fas fa-tasks"></i> <span>Manage Jobs</span>
-            </a>
-          </li>
-        </ul>
-
-        <h5>News</h5>
-        <ul class="nav flex-column mb-2">
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin.post_news') }}">
-              <i class="fas fa-newspaper"></i> <span>Post News</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin.admin_news_dashboard') }}">
-              <i class="fas fa-edit"></i> <span>Manage News</span>
-            </a>
-          </li>
-        </ul>
-
-        <h5>Gallery</h5>
-        <ul class="nav flex-column mb-2">
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin.upload_gallery') }}">
-              <i class="fas fa-upload"></i> <span>Upload Gallery</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin.manage_gallery') }}">
-              <i class="fas fa-images"></i> <span>Manage Gallery</span>
-            </a>
-          </li>
-        </ul>
-
-        <h5>Products</h5>
-        <ul class="nav flex-column mb-2">
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin.add_product') }}">
-              <i class="fas fa-box"></i> <span>Add Product</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin.manage_products') }}">
-              <i class="fas fa-boxes"></i> <span>Manage Products</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin.post_flier') }}">
-              <i class="fas fa-ad"></i> <span>Post Promotion Flier</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin.manage_fliers') }}">
-              <i class="fas fa-bullhorn"></i> <span>Manage Flier</span>
-            </a>
-          </li>
-        </ul>
-
-        <h5>Resources Info</h5>
-        <ul class="nav flex-column mb-2">
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin.upload_info') }}">
-              <i class="fas fa-upload"></i> <span>Upload Info</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin.manage_info') }}">
-              <i class="fas fa-cogs"></i> <span>Manage Info</span>
-            </a>
-          </li>
-        </ul>
-
-        <h5>Orders</h5>
-        <ul class="nav flex-column mb-2">
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin.received_orders') }}">
-              <i class="fas fa-shopping-cart"></i> <span>View Orders</span>
-            </a>
-          </li>
-        </ul>
-
-        <h5>NewsLetter</h5>
-        <ul class="nav flex-column mb-2">
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin.create_newsletter') }}">
-              <i class="fas fa-upload"></i> <span>Upload Newsletter</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin.list_newsletters') }}">
-              <i class="fas fa-newspaper"></i> <span>Manage Newsletter</span>
-            </a>
-          </li>
-        </ul>
-
-        <h5>Settings</h5>
-        <ul class="nav flex-column mb-2">
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin.settings') }}">
-              <i class="fas fa-cog"></i> <span>Settings</span>
-            </a>
-          </li>
-        </ul>
-      </div>
-    </nav>
-
-    <!-- Main content -->
-    <main id="mainContent" class="col">
-      {% if jobs %}
-        <h2 class="mb-3 text-center" style="color:#0C2E60">Posted Jobs</h2>
-        <div class="list-group">
-          {% for job in jobs %}
-            <div class="list-group-item">
-              <h6>{{ job.title }}</h6>
-              <p>{{ job.description }}</p>
-              <a href="{{ url_for('admin.view_applicants', job_id=job.id) }}" class="btn btn-outline-secondary btn-sm">View Applicants</a>
-            </div><br>
-          {% endfor %}
-        </div>
-      {% else %}
-        <p class="text-muted">No jobs posted yet.</p>
-      {% endif %}
-    </main>
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav">
+        {% if current_user.is_authenticated %}
+        <li class="nav-item d-flex align-items-center ms-2">
+          <div class="d-flex flex-column align-items-center text-white me-3">
+            {% if current_user.profile_pic %}
+              <img src="{{ url_for('static', filename='uploads/' ~ current_user.profile_pic) }}"
+                   alt="Profile"
+                   style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+            {% else %}
+              <img src="{{ url_for('static', filename='images/default-profile.webp') }}"
+                   alt="Default Profile"
+                   style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+            {% endif %}
+            <small>{{ current_user.username }}</small>
+          </div>
+          <a class="btn btn-danger" href="{{ url_for('auth.logout') }}">Logout</a>
+        </li>
+        {% else %}
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.home') }}">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.about') }}">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.services') }}">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.news') }}">News</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.gallery') }}">Gallery</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Stationary</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.contact') }}">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('donation.donate') }}">Donations</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('jobs.job_listings') }}">Job Post</a></li>
+        {% endif %}
+      </ul>
+    </div>
   </div>
+</nav>
+
+<!-- Sidebar + Main Content -->
+<div id="mainWrapper">
+  {% include 'admin/sidebar.html' %}
+
+  <main id="mainContent">
+    <div class="dashboard-banner">
+      <div class="container-fluid d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="dashboard-title text-center">Admin Dashboard</h2>
+          <p class="dashboard-subtitle text-center">Welcome back!</p>
+        </div>
+      </div>
+    </div>
+
+    {% if jobs %}
+      <h2 class="mb-3 text-center" style="color:#0C2E60">Posted Jobs</h2>
+      <div class="list-group">
+        {% for job in jobs %}
+          <div class="list-group-item">
+            <h6>{{ job.title }}</h6>
+            <p>{{ job.description }}</p>
+            <a href="{{ url_for('admin.view_applicants', job_id=job.id) }}" class="btn btn-outline-secondary btn-sm">View Applicants</a>
+          </div><br>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-muted">No jobs posted yet.</p>
+    {% endif %}
+  </main>
 </div>
 
 <script>
-const sidebarToggle = document.getElementById('sidebarToggle');
-const sidebar = document.getElementById('sidebar');
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const sidebar = document.getElementById('sidebar');
 
-sidebarToggle.addEventListener('click', () => {
-  if (window.innerWidth <= 768) {
-    // Small screen toggle
-    sidebar.classList.toggle('visible');
-  } else {
-    // Large screen collapse/expand
-    sidebar.classList.toggle('collapsed');
-  }
-});
+  sidebarToggle.addEventListener('click', () => {
+    if (window.innerWidth <= 768) {
+      sidebar.classList.toggle('visible');
+    } else {
+      sidebar.classList.toggle('collapsed');
+    }
+  });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}

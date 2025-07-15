@@ -214,6 +214,67 @@ def post_job():
         current_page=page
     )
 
+# manage jobs
+@admin_bp.route('/admin/manage-jobs')
+@login_required
+def manage_jobs():
+    if not isinstance(current_user, Admin):
+        return redirect(url_for('user.users_dashboard'))
+
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    jobs_paginated = JobPost.query.filter_by(admin_id=current_user.id)\
+                                  .order_by(JobPost.id.desc())\
+                                  .paginate(page=page, per_page=per_page)
+
+    return render_template(
+        'admin/manage_jobs.html',
+        jobs=jobs_paginated.items,
+        current_page=page,
+        total_pages=jobs_paginated.pages
+    )
+
+# edit jobs
+@admin_bp.route('/admin/edit-job/<int:job_id>', methods=['GET', 'POST'])
+@login_required
+def edit_job(job_id):
+    if not isinstance(current_user, Admin):
+        return redirect(url_for('user.users_dashboard'))
+
+    job = JobPost.query.get_or_404(job_id)
+    if job.admin_id != current_user.id:
+        flash("Unauthorized access", "danger")
+        return redirect(url_for('admin.manage_jobs'))
+
+    form = JobPostForm(obj=job)
+
+    if form.validate_on_submit():
+        job.title = form.title.data
+        job.description = form.description.data
+        job.requirements = form.requirements.data
+        db.session.commit()
+        flash("Job updated successfully!", "success")
+        return redirect(url_for('admin.manage_jobs'))
+
+    return render_template('admin/edit_job.html', form=form, job=job)
+
+# delete
+@admin_bp.route('/admin/delete-job/<int:job_id>', methods=['POST'])
+@login_required
+def delete_job(job_id):
+    if not isinstance(current_user, Admin):
+        return redirect(url_for('user.users_dashboard'))
+
+    job = JobPost.query.get_or_404(job_id)
+    if job.admin_id != current_user.id:
+        flash("Unauthorized access", "danger")
+        return redirect(url_for('admin.manage_jobs'))
+
+    db.session.delete(job)
+    db.session.commit()
+    flash("Job deleted successfully!", "success")
+    return redirect(url_for('admin.manage_jobs'))
+
 
 @admin_bp.route('/admin/post-news', methods=['GET', 'POST'])
 @login_required
@@ -554,48 +615,6 @@ def accept_application(application_id):
     flash('Application accepted.', 'success')
     return redirect(url_for('admin.view_applicants', job_id=application.job_id))
 
-# --- Edit Job Post ---
-@admin_bp.route('/admin/edit-job/<int:job_id>', methods=['GET', 'POST'])
-@login_required
-def edit_job(job_id):
-    if not isinstance(current_user, Admin):
-        return redirect(url_for('main.users_dashboard'))
-
-    job = JobPost.query.get_or_404(job_id)
-
-    if job.admin_id != current_user.id:
-        flash("You are not authorized to edit this job.", "danger")
-        return redirect(url_for('admin.post_job'))
-
-    form = JobPostForm(obj=job)
-
-    if form.validate_on_submit():
-        job.title = form.title.data
-        job.description = form.description.data
-        job.requirements = form.requirements.data
-        db.session.commit()
-        flash('Job updated successfully!', 'success')
-        return redirect(url_for('admin.post_job'))
-
-    return render_template('edit_job.html', form=form, job=job)
-
-# --- Delete Job Post ---
-@admin_bp.route('/admin/delete-job/<int:job_id>', methods=['POST'])
-@login_required
-def delete_job(job_id):
-    if not isinstance(current_user, Admin):
-        return redirect(url_for('main.users_dashboard'))
-
-    job = JobPost.query.get_or_404(job_id)
-
-    if job.admin_id != current_user.id:
-        flash("You are not authorized to delete this job.", "danger")
-        return redirect(url_for('admin.post_job'))
-
-    db.session.delete(job)
-    db.session.commit()
-    flash('Job deleted successfully!', 'success')
-    return redirect(url_for('admin.post_job'))
 
 
 @admin_bp.route('/upload_info', methods=['GET', 'POST'])

@@ -1,0 +1,146 @@
+<style>/* icons and text change */
+  #sidebar .accordion-button span,
+  #sidebar .accordion-button i {
+  color: #0C2E60 !important;
+  }</style>
+<nav id="sidebar">
+  <div class="accordion" id="adminAccordion">
+
+    <!-- Jobs -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="jobsHeading">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#jobsCollapse" aria-expanded="true" aria-controls="jobsCollapse">
+          <i class="fas fa-briefcase me-2"></i> <span>Jobs</span>
+        </button>
+      </h2>
+      <div id="jobsCollapse" class="accordion-collapse collapse show" aria-labelledby="jobsHeading" data-bs-parent="#adminAccordion">
+        <div class="accordion-body px-0">
+          <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.post_job') }}"><i class="fas fa-plus-circle"></i> <span>Post Job</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.manage_jobs') }}"><i class="fas fa-tasks"></i> <span>Manage Jobs</span></a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Products -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="productsHeading">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#productsCollapse" aria-expanded="false" aria-controls="productsCollapse">
+          <i class="fas fa-box-open me-2"></i> <span>Products</span>
+        </button>
+      </h2>
+      <div id="productsCollapse" class="accordion-collapse collapse" aria-labelledby="productsHeading" data-bs-parent="#adminAccordion">
+        <div class="accordion-body px-0">
+          <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.add_product') }}"><i class="fas fa-box"></i> <span>Add Product</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.manage_products') }}"><i class="fas fa-boxes"></i> <span>Manage Products</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.post_flier') }}"><i class="fas fa-ad"></i> <span>Post Flier</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.manage_fliers') }}"><i class="fas fa-bullhorn"></i> <span>Manage Flier</span></a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- News -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="newsHeading">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#newsCollapse" aria-expanded="false" aria-controls="newsCollapse">
+          <i class="fas fa-newspaper me-2"></i> <span>News</span>
+        </button>
+      </h2>
+      <div id="newsCollapse" class="accordion-collapse collapse" aria-labelledby="newsHeading" data-bs-parent="#adminAccordion">
+        <div class="accordion-body px-0">
+          <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.post_news') }}"><i class="fas fa-pen"></i> <span>Post News</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.admin_news_dashboard') }}"><i class="fas fa-edit"></i> <span>Manage News</span></a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gallery -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="galleryHeading">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#galleryCollapse" aria-expanded="false" aria-controls="galleryCollapse">
+          <i class="fas fa-image me-2"></i> <span>Gallery</span>
+        </button>
+      </h2>
+      <div id="galleryCollapse" class="accordion-collapse collapse" aria-labelledby="galleryHeading" data-bs-parent="#adminAccordion">
+        <div class="accordion-body px-0">
+          <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.upload_gallery') }}"><i class="fas fa-upload"></i> <span>Upload Gallery</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.manage_gallery') }}"><i class="fas fa-images"></i> <span>Manage Gallery</span></a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="infoHeading">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#infoCollapse" aria-expanded="false" aria-controls="infoCollapse">
+          <i class="fas fa-info-circle me-2"></i> <span>Resources Info</span>
+        </button>
+      </h2>
+      <div id="infoCollapse" class="accordion-collapse collapse" aria-labelledby="infoHeading" data-bs-parent="#adminAccordion">
+        <div class="accordion-body px-0">
+          <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.upload_info') }}"><i class="fas fa-upload"></i> <span>Upload Info</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.manage_info') }}"><i class="fas fa-cogs"></i> <span>Manage Info</span></a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="ordersHeading">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ordersCollapse" aria-expanded="false" aria-controls="ordersCollapse">
+          <i class="fas fa-shopping-cart me-2"></i> <span>Orders</span>
+        </button>
+      </h2>
+      <div id="ordersCollapse" class="accordion-collapse collapse" aria-labelledby="ordersHeading" data-bs-parent="#adminAccordion">
+        <div class="accordion-body px-0">
+          <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.received_orders') }}"><i class="fas fa-eye"></i> <span>View Orders</span></a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Newsletter -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="newsletterHeading">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#newsletterCollapse" aria-expanded="false" aria-controls="newsletterCollapse">
+          <i class="fas fa-envelope-open me-2"></i> <span>Newsletter</span>
+        </button>
+      </h2>
+      <div id="newsletterCollapse" class="accordion-collapse collapse" aria-labelledby="newsletterHeading" data-bs-parent="#adminAccordion">
+        <div class="accordion-body px-0">
+          <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.create_newsletter') }}"><i class="fas fa-upload"></i> <span>Upload Newsletter</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.list_newsletters') }}"><i class="fas fa-newspaper"></i> <span>Manage Newsletter</span></a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="settingsHeading">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#settingsCollapse" aria-expanded="false" aria-controls="settingsCollapse">
+          <i class="fas fa-cog me-2"></i> <span>Settings</span>
+        </button>
+      </h2>
+      <div id="settingsCollapse" class="accordion-collapse collapse" aria-labelledby="settingsHeading" data-bs-parent="#adminAccordion">
+        <div class="accordion-body px-0">
+          <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.settings') }}"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div> <!-- End accordion -->
+</nav>
