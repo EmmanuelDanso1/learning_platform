@@ -3,6 +3,7 @@
     <h2>Apply for {{ job.title }}</h2>
 
     <form action="{{ url_for('user.apply', job_id=job.id) }}" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="cv">Upload your CV (PDF, DOC, DOCX):</label>
         <input type="file" name="cv" required><br><br>
 

@@ -1,7 +1,9 @@
 import uuid
 import requests
-from flask import Blueprint, render_template, request, flash, redirect, url_for, current_app
+from flask import Blueprint, render_template, request, flash, redirect, url_for, current_app, abort
 from realmind.models import Donation
+from flask_wtf.csrf import validate_csrf, generate_csrf, CSRFError
+
 from realmind import db
 
 donation_bp = Blueprint('donation', __name__)
@@ -9,17 +11,21 @@ donation_bp = Blueprint('donation', __name__)
 @donation_bp.route('/donate', methods=['GET', 'POST'])
 def donate():
     if request.method == 'POST':
+        try:
+            token = request.form.get('csrf_token')
+            validate_csrf(token)
+        except CSRFError:
+            abort(400, description="CSRF token is missing or invalid.")
+
         name = request.form['name']
         email = request.form['email']
         amount = int(request.form['amount']) * 100  # Convert to cedis
         reference = str(uuid.uuid4())
 
-        # Save donation attempt
         donation = Donation(name=name, email=email, amount=amount, reference=reference)
         db.session.add(donation)
         db.session.commit()
 
-        # Get Paystack config
         paystack_secret_key = current_app.config['PAYSTACK_SECRET_KEY']
         paystack_public_key = current_app.config['PAYSTACK_PUBLIC_KEY']
         initialize_url = current_app.config['PAYSTACK_INITIALIZE_URL']
@@ -53,8 +59,7 @@ def donate():
             flash("Something went wrong while initializing payment.", "danger")
             return render_template("errors/general_error.html", error=str(e)), 500
 
-    return render_template('donate.html')
-
+    return render_template('donate.html', csrf_token=generate_csrf())
 @donation_bp.route('/donation-success')
 def donation_success():
     return render_template('donation_success.html')

@@ -1,7 +1,10 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, abort
 from realmind.models import News, Gallery
 from flask_mail import Message
+from flask_wtf.csrf import generate_csrf,validate_csrf, CSRFError
 from realmind import mail
+from wtforms.validators import ValidationError
+
 
 import os
 
@@ -50,6 +53,13 @@ def gallery():
 
 @main_bp.route('/submit', methods=['POST'])
 def submit_contact():
+    # Validate CSRF token
+    token = request.form.get('csrf_token')
+    try:
+        validate_csrf(token)
+    except ValidationError:
+        abort(400, description="CSRF token is missing or invalid.")
+
     name = request.form['name']
     email = request.form['email']
     subject = request.form['subject']

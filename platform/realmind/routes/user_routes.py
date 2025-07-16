@@ -1,8 +1,10 @@
-from flask import Blueprint, render_template, request, session, redirect, url_for, flash, current_app, send_from_directory
+from flask import Blueprint,abort, render_template, request, session, redirect, url_for, flash, current_app, send_from_directory
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import os, uuid
+from wtforms.validators import ValidationError
+from flask_wtf.csrf import generate_csrf,validate_csrf, CSRFError
 from realmind import db, mail  # adjust import paths accordingly
 from realmind.models import JobPost, Application, User
 from realmind import db
@@ -27,6 +29,13 @@ def users_dashboard():
 @user_bp.route('/upload_profile_pic', methods=['POST'])
 @login_required
 def upload_profile_pic():
+    # Validate CSRF token
+    token = request.form.get('csrf_token')
+    try:
+        validate_csrf(token)
+    except ValidationError:
+        abort(400, description="CSRF token is missing or invalid.")
+
     if 'profile_pic' not in request.files or request.files['profile_pic'].filename == '':
         flash('No file selected', 'danger')
         return redirect(url_for('user.users_dashboard'))
@@ -52,6 +61,13 @@ def upload_profile_pic():
 @user_bp.route('/delete_profile_pic', methods=['POST'])
 @login_required
 def delete_profile_pic():
+    # CSRF token validation
+    token = request.form.get('csrf_token')
+    try:
+        validate_csrf(token)
+    except ValidationError:
+        abort(400, description="CSRF token is missing or invalid.")
+
     if current_user.profile_pic:
         try:
             os.remove(os.path.join(current_app.root_path, 'static/uploads/', current_user.profile_pic))
@@ -64,18 +80,23 @@ def delete_profile_pic():
     return redirect(url_for('user.users_dashboard'))
 
 
-
 @user_bp.route('/apply_homepage/<int:job_id>', methods=['POST'])
 def apply_homepage(job_id):
+    try:
+        token = request.form.get('csrf_token')
+        validate_csrf(token)
+    except CSRFError:
+        abort(400, description="CSRF token is missing or invalid.")
+
     if not current_user.is_authenticated:
-        session['next'] = 'user.users_dashboard'  # match blueprint endpoint
+        session['next'] = 'user.users_dashboard'
         flash('You must create an account first to apply.', 'warning')
-        return redirect(url_for('auth.user_signup'))  # blueprint: view_name
+        return redirect(url_for('auth.user_signup'))
 
     return redirect(url_for('user.users_dashboard'))
 
 
-# Apply to job
+
 @user_bp.route('/apply/<int:job_id>', methods=['GET', 'POST'])
 @login_required
 def apply(job_id):
@@ -87,6 +108,13 @@ def apply(job_id):
         return redirect(url_for('user.users_dashboard'))
 
     if request.method == 'POST':
+        # CSRF Token Validation
+        token = request.form.get('csrf_token')
+        try:
+            validate_csrf(token)
+        except ValidationError:
+            abort(400, description="CSRF token is missing or invalid.")
+
         cv = request.files.get('cv')
         certificate = request.files.get('certificate')
         cover_letter = request.files.get('cover_letter')

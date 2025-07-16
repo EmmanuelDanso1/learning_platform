@@ -47,6 +47,8 @@ def receive_order():
             db.session.add(received_item)
 
         db.session.commit()
+        print("Order saved:", received_order.original_order_id)
+
         return jsonify({'message': 'Order received successfully'}), 201
 
     except Exception as e:

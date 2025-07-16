@@ -1,6 +1,7 @@
 {% extends "index.html"  %}
 {% block content %}
 <form id="contactForm" class="p-4 bg-light rounded shadow" method="POST" action="/submit">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <h2 class="text-center fw-bold">CONTACT US</h2>
 
     <!-- Name -->

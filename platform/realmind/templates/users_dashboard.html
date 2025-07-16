@@ -8,6 +8,7 @@
 
         <!-- Upload new picture -->
     <form method="POST" action="{{ url_for('user.upload_profile_pic') }}" enctype="multipart/form-data" class="mb-2">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="input-group">
             <input type="file" name="profile_pic" class="form-control" required>
             <button type="submit" class="btn btn-primary">Upload</button>
@@ -34,6 +35,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <form method="POST" action="{{ url_for('user.delete_profile_pic') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="btn btn-danger">Yes, Delete</button>
                         </form>
                     </div>

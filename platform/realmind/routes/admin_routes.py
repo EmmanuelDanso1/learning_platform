@@ -578,26 +578,38 @@ def delete_product(product_id):
 
     product = Product.query.get_or_404(product_id)
 
-    # Remove image
-    if product.image_filename:
-        image_path = os.path.join(current_app.root_path, 'static', 'uploads', product.image_filename)
-        if os.path.exists(image_path):
-            os.remove(image_path)
-
-    # Sync delete to e-commerce
+    # Sync delete to E-commerce site via API
     ecommerce_id = product.ecommerce_product_id
     if ecommerce_id:
         try:
             API_TOKEN = os.getenv('API_TOKEN')
             headers = {'Authorization': f'Bearer {API_TOKEN}'}
-            res = requests.delete(f"http://localhost:5001/api/products/{ecommerce_id}", headers=headers)
-            print("E-commerce sync delete:", res.status_code, res.json())
-        except Exception as e:
-            print("Error syncing product deletion to e-commerce:", e)
+            res = requests.delete(
+                f"http://localhost:5001/api/products/{ecommerce_id}", 
+                headers=headers,
+                timeout=10
+            )
 
+            if res.status_code != 200:
+                print("E-commerce deletion failed:", res.status_code, res.json())
+                flash("E-commerce deletion failed. Product not deleted.", "danger")
+                return redirect(url_for('admin.manage_products'))
+
+        except Exception as e:
+            print("Exception syncing delete to E-commerce:", e)
+            flash("Error deleting product from E-commerce site.", "danger")
+            return redirect(url_for('admin.manage_products'))
+
+    # Delete image locally
+    if product.image_filename:
+        image_path = os.path.join(current_app.root_path, 'static/uploads', product.image_filename)
+        if os.path.exists(image_path):
+            os.remove(image_path)
+
+    # Delete product locally
     db.session.delete(product)
     db.session.commit()
-    flash("Product deleted successfully.", "success")
+    flash("Product deleted successfully from both platforms.", "success")
     return redirect(url_for('admin.manage_products'))
 
 # manage products
