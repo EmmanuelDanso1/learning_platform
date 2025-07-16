@@ -2,7 +2,7 @@
 {% block title %}Manage Newsletters{% endblock %}
 {% block content %}
 <div class="container my-5">
-  <h2>Manage Newsletters</h2>
+  <h2 class="mb-4">Manage Newsletters</h2>
   <ul class="list-group">
     {% for n in newsletters %}
     <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -13,13 +13,38 @@
       <div>
         <a href="{{ url_for('admin.view_newsletter', id=n.id) }}" class="btn btn-sm btn-info">View</a>
         <a href="{{ url_for('admin.edit_newsletter', id=n.id) }}" class="btn btn-sm btn-warning">Edit</a>
-        <form action="{{ url_for('admin.delete_newsletter', id=n.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this newsletter?');">
-          <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-        </form>
+
+        <!-- Trigger Modal -->
+        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ n.id }}">
+          Delete
+        </button>
+
+        <!-- Delete Modal -->
+        <div class="modal fade" id="deleteModal{{ n.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ n.id }}" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <form method="POST" action="{{ url_for('admin.delete_newsletter', id=n.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteModalLabel{{ n.id }}">Confirm Delete</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  Are you sure you want to delete "<strong>{{ n.title }}</strong>"?
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <!-- End Modal -->
       </div>
     </li>
     {% else %}
-    <li class="list-group-item">No newsletters yet.</li>
+    <li class="list-group-item text-muted text-center">No newsletters yet.</li>
     {% endfor %}
   </ul>
 </div>

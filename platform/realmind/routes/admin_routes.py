@@ -42,6 +42,13 @@ def admin_dashboard():
 @admin_bp.route('/upload_admin_profile_pic', methods=['POST'])
 @login_required
 def upload_admin_profile_pic():
+    # Validate CSRF token
+    token = request.form.get('csrf_token')
+    try:
+        validate_csrf(token)
+    except ValidationError:
+        abort(400, description="CSRF token is missing or invalid.")
+
     if 'profile_pic' not in request.files:
         flash('No file selected', 'danger')
         return redirect(url_for('admin.admin_dashboard'))
@@ -59,7 +66,9 @@ def upload_admin_profile_pic():
         # Delete old picture if it exists
         if current_user.profile_pic:
             try:
-                os.remove(os.path.join(current_app.root_path, 'static/uploads/', current_user.profile_pic))
+                old_path = os.path.join(current_app.root_path, 'static/uploads/', current_user.profile_pic)
+                if os.path.exists(old_path):
+                    os.remove(old_path)
             except Exception:
                 pass
 
@@ -72,11 +81,18 @@ def upload_admin_profile_pic():
 @admin_bp.route('/delete_admin_profile_pic', methods=['POST'])
 @login_required
 def delete_admin_profile_pic():
+    token = request.form.get('csrf_token')
+    try:
+        validate_csrf(token)
+    except ValidationError:
+        abort(400, description="CSRF token is missing or invalid.")
+
     if current_user.profile_pic:
         try:
             os.remove(os.path.join(current_app.root_path, 'static/uploads/', current_user.profile_pic))
         except Exception:
             pass
+
         current_user.profile_pic = None
         db.session.commit()
         flash('Profile picture deleted.', 'info')
@@ -1040,8 +1056,15 @@ def manage_fliers():
 
 # Newsletter
 @admin_bp.route('/admin/newsletter', methods=['GET', 'POST'])
+@login_required
 def create_newsletter():
     if request.method == 'POST':
+        token = request.form.get('csrf_token')
+        try:
+            validate_csrf(token)
+        except CSRFError:
+            abort(400, description="CSRF token is missing or invalid.")
+
         title = request.form.get('title')
         content = request.form.get('content')
 
@@ -1049,12 +1072,12 @@ def create_newsletter():
             flash("Title and content are required.", "danger")
             return redirect(url_for('admin.create_newsletter'))
 
-        # Save to admin DB
+        # Save to DB
         newsletter = Newsletter(title=title, content=content)
         db.session.add(newsletter)
         db.session.commit()
 
-        # Fetch subscribers from e-commerce API
+        # Fetch subscribers from API
         API_TOKEN = os.getenv('API_TOKEN')
         try:
             res = requests.get(
@@ -1072,31 +1095,42 @@ def create_newsletter():
                 mail.send(msg)
 
             flash("Newsletter sent to subscribers.", "success")
-
         except Exception as e:
             print("Error sending newsletter:", e)
             flash("Failed to send newsletter to subscribers.", "danger")
 
         return redirect(url_for('admin.list_newsletters'))
 
-    return render_template('admin/create_newsletter.html')
+    # For GET request
+    return render_template('admin/create_newsletter.html', csrf_token=generate_csrf())
 
 # list newsletter
 @admin_bp.route('/admin/newsletters')
+@login_required
 def list_newsletters():
     newsletters = Newsletter.query.order_by(Newsletter.created_on.desc()).all()
     return render_template('admin/list_newsletters.html', newsletters=newsletters)
 
+# --- View Newsletter ---
 @admin_bp.route('/admin/newsletter/<int:id>')
+@login_required
 def view_newsletter(id):
     newsletter = Newsletter.query.get_or_404(id)
     return render_template('admin/view_newsletter.html', newsletter=newsletter)
 
+# --- Edit Newsletter ---
 @admin_bp.route('/admin/newsletter/<int:id>/edit', methods=['GET', 'POST'])
+@login_required
 def edit_newsletter(id):
     newsletter = Newsletter.query.get_or_404(id)
 
     if request.method == 'POST':
+        token = request.form.get('csrf_token')
+        try:
+            validate_csrf(token)
+        except CSRFError:
+            abort(400, description="CSRF token is missing or invalid.")
+
         newsletter.title = request.form.get('title')
         newsletter.content = request.form.get('content')
 
@@ -1108,15 +1142,28 @@ def edit_newsletter(id):
         flash("Newsletter updated successfully.", "success")
         return redirect(url_for('admin.view_newsletter', id=id))
 
-    return render_template('admin/edit_newsletter.html', newsletter=newsletter)
+    return render_template('admin/edit_newsletter.html', newsletter=newsletter, csrf_token=generate_csrf())
+
+# --- Delete Newsletter ---
+from flask_wtf.csrf import validate_csrf
+from wtforms.validators import ValidationError
 
 @admin_bp.route('/admin/newsletter/<int:id>/delete', methods=['POST'])
+@login_required
 def delete_newsletter(id):
+    token = request.form.get('csrf_token')
+
+    try:
+        validate_csrf(token)
+    except ValidationError:
+        abort(400, description="CSRF token is missing or invalid.")
+
     newsletter = Newsletter.query.get_or_404(id)
     db.session.delete(newsletter)
     db.session.commit()
     flash("Newsletter deleted successfully.", "success")
     return redirect(url_for('admin.list_newsletters'))
+
 
 # send order status mail
 @admin_bp.route('/update-received-order-status/<int:order_id>', methods=['POST'])

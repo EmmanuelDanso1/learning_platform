@@ -9,6 +9,7 @@
     <div class="mb-4" id="uploadProfileSection">
         <h5>Upload Profile Picture</h5>
         <form method="POST" action="{{ url_for('admin.upload_admin_profile_pic') }}" enctype="multipart/form-data" class="mb-2">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="input-group">
                 <input type="file" name="profile_pic" class="form-control" required>
                 <button type="submit" class="btn btn-primary">Upload</button>
