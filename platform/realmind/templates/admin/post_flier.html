@@ -14,6 +14,7 @@
   {% endwith %}
 
   <form method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
     <div class="mb-3">
       <label for="title" class="form-label">Title (Optional)</label>
       <input type="text" class="form-control" name="title" id="title" placeholder="e.g. Back to School Promo">

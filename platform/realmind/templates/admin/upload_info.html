@@ -5,6 +5,7 @@
     <h2 class="mb-4 text-center">Upload Info Document</h2>
 
     <form method="POST" enctype="multipart/form-data" class="bg-light p-4 rounded shadow">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
 
         <!-- Title -->
         <div class="mb-3">

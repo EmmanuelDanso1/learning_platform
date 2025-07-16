@@ -6,6 +6,7 @@ from realmind.models import Admin, Application, JobPost, News, Gallery, Newslett
 from realmind.forms import JobPostForm
 from realmind import db, mail
 from flask_mail import Message
+from flask_wtf.csrf import generate_csrf,validate_csrf, CSRFError
 import os
 import json
 from datetime import datetime
@@ -104,7 +105,7 @@ def upload_gallery():
 
         filename = secure_filename(file.filename)
         upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'gallery')
-        os.makedirs(upload_folder, exist_ok=True)  # Ensure the folder exists
+        os.makedirs(upload_folder, exist_ok=True)
 
         save_path = os.path.join(upload_folder, filename)
         file.save(save_path)
@@ -116,11 +117,11 @@ def upload_gallery():
         db.session.commit()
 
         flash('Gallery item uploaded successfully!', 'success')
-        return redirect(url_for('main.gallery'))
+        return redirect(url_for('admin.manage_gallery'))
 
-    return render_template('admin/upload_gallery.html')
+    return render_template('admin/upload_gallery.html', csrf_token=generate_csrf())
 
-
+# Edit Gallery Item
 @admin_bp.route('/gallery/edit/<int:item_id>', methods=['GET', 'POST'])
 @login_required
 def edit_gallery(item_id):
@@ -137,12 +138,10 @@ def edit_gallery(item_id):
             item.caption = caption
 
         if file and allowed_file(file.filename):
-            # Delete old file
             old_path = os.path.join(current_app.root_path, 'static/uploads/gallery', item.filename)
             if os.path.exists(old_path):
                 os.remove(old_path)
 
-            # Save new file
             filename = secure_filename(file.filename)
             new_path = os.path.join(current_app.root_path, 'static/uploads/gallery', filename)
             file.save(new_path)
@@ -152,15 +151,16 @@ def edit_gallery(item_id):
 
         db.session.commit()
         flash('Gallery item updated successfully.', 'success')
-        return redirect(url_for('admin.manage_gallery'))  # Redirect to gallery dashboard
+        return redirect(url_for('admin.manage_gallery'))
 
-    return render_template('admin/edit_gallery.html', item=item)
+    return render_template('admin/edit_gallery.html', item=item, csrf_token=generate_csrf())
 
-
+# Delete Gallery Item (CSRF token expected in form)
 @admin_bp.route('/gallery/delete/<int:item_id>', methods=['POST'])
 @login_required
 def delete_gallery(item_id):
     item = Gallery.query.get_or_404(item_id)
+
     file_path = os.path.join(current_app.root_path, 'static/uploads/gallery', item.filename)
     if os.path.exists(file_path):
         os.remove(file_path)
@@ -170,8 +170,7 @@ def delete_gallery(item_id):
     flash('Gallery item deleted successfully.', 'success')
     return redirect(url_for('admin.manage_gallery'))
 
-
-# manage admin
+# Manage Gallery View (send CSRF token to template)
 @admin_bp.route('/manage_gallery')
 @login_required
 def manage_gallery():
@@ -179,7 +178,7 @@ def manage_gallery():
         abort(403)
 
     gallery_items = Gallery.query.order_by(Gallery.date_posted.desc()).all()
-    return render_template('admin/manage_gallery.html', gallery_items=gallery_items)
+    return render_template('admin/manage_gallery.html', gallery_items=gallery_items, csrf_token=generate_csrf())
 
 # post jobs
 @admin_bp.route('/admin/post-job', methods=['GET', 'POST'])
@@ -276,6 +275,9 @@ def delete_job(job_id):
     return redirect(url_for('admin.manage_jobs'))
 
 
+from flask_wtf.csrf import generate_csrf
+
+# Post news route
 @admin_bp.route('/admin/post-news', methods=['GET', 'POST'])
 @login_required
 def post_news():
@@ -288,8 +290,7 @@ def post_news():
         if image and image.filename:
             filename = secure_filename(image.filename)
             upload_dir = os.path.join(current_app.root_path, 'static', 'uploads')
-            os.makedirs(upload_dir, exist_ok=True)  # Ensure the directory exists
-
+            os.makedirs(upload_dir, exist_ok=True)
             path = os.path.join(upload_dir, filename)
             image.save(path)
             image_url = f'uploads/{filename}'
@@ -300,10 +301,12 @@ def post_news():
         flash('News posted successfully!', 'success')
         return redirect(url_for('admin.admin_news_dashboard'))
 
-    return render_template('admin_post_news.html')
+    return render_template('admin_post_news.html', csrf_token=generate_csrf())
 
-# edit theses
+
+# Edit news route
 @admin_bp.route('/edit-news/<int:news_id>', methods=['GET', 'POST'])
+@login_required
 def edit_news(news_id):
     news_item = News.query.get_or_404(news_id)
     if news_item.admin_id != current_user.id:
@@ -317,8 +320,7 @@ def edit_news(news_id):
         if image and image.filename:
             filename = secure_filename(image.filename)
             upload_dir = os.path.join(current_app.root_path, 'static', 'uploads')
-            os.makedirs(upload_dir, exist_ok=True)  # Ensure the directory exists
-
+            os.makedirs(upload_dir, exist_ok=True)
             path = os.path.join(upload_dir, filename)
             image.save(path)
             news_item.image_url = f'uploads/{filename}'
@@ -327,7 +329,8 @@ def edit_news(news_id):
         flash('News updated successfully!', 'success')
         return redirect(url_for('admin.admin_news_dashboard'))
 
-    return render_template('admin_post_news.html', news_item=news_item, editing=True)
+    return render_template('admin_post_news.html', news_item=news_item, editing=True, csrf_token=generate_csrf())
+
 
 
 # --- Delete News ---
@@ -343,16 +346,17 @@ def delete_news(news_id):
     flash('News deleted successfully.', 'success')
     return redirect(url_for('admin.admin_news_dashboard'))
 
-# --- News Dashboard ---
+
+# Admin News Dashboard with CSRF token sent to template
 @admin_bp.route('/admin/news-dashboard')
 @login_required
 def admin_news_dashboard():
     if not isinstance(current_user, Admin):
         flash("Access denied.", "danger")
-        return redirect(url_for('main.home'))  # home is under main_bp
+        return redirect(url_for('main.home'))
 
     news_list = News.query.filter_by(admin_id=current_user.id).order_by(News.created_at.desc()).all()
-    return render_template('admin_news_dashboard.html', news_list=news_list)
+    return render_template('admin_news_dashboard.html', news_list=news_list, csrf_token=generate_csrf())
 
 # product uploads
 @admin_bp.route('/admin/add-product', methods=['GET', 'POST'])
@@ -429,7 +433,10 @@ def add_product():
         }
 
         try:
-            headers = {'Authorization': f'Bearer {API_TOKEN}'}
+            headers = {
+                'Authorization': f'Bearer {API_TOKEN}',
+                'X-CSRFToken': request.cookies.get('csrf_token', '')
+            }
 
             files = {
                 'data': (None, json.dumps(product_data)),
@@ -455,9 +462,8 @@ def add_product():
         flash("Product added and synced!", "success")
         return redirect(url_for('admin.manage_products'))
 
-    return render_template('admin/add_product.html')
-
-
+    csrf_token = generate_csrf()
+    return render_template('admin/add_product.html', csrf_token=csrf_token)
 
 @admin_bp.route('/admin/edit-product/<int:product_id>', methods=['GET', 'POST'])
 @login_required
@@ -465,12 +471,18 @@ def edit_product(product_id):
     product = Product.query.get_or_404(product_id)
 
     if request.method == 'POST':
+        # Validate CSRF token
+        try:
+            validate_csrf(request.form.get('csrf_token'))
+        except CSRFError:
+            abort(400, description="Invalid CSRF token")
+
         product.name = request.form['name']
         product.description = request.form['description']
         product.price = float(request.form['price'])
         product.in_stock = request.form.get('in_stock') == 'true'
 
-        # New metadata fields
+        # Metadata
         product.author = request.form.get('author')
         product.grade = request.form.get('grade')
         product.level = request.form.get('level')
@@ -481,7 +493,7 @@ def edit_product(product_id):
         discount_raw = request.form.get('discount_percentage')
         product.discount_percentage = float(discount_raw) if discount_raw else 0.0
 
-        # Handle category update
+        # Handle category
         category_name = request.form.get('category_name', '').strip().title()
         if category_name:
             category = Category.query.filter_by(name=category_name).first()
@@ -491,7 +503,7 @@ def edit_product(product_id):
                 db.session.commit()
             product.category_id = category.id
 
-        # Handle image update
+        # Handle new image upload
         image_file = request.files.get('image')
         if image_file and allowed_file(image_file.filename):
             filename = secure_filename(image_file.filename)
@@ -535,24 +547,28 @@ def edit_product(product_id):
         flash("Product updated successfully.", "success")
         return redirect(url_for('admin.manage_products'))
 
-    # GET method: pre-fill form
-    return render_template('admin/edit_product.html', product=product)
+    # ✅ Generate CSRF token for GET request and send to template
+    csrf_token = generate_csrf()
+    return render_template('admin/edit_product.html', product=product, csrf_token=csrf_token)
 
 
- 
-# delete product
 @admin_bp.route('/admin/delete-product/<int:product_id>', methods=['POST'])
 @login_required
 def delete_product(product_id):
+    try:
+        validate_csrf(request.form.get('csrf_token'))
+    except CSRFError:
+        abort(400, description="Invalid CSRF token")
+
     product = Product.query.get_or_404(product_id)
 
-    # Optional: remove image file from server
+    # Remove image
     if product.image_filename:
         image_path = os.path.join(current_app.root_path, 'static', 'uploads', product.image_filename)
         if os.path.exists(image_path):
             os.remove(image_path)
 
-    # Optional: sync delete to e-commerce
+    # Sync delete to e-commerce
     ecommerce_id = product.ecommerce_product_id
     if ecommerce_id:
         try:
@@ -563,19 +579,18 @@ def delete_product(product_id):
         except Exception as e:
             print("Error syncing product deletion to e-commerce:", e)
 
-    # Delete from local DB
     db.session.delete(product)
     db.session.commit()
     flash("Product deleted successfully.", "success")
     return redirect(url_for('admin.manage_products'))
 
-
 # manage products
 @admin_bp.route('/admin/manage-products')
 @login_required
 def manage_products():
-    products = Product.query.order_by(Product.date_created.desc()).all()
-    return render_template('admin/manage_products.html', products=products)
+    products = Product.query.order_by(Product.id.desc()).all()
+    csrf_token = generate_csrf()
+    return render_template('admin/manage_products.html', products=products, csrf_token=csrf_token)
 
 # Serve uploaded profile pictures or files
 @admin_bp.route('/admin/uploads/<path:filename>')
@@ -617,6 +632,8 @@ def accept_application(application_id):
 
 
 
+from flask_wtf.csrf import generate_csrf
+
 @admin_bp.route('/upload_info', methods=['GET', 'POST'])
 @login_required
 def upload_info():
@@ -645,7 +662,7 @@ def upload_info():
             image_path = os.path.join(upload_dir, image_filename)
             image_file.save(image_path)
 
-        # Save to local DB first
+        # Save to DB
         new_doc = InfoDocument(
             title=title,
             source=source,
@@ -656,7 +673,7 @@ def upload_info():
         db.session.add(new_doc)
         db.session.commit()
 
-        # Prepare sync
+        # Sync to e-commerce
         data = {
             'title': title,
             'source': source,
@@ -673,7 +690,6 @@ def upload_info():
             'Authorization': f'Bearer {os.getenv("API_TOKEN")}'
         }
 
-        # Send to e-commerce platform
         try:
             res = requests.post(
                 'http://127.0.0.1:5001/api/info',
@@ -682,24 +698,24 @@ def upload_info():
                 headers=headers
             )
             if res.status_code == 201:
-                res_data = res.json()
-                ecommerce_id = res_data.get('id')
-
-                # Store ecommerce_id for future syncing
+                ecommerce_id = res.json().get('id')
                 new_doc.ecommerce_id = ecommerce_id
                 db.session.commit()
-
                 flash("Info document uploaded and synced to e-commerce site.", "success")
             else:
                 flash(f"Failed to sync: {res.status_code} - {res.text}", "danger")
         except Exception as e:
             print("Upload error:", e)
             flash("An error occurred during upload.", "danger")
+        finally:
+            files['file'][1].close()
+            if 'image' in files:
+                files['image'][1].close()
 
         return redirect(url_for('admin.upload_info'))
 
-    return render_template('admin/upload_info.html')
-
+    # GET method
+    return render_template('admin/upload_info.html', csrf_token=generate_csrf())
 
 
 # edit and delete
@@ -709,6 +725,11 @@ def edit_info(id):
     info = InfoDocument.query.get_or_404(id)
 
     if request.method == 'POST':
+        # Validate CSRF token
+        csrf_token = request.form.get('csrf_token')
+        if not csrf_token or csrf_token != generate_csrf():
+            abort(400, description="CSRF token is missing or invalid.")
+
         info.title = request.form['title']
         info.source = request.form['source']
 
@@ -717,6 +738,9 @@ def edit_info(id):
 
         upload_dir = current_app.config['UPLOAD_FOLDER']
         os.makedirs(upload_dir, exist_ok=True)
+
+        file_path = None
+        image_path = None
 
         if file and file.filename and allowed_file(file.filename):
             filename = secure_filename(file.filename)
@@ -735,7 +759,7 @@ def edit_info(id):
 
         # Sync with e-commerce platform
         try:
-            if info.ecommerce_id:  # Make sure we know the remote ID
+            if info.ecommerce_id:
                 ecommerce_base_url = os.getenv('ECOMMERCE_API_BASE_URL')
                 api_token = os.getenv('API_TOKEN')
 
@@ -744,10 +768,10 @@ def edit_info(id):
                     'source': info.source
                 }
                 files = {}
-                if file:
-                    files['file'] = open(file_path, 'rb')
-                if image:
-                    files['image'] = open(image_path, 'rb')
+                if file_path:
+                    files['file'] = (file.filename, open(file_path, 'rb'), file.mimetype)
+                if image_path:
+                    files['image'] = (image.filename, open(image_path, 'rb'), image.mimetype)
 
                 response = requests.patch(
                     f"{ecommerce_base_url}/api/info/{info.ecommerce_id}",
@@ -760,20 +784,32 @@ def edit_info(id):
                     print("E-commerce update sync failed:", response.text)
                 else:
                     print("E-commerce update sync successful.")
-            else:
-                print("No ecommerce_id set. Skipping update sync.")
         except Exception as e:
             print("E-commerce sync error:", e)
+        finally:
+            if file_path:
+                files['file'][1].close()
+            if image_path:
+                files['image'][1].close()
 
         return redirect(url_for('admin.manage_info'))
 
-    return render_template('admin/edit_info.html', info=info)
+    return render_template('admin/edit_info.html', info=info, csrf_token=generate_csrf())
+
 
 @admin_bp.route('/admin/info/<int:id>/delete', methods=['POST'])
 @login_required
 def delete_info(id):
+    # Proper CSRF validation
+    token = request.form.get('csrf_token')
+    try:
+        validate_csrf(token)
+    except CSRFError:
+        abort(400, description="CSRF token is missing or invalid.")
+
     info = InfoDocument.query.get_or_404(id)
 
+    # Delete files if they exist
     try:
         upload_folder = current_app.config['UPLOAD_FOLDER']
         if info.filename:
@@ -815,15 +851,12 @@ def delete_info(id):
     return redirect(url_for('admin.manage_info'))
 
 
+
 @admin_bp.route('/admin/info/manage')
 @login_required
 def manage_info():
     documents = InfoDocument.query.order_by(InfoDocument.upload_date.desc()).all()
-    print(f"DOCUMENTS FOUND: {len(documents)}")
-    for doc in documents:
-        print(f"Title: {doc.title}, Admin ID: {doc.admin_id}")
-
-    return render_template('admin/manage_info.html', documents=documents)
+    return render_template('admin/manage_info.html', documents=documents, csrf_token=generate_csrf())
 
 
 # received orders
@@ -859,7 +892,7 @@ def delete_received_order(order_id):
 def post_flier():
     if request.method == 'POST':
         title = request.form.get('title', '').strip()
-        image_file = request.files.get('image')  #  Upload comes from this
+        image_file = request.files.get('image')
 
         if image_file and allowed_image_file(image_file.filename):
             filename = secure_filename(image_file.filename)
@@ -867,15 +900,10 @@ def post_flier():
             os.makedirs(os.path.dirname(save_path), exist_ok=True)
             image_file.save(save_path)
 
-            #  Save flier locally with filename
-            new_flier = PromotionFlier(
-                title=title,
-                image_filename=filename  #  This is the string stored in DB
-            )
+            new_flier = PromotionFlier(title=title, image_filename=filename)
             db.session.add(new_flier)
             db.session.commit()
 
-            #  Send to E-Commerce with multipart/form-data
             API_TOKEN = os.getenv('API_TOKEN')
             headers = {'Authorization': f'Bearer {API_TOKEN}'}
             data = {'title': title}
@@ -897,45 +925,62 @@ def post_flier():
                 flash("Flier posted locally. Failed to send to e-commerce.", "danger")
             finally:
                 files['image'].close()
-
         else:
             flash("Invalid or missing image file.", "danger")
 
         return redirect(url_for('admin.post_flier'))
 
-    return render_template('admin/post_flier.html')
+    return render_template('admin/post_flier.html', csrf_token=generate_csrf())
+
 
 # update flier
+from flask_wtf.csrf import generate_csrf, validate_csrf
+from wtforms.validators import ValidationError
+
 @admin_bp.route('/admin/update-flier/<int:flier_id>', methods=['GET', 'POST'])
 @login_required
 def update_flier(flier_id):
     flier = PromotionFlier.query.get_or_404(flier_id)
 
     if request.method == 'POST':
+        try:
+            validate_csrf(request.form.get('csrf_token'))
+        except ValidationError:
+            abort(400, description="Invalid CSRF token.")
+
         new_title = request.form.get('title', '').strip()
         new_image = request.files.get('image')
 
         if new_title:
             flier.title = new_title
 
+        # Save new image if uploaded
         if new_image and allowed_image_file(new_image.filename):
             filename = secure_filename(new_image.filename)
             path = os.path.join(current_app.root_path, 'static', 'fliers', filename)
             os.makedirs(os.path.dirname(path), exist_ok=True)
             new_image.save(path)
             flier.image_filename = filename
+
         db.session.commit()
 
-        # Sync to e-commerce
+        # Sync with e-commerce
         try:
             API_TOKEN = os.getenv('API_TOKEN')
             headers = {'Authorization': f'Bearer {API_TOKEN}'}
             data = {'title': flier.title}
             files = {}
+
             if new_image:
                 files['image'] = open(path, 'rb')
 
-            res = requests.put(f"http://localhost:5001/api/fliers/{flier.id}", data=data, files=files, headers=headers)
+            res = requests.put(
+                f"http://localhost:5001/api/fliers/{flier.id}",
+                data=data,
+                files=files,
+                headers=headers
+            )
+
             if files:
                 files['image'].close()
 
@@ -943,34 +988,37 @@ def update_flier(flier_id):
                 flash("Flier updated and synced with e-commerce.", "success")
             else:
                 flash("Flier updated locally, but failed to sync with e-commerce.", "warning")
+
         except Exception as e:
             print("Error updating flier on e-commerce:", e)
             flash("Flier updated locally. Failed to sync.", "danger")
 
         return redirect(url_for('admin.post_flier'))
 
-    return render_template('admin/update_flier.html', flier=flier)
+    return render_template('admin/update_flier.html', flier=flier, csrf_token=generate_csrf())
 
-# delete flier
 @admin_bp.route('/admin/delete-flier/<int:flier_id>', methods=['POST'])
 @login_required
 def delete_flier(flier_id):
+    try:
+        validate_csrf(request.form.get('csrf_token'))
+    except ValidationError:
+        abort(400, description="Invalid CSRF token.")
+
     flier = PromotionFlier.query.get_or_404(flier_id)
     image_path = os.path.join(current_app.root_path, 'static', 'fliers', flier.image_filename)
 
-    # Delete from DB
     db.session.delete(flier)
     db.session.commit()
 
-    # Delete image file (optional)
     if os.path.exists(image_path):
         os.remove(image_path)
 
-    # Sync delete to e-commerce
     try:
         API_TOKEN = os.getenv('API_TOKEN')
         headers = {'Authorization': f'Bearer {API_TOKEN}'}
         res = requests.delete(f"http://localhost:5001/api/fliers/{flier.id}", headers=headers)
+
         if res.status_code == 200:
             flash("Flier deleted from both platforms.", "success")
         else:
@@ -981,11 +1029,14 @@ def delete_flier(flier_id):
 
     return redirect(url_for('admin.manage_fliers'))
 
+
 @admin_bp.route('/admin/manage-fliers')
 @login_required
 def manage_fliers():
     fliers = PromotionFlier.query.order_by(PromotionFlier.id.desc()).all()
-    return render_template('admin/manage_fliers.html', fliers=fliers)
+    csrf_token = generate_csrf()
+    return render_template('admin/manage_fliers.html', fliers=fliers, csrf_token=csrf_token)
+
 
 # Newsletter
 @admin_bp.route('/admin/newsletter', methods=['GET', 'POST'])

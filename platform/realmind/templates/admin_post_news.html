@@ -3,6 +3,7 @@
 {% block content %}
 <h2>Post News</h2>
 <form method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
     <div class="mb-3">
       <label for="title" class="form-label">Title</label>
       <input type="text" class="form-control" name="title" id="title" value="{{ news_item.title if editing else '' }}" required>
