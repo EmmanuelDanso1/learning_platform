@@ -1,0 +1,97 @@
+{% extends "index.html" %}
+{% block content %}
+
+<section class="py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center fw-bold mb-4 text-uppercase">Book Our Service</h2>
+    <p class="text-center mb-5">Fill out the form below to let us know how we can assist you.</p>
+
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('main.book_service') }}" class="p-4 bg-white rounded shadow">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Your Name</label>
+            <input type="text" name="name" class="form-control" placeholder="Enter your full name" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Email</label>
+            <input type="email" name="email" class="form-control" placeholder="Enter your email" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Phone Number</label>
+            <input type="tel" name="phone" class="form-control" placeholder="Enter your phone number" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">How may we help you?</label>
+            <textarea name="help" class="form-control" rows="3" placeholder="Describe your needs..." required></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Particular Service Needed</label>
+            <select name="service" id="serviceSelect" class="form-select" required>
+              <option value="" selected disabled>Select a service</option>
+              <option>Teacher Recruitment</option>
+              <option>Teacher Professional Development</option>
+              <option>School Structuring and Restructuring</option>
+              <option>Book Shop</option>
+              <option>After School / Weekend Tutoring (Online/In-Person)</option>
+              <option>Research and Assignments</option>
+              <option>Secretarial Services</option>
+              <option>Special Education Support</option>
+              <option>Educational Consulting</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <!-- Conditional input for 'Other' -->
+          <div class="mb-3 d-none" id="otherServiceBox">
+            <label class="form-label fw-bold">Specify Other Service</label>
+            <input type="text" name="other_service" class="form-control" placeholder="Please specify your service">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">More Information (Optional)</label>
+            <textarea name="more_info" class="form-control" rows="3" placeholder="Additional details..."></textarea>
+          </div>
+
+          <div class="text-center">
+            <button type="submit" class="btn btn-warning fw-bold rounded-pill px-4 py-2">
+              Submit Request
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Show the "Other Service" input box dynamically
+  const serviceSelect = document.getElementById('serviceSelect');
+  const otherBox = document.getElementById('otherServiceBox');
+
+  serviceSelect.addEventListener('change', function() {
+    if (this.value === 'Other') {
+      otherBox.classList.remove('d-none');
+    } else {
+      otherBox.classList.add('d-none');
+    }
+  });
+</script>
+
+{% endblock %}

@@ -1,66 +1,80 @@
 
-<footer class="bg-steel text-light mt-5 pt-4 pb-4">
-    <div class="container">
-      <div class="row">
-        <div class="col-md-4">
-          <h5>RealMindX Education</h5>
-          <p>Empowering minds through education, innovation, and community support.</p>
-        </div>
-        <div class="col-md-4 mb-3">
-          <h5>Contact Us</h5>
-          <p><i class="fa fa-map-marker-alt"></i> <strong>Dome Pillar 2</strong><br>
-            Near Yellow Washing Bay</p>
-          <p><i class="fa fa-phone"></i> +233 558 039 190</p>
-          <p><i class="fa fa-envelope"></i>realmindxgh@gmail.com</p>
-          <p><i class="fa fa-clock me-2"></i> Mon - Sat: 8:00 AM – 6:00 PM</p>
-          <div class="mt-2">
-            <!-- Facebook (default white) -->
-            <a href="https://web.facebook.com/profile.php?id=61566941171883" target="_blank" class="me-2" style="color: white;">
-              <i class="fa-brands fa-facebook"></i>
-            </a>
-
-            <!-- Twitter (black) -->
-            <a href="https://x.com/RealMindXgh" target="_blank" class="me-2" style="color: black;">
-              <i class="fa-brands fa-x-twitter"></i>
-            </a>
-
-            <!-- Instagram (default white) -->
-            <a href="https://www.instagram.com/realmindxgh/" target="_blank" class="me-2" style="color: white;">
-              <i class="fa-brands fa-instagram"></i>
-            </a>
-
-            <!-- YouTube (red) -->
-            <a href="https://www.youtube.com/@realmindxgh" target="_blank" class="me-2" style="color: red;">
-              <i class="fa-brands fa-youtube"></i>
-            </a>
-
-            <!-- WhatsApp (green) -->
-            <a href="https://wa.link/d6x888" target="_blank" class="me-2" style="color: #25D366;">
-              <i class="fa-brands fa-whatsapp"></i>
-            </a>
-              <span>@realmindxgh</span>
-          </div>
-            
-        </div>
-        <div class="col-md-4">
-          <h5>Services</h5>
-          <ul class="list-unstyled">
-            <li><a href="#" class="text-light text-decoration-none">Book Sales</a></li>
-            <li><a href="#" class="text-light text-decoration-none">Teacher Recruitment</a></li>
-            <li><a href="#" class="text-light text-decoration-none">Research & Assignment</a></li>
-            <li><a href="#" class="text-light text-decoration-none">C.P.D</a></li>
-          </ul>
-        </div>
+<footer  class="footer-section text-light pt-5 pb-4" >
+  <div class="container">
+    <div class="row gy-5">
+      <!-- Brand & Mission -->
+      <div class="col-lg-3 col-md-6 text-md-start text-center">
+        <h5 class="footer-title">RealMindX Education</h5>
+        <p>Empowering minds through education, innovation and community support.</p>
       </div>
-       <!-- Copyright Section -->
-        <div class="text-center mt-3">
-            <small id="copyright"></small>
-        </div>
+
+      <!-- Quick Links -->
+      <div class="col-lg-3 col-md-6 text-md-start text-center">
+        <h5 class="footer-title">Quick Links</h5>
+        <ul class="list-unstyled">
+          <li><a href="#" class="footer-link">Home</a></li>
+          <li><a href="#" class="footer-link">About</a></li>
+          <li><a href="#" class="footer-link">Services</a></li>
+          <li><a href="#" class="footer-link">News</a></li>
+          <li><a href="#" class="footer-link">Gallery</a></li>
+          <li><a href="#" class="footer-link">Bookshop</a></li>
+          <li><a href="#" class="footer-link">Contact</a></li>
+          <li><a href="#" class="footer-link">Job Post</a></li>
+          <li><a href="#" class="footer-link">Donate</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="col-lg-3 col-md-6 text-md-start text-center">
+        <h5 class="footer-title">Contact</h5>
+        <p><i class="fa fa-map-marker-alt me-2"></i> Dome Pillar 2</p>
+        <p>
+          <i class="fa fa-envelope me-2"></i>
+          <a href="mailto:realmindxgh@gmail.com" style="text-decoration:none; color:inherit;">
+            realmindxgh@gmail.com
+          </a>
+        </p>
+        <p><i class="fa fa-phone me-2"></i> +233 55 803 9190</p>
+        <p><i class="fa fa-phone me-2"></i> +233 55 452 9493</p>
+        <p><i class="fa fa-phone me-2"></i> +233 55 132 4729</p>
+      </div>
+
+      <!-- Follow Us -->
+      <div class="col-lg-3 col-md-6 text-md-start text-center">
+        <h5 class="footer-title">Follow Us</h5>
+        <div class="social-icons mb-3">
+          <a href="https://x.com/RealMindXgh" target="_blank">
+            <i class="fa-brands fa-x-twitter" style="color:#000000; font-size:18px; margin-right:8px;"></i>
+          </a>
+          <a href="https://web.facebook.com/profile.php?id=61566941171883" target="_blank">
+            <i class="fa-brands fa-facebook" style="color:#1877F2; font-size:18px; margin-right:8px;"></i>
+          </a>
+          <a href="https://www.instagram.com/realmindxgh/" target="_blank">
+            <i class="fa-brands fa-instagram" style="color:#E1306C; font-size:18px; margin-right:8px;"></i>
+          </a>
+          <a href="https://www.youtube.com/@realmindxgh" target="_blank">
+            <i class="fa-brands fa-youtube" style="color:#FF0000; font-size:18px; margin-right:8px;"></i>
+          </a>
+          <a href="https://wa.link/d6x888" target="_blank">
+            <i class="fa-brands fa-whatsapp" style="color:#25D366; font-size:18px;"></i>
+          </a>
+
+        <a href="{{ url_for('main.contact') }}" class="btn btn-warning rounded-pill fw-bold px-4 py-2">CONTACT US</a>
+        <p class="mt-2 text-warning mb-0">Need tailored educational solutions?</p>
+      </div>
     </div>
-  </footer>
+
+    <!-- Copyright -->
+    <div class="text-center mt-4 pt-3 border-top border-light">
+      <small id="copyright"></small>
+    </div>
+  </div>
+</footer>
+
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const currentYear = new Date().getFullYear();
-        document.getElementById("copyright").textContent = `© ${currentYear} RealMindX Education. All rights reserved.`;
-    });
+  document.addEventListener("DOMContentLoaded", function() {
+    const currentYear = new Date().getFullYear();
+    document.getElementById("copyright").textContent =
+      `© ${currentYear} RealMindX Education. All rights reserved.`;
+  });
 </script>

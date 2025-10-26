@@ -5,18 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RealMindX | {% block title %}{% endblock %}</title>
   <!-- get a real brain image/logo for the browser -->
-  <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='images/brain.jpg') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/brain-1.png') }}">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <!-- Bootstrap Icons -->
+  <link
+    rel="stylesheet"  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+  />
+  <link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;600&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
 </head>
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-steel fixed-top">
+<nav class="navbar navbar-expand-lg custom-navbar fixed-top">
   <div class="container-fluid">
-<a class="navbar-brand d-flex align-items-center"
-   href="{% if current_user.is_authenticated %}
+
+    <!-- Logo -->
+    <a class="navbar-brand d-flex align-items-center" href="{% if current_user.is_authenticated %}
             {% if current_user.is_admin %}
               {{ url_for('admin.admin_dashboard') }}
             {% else %}
@@ -25,50 +31,62 @@
          {% else %}
             {{ url_for('main.home') }}
          {% endif %}">
-  <img src="{{ url_for('static', filename='images/brain.jpg') }}" alt="Logo" style="height: 40px; border-radius: 50%; margin-right: 10px;">
-  RealMindX Education
-</a>
+      <img src="{{ url_for('static', filename='images/16.png') }}" 
+           alt="Logo" 
+           class="logo-img">
+    </a>
 
-    
+    <!-- Toggle -->
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
+
+    <!-- Links -->
     <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-      <ul class="navbar-nav">
-        {% if current_user.is_authenticated %}
-        <li class="nav-item d-flex align-items-center ms-2">
-          <div class="d-flex flex-column align-items-center text-white me-3">
-            {% if current_user.profile_pic %}
-              <img src="{{ url_for('static', filename='uploads/' ~ current_user.profile_pic) }}"
-                   alt="Profile"
-                   style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-            {% else %}
-              <img src="{{ url_for('static', filename='images/default-profile.webp') }}"
-                   alt="Default Profile"
-                   style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-            {% endif %}
-            <small>{{ current_user.username }}</small>
-          </div>
-          <a class="btn btn-danger" href="{{ url_for('auth.logout') }}">Logout</a>
+      <ul class="navbar-nav align-items-center">
+
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.home') }}">HOME</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="{{ url_for('main.about') }}" id="aboutDropdown" data-bs-toggle="dropdown">ABOUT</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ url_for('main.about') }}#mission">Our Mission</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('main.about') }}#vision">Our Vision</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('main.about') }}#goals">Our Goal</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('main.about') }}#choose-realmindx">Why Choose RealMindX Education</a></li>
+          </ul>
         </li>
-        {% else %}
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.home') }}">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.about') }}">About</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.services') }}">Services</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.news') }}">News</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.gallery') }}">Gallery</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Stationary</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.contact') }}">Contact</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('donation.donate') }}">Donations</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('jobs.job_listings') }}">Job Post</a></li>
-        {% endif %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="{{ url_for('main.services') }}" id="servicesDropdown" data-bs-toggle="dropdown">SERVICES</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ url_for('main.services') }}#teacher-recruitment">Teacher Recruitment</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('main.services') }}#teacher-development">Teacher Professional Development</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('main.services') }}#school-structuring">School Structuring and Restructuring</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('main.services') }}#bookshop">Bookshop</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('main.services') }}#after-school">After School/Weekend Tutoring(Online/In-Person)</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('main.services') }}#special-education">Special Education Support</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('main.services') }}#secretarial">Secretarial Services</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('main.services') }}#consulting">Educational Consulting</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('main.services') }}#research">Research and Assignments</a></li>
+          </ul>
+        </li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.news') }}">NEWS</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.gallery') }}">GALLERY</a></li>
+        <li class="nav-item"><a class="nav-link" href="https://bookshop.realmindxgh.com">BOOKSHOP</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.contact') }}">CONTACT</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('jobs.job_listings') }}">JOB POST</a></li>
+        <li class="nav-item">
+        <a href="{{ url_for('donation.donate') }}" class="btn btn-warning donate-inline">DONATE</a>
+        </li>
+
       </ul>
+
     </div>
   </div>
 </nav>
 
 <!-- Page Content -->
 {% block fullwidth %}{% endblock %}
+
 <main class="container mt-5 pt-4">
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -77,10 +95,9 @@
       {% endfor %}
     {% endif %}
   {% endwith %}
-  
+
   {% block content %}{% endblock %}
 </main>
-
 {% if not (current_user.is_authenticated and current_user.is_admin) %}
   {% include 'footer.html' %}
 {% endif %}

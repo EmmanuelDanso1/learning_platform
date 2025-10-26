@@ -33,6 +33,42 @@ def news():
     news_list = News.query.order_by(News.created_at.desc()).all()
     return render_template('news.html', news_list=news_list)
 
+# booking service route
+@main_bp.route('/book_service', methods=['GET', 'POST'])
+def book_service():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        phone = request.form.get('phone')
+        help_text = request.form.get('help')
+        service = request.form.get('service')
+        more_info = request.form.get('more_info')
+
+        # Send email to RealMindX
+        msg = Message(
+            subject=f"Service Booking Request: {service}",
+            sender=email,
+            recipients=['realmindxgh@gmail.com']
+        )
+        msg.body = f"""
+        New service booking received:
+        
+        Name: {name}
+        Email: {email}
+        Phone: {phone}
+        Service Needed: {service}
+        How may we help: {help_text}
+        More Information: {more_info if more_info else 'N/A'}
+        """
+        try:
+            mail.send(msg)
+            flash('Your request has been submitted successfully! We’ll get back to you soon.', 'success')
+            return redirect(url_for('main.book_service'))
+        except Exception as e:
+            flash('An error occurred while sending your message. Please try again later.', 'danger')
+
+    return render_template('book_service.html')
+
 @main_bp.route('/news/<int:news_id>')
 def news_detail(news_id):
     news = News.query.get_or_404(news_id)
