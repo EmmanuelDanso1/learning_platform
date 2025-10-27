@@ -12,15 +12,15 @@
       <div class="col-lg-3 col-md-6 text-md-start text-center">
         <h5 class="footer-title">Quick Links</h5>
         <ul class="list-unstyled">
-          <li><a href="#" class="footer-link">Home</a></li>
-          <li><a href="#" class="footer-link">About</a></li>
-          <li><a href="#" class="footer-link">Services</a></li>
-          <li><a href="#" class="footer-link">News</a></li>
-          <li><a href="#" class="footer-link">Gallery</a></li>
-          <li><a href="#" class="footer-link">Bookshop</a></li>
-          <li><a href="#" class="footer-link">Contact</a></li>
-          <li><a href="#" class="footer-link">Job Post</a></li>
-          <li><a href="#" class="footer-link">Donate</a></li>
+          <li><a href="{{ url_for('main.home') }}" class="footer-link">Home</a></li>
+          <li><a href="{{ url_for('main.about') }}" class="footer-link">About</a></li>
+          <li><a href="{{ url_for('main.services') }}" class="footer-link">Services</a></li>
+          <li><a href="{{ url_for('main.news') }}" class="footer-link">News</a></li>
+          <li><a href="{{ url_for('main.gallery') }}" class="footer-link">Gallery</a></li>
+          <li><a href="https://bookshop.realmindxgh.com" class="footer-link">Bookshop</a></li>
+          <li><a href="{{ url_for('main.contact') }}" class="footer-link">Contact</a></li>
+          <li><a href="{{ url_for('jobs.job_listings') }}" class="footer-link">Job Post</a></li>
+          <li><a href="{{ url_for('donation.donate') }}" class="footer-link">Donate</a></li>
         </ul>
       </div>
 

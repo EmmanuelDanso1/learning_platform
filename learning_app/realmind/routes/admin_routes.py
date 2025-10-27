@@ -460,7 +460,7 @@ def add_product():
             }
 
             res = requests.post(
-                "http://localhost:5001/api/products",
+                f"{os.getenv('API_BASE_URL')}/products",
                 files=files,
                 headers=headers
             )
@@ -552,7 +552,7 @@ def edit_product(product_id):
                 API_TOKEN = os.getenv('API_TOKEN')
                 headers = {'Authorization': f'Bearer {API_TOKEN}'}
                 res = requests.put(
-                    f"http://localhost:5001/api/products/{ecommerce_id}",
+                    f"{os.getenv('API_BASE_URL')}/products/{ecommerce_id}",
                     json=product_data,
                     headers=headers
                 )
@@ -585,7 +585,7 @@ def delete_product(product_id):
             API_TOKEN = os.getenv('API_TOKEN')
             headers = {'Authorization': f'Bearer {API_TOKEN}'}
             res = requests.delete(
-                f"http://localhost:5001/api/products/{ecommerce_id}", 
+                f"{os.getenv("API_BASE_URL")}products/{ecommerce_id}", 
                 headers=headers,
                 timeout=10
             )
@@ -720,7 +720,7 @@ def upload_info():
 
         try:
             res = requests.post(
-                'http://127.0.0.1:5001/api/info',
+                f'{os.getenv('API_BASE_URL')}/info',
                 data=data,
                 files=files,
                 headers=headers
@@ -802,7 +802,7 @@ def edit_info(id):
                     files['image'] = (image.filename, open(image_path, 'rb'), image.mimetype)
 
                 response = requests.patch(
-                    f"{ecommerce_base_url}/api/info/{info.ecommerce_id}",
+                    f"{os.getenv('API_BASE_URL')}/info/{info.ecommerce_id}",
                     data=payload,
                     files=files,
                     headers={'Authorization': f'Bearer {api_token}'}
@@ -858,10 +858,10 @@ def delete_info(id):
     # Sync deletion to e-commerce
     try:
         if info.ecommerce_id:
-            ecommerce_base_url = os.getenv('ECOMMERCE_API_BASE_URL')
+            
             api_token = os.getenv('API_TOKEN')
 
-            delete_url = f"{ecommerce_base_url}/api/info/{info.ecommerce_id}"
+            delete_url = f"{os.getenv('API_BASE_URL')}/info/{info.ecommerce_id}"
             headers = {'Authorization': f'Bearer {api_token}'}
 
             response = requests.delete(delete_url, headers=headers)
@@ -939,7 +939,7 @@ def post_flier():
 
             try:
                 res = requests.post(
-                    'http://localhost:5001/api/fliers',
+                    f'{os.getenv('API_BASE_URL')}/fliers',
                     data=data,
                     files=files,
                     headers=headers
@@ -1003,7 +1003,7 @@ def update_flier(flier_id):
                 files['image'] = open(path, 'rb')
 
             res = requests.put(
-                f"http://localhost:5001/api/fliers/{flier.id}",
+                f"{os.getenv('API_BASE_URL')}/fliers/{flier.id}",
                 data=data,
                 files=files,
                 headers=headers
@@ -1045,7 +1045,7 @@ def delete_flier(flier_id):
     try:
         API_TOKEN = os.getenv('API_TOKEN')
         headers = {'Authorization': f'Bearer {API_TOKEN}'}
-        res = requests.delete(f"http://localhost:5001/api/fliers/{flier.id}", headers=headers)
+        res = requests.delete(f"{os.getenv('API_BASE_URL')}/fliers/{flier.id}", headers=headers)
 
         if res.status_code == 200:
             flash("Flier deleted from both platforms.", "success")
@@ -1093,7 +1093,7 @@ def create_newsletter():
         API_TOKEN = os.getenv('API_TOKEN')
         try:
             res = requests.get(
-                "http://127.0.0.1:5001/api/newsletter-subscribers",
+                f"{os.getenv('API_BASE_URL')}/newsletter-subscribers",
                 headers={'Authorization': f'Bearer {API_TOKEN}'}
             )
             subscribers = res.json().get('subscribers', [])
@@ -1205,7 +1205,7 @@ def update_received_order_status(order_id):
             current_app.logger.error(f"Failed to send delivery email: {e}")
 
     # Send API update to e-commerce
-    api_url = f"http://127.0.0.1:5001/api/orders/{order.original_order_id}/status"
+    api_url = f"{os.getenv('API_BASE_URL')}/orders/{order.original_order_id}/status"
     token = os.getenv('API_TOKEN')
     headers = {'Authorization': f'Bearer {token}'}
     payload = {'status': new_status}

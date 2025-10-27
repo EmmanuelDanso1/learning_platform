@@ -13,6 +13,17 @@ html,body {
   scroll-behavior: smooth;
 }
 
+h1, h2,h3,h4,h5,h6{
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  color: #000000;
+}
+
+p, a, span, li, button {
+  font-family: 'Arimo', sans-serif;
+  font-weight: 400;
+  color: #000000;
+}
 .container {
   flex: 1;
 }
@@ -43,6 +54,22 @@ html,body {
   width: auto;
   max-width: 240px; /* makes it longer */
   object-fit: contain;
+}
+
+/* whatsapp logo */
+.whatsapp-float {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  background-color: transparent;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transition: transform 0.2s ease-in-out;
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.1);
 }
 
 /* Navbar links */
@@ -230,7 +257,7 @@ html,body {
 
 /* Legacy navbar colors for consistency */
 .bg-steel {
-  background-color: #0C2E60;
+  background-color: #143670 !important;
 }
 
 /* Optional: remove old navbar color if you use .custom-navbar instead */
