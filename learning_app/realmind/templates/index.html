@@ -19,36 +19,28 @@
 
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg custom-navbar fixed-top">
-  <div class="container-fluid">
+  <div class="container-fluid p-0"> <!-- remove padding for full width -->
 
-    <!-- Logo -->
-    <a class="navbar-brand d-flex align-items-center" href="{% if current_user.is_authenticated %}
-            {% if current_user.is_admin %}
-              {{ url_for('admin.admin_dashboard') }}
-            {% else %}
-              {{ url_for('user.users_dashboard') }}
-            {% endif %}
-         {% else %}
-            {{ url_for('main.home') }}
-         {% endif %}">
-      <img src="{{ url_for('static', filename='images/16.png') }}" 
-           alt="Logo" 
-           class="logo-img">
-    </a>
+    <!-- Left logo area -->
+    <div class="navbar-logo-section d-flex align-items-center px-3">
+      <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.home') }}">
+        <img src="{{ url_for('static', filename='images/16.png') }}" alt="RealmindX Logo" class="logo-img">
+      </a>
+    </div>
 
-    <!-- Toggle -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+    <!-- Toggle button -->
+    <button class="navbar-toggler me-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <!-- Links -->
-    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+    <!-- Right links -->
+    <div class="collapse navbar-collapse justify-content-end pe-4" id="navbarNav">
       <ul class="navbar-nav align-items-center">
-
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.home') }}">HOME</a></li>
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="{{ url_for('main.about') }}" id="aboutDropdown" data-bs-toggle="dropdown">ABOUT</a>
           <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ url_for('main.about') }}#who">Who We Are</a></li>
             <li><a class="dropdown-item" href="{{ url_for('main.about') }}#mission">Our Mission</a></li>
             <li><a class="dropdown-item" href="{{ url_for('main.about') }}#vision">Our Vision</a></li>
             <li><a class="dropdown-item" href="{{ url_for('main.about') }}#goals">Our Goal</a></li>
@@ -62,7 +54,7 @@
             <li><a class="dropdown-item" href="{{ url_for('main.services') }}#teacher-development">Teacher Professional Development</a></li>
             <li><a class="dropdown-item" href="{{ url_for('main.services') }}#school-structuring">School Structuring and Restructuring</a></li>
             <li><a class="dropdown-item" href="{{ url_for('main.services') }}#bookshop">Bookshop</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('main.services') }}#after-school">After School/Weekend Tutoring(Online/In-Person)</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('main.services') }}#after-school">After School/Weekend Tutoring</a></li>
             <li><a class="dropdown-item" href="{{ url_for('main.services') }}#special-education">Special Education Support</a></li>
             <li><a class="dropdown-item" href="{{ url_for('main.services') }}#secretarial">Secretarial Services</a></li>
             <li><a class="dropdown-item" href="{{ url_for('main.services') }}#consulting">Educational Consulting</a></li>
@@ -75,14 +67,13 @@
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.contact') }}">CONTACT</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('jobs.job_listings') }}">JOB POST</a></li>
         <li class="nav-item">
-        <a href="{{ url_for('donation.donate') }}" class="btn btn-warning donate-inline">DONATE</a>
+          <a href="{{ url_for('donation.donate') }}" class="btn btn-warning donate-inline">DONATE</a>
         </li>
-
       </ul>
-
     </div>
   </div>
 </nav>
+
 
 <!-- Page Content -->
 {% block fullwidth %}{% endblock %}

@@ -1,4 +1,4 @@
-/* ✅ Google Fonts for new navbar style */
+/*  Google Fonts for new navbar style */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Arimo:wght@400;500&display=swap');
 
 /* ========== GLOBAL STYLES ========== */
@@ -8,47 +8,77 @@ html,body {
   display: flex;
   flex-direction: column;
   margin: 0;
-  margin-top: 1.0rem;
+  margin-top: 0.5rem;
   overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 
 .container {
   flex: 1;
 }
-
-/* ========== NAVBAR (merged styles) ========== */
-.custom-navbar {
-  background-color: #15376D; /* navy blue */
-  padding: 0.7rem 1rem;
-  font-family: 'Montserrat', sans-serif;
-}
-
-/* update the image later */
-.logo-img {
-  height: 50px;
-  width: 100%;
-  margin-right: 10px;
-}
-
 .brand-text {
   font-family: 'Arimo', sans-serif;
   font-size: 1rem;
   color: white;
 }
-
-.navbar-nav .nav-link {
-  color: white !important;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  margin: 0 8px;
-  transition: color 0.3s ease;
+/* ========== NAVBAR (merged styles) ========== */
+/* Navbar base */
+.custom-navbar {
+  background-color: #15376D; /* navy blue */
   font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+}
+
+/* Left logo section */
+.navbar-logo-section {
+  background-color: #ffffff; /* white background */
+  height: 80px;
+  display: flex;
+  align-items: center;
+}
+
+/* Logo image */
+.logo-img {
+  height: 65px;
+  width: auto;
+  max-width: 240px; /* makes it longer */
+  object-fit: contain;
+}
+
+/* Navbar links */
+.navbar-nav .nav-link {
+  color: #ffffff !important;
+  margin: 0 0.5rem;
+  font-size: 0.95rem;
 }
 
 .navbar-nav .nav-link:hover {
-  color: #ffcc01 !important; /* gold hover */
+  color: #ffcc01 !important;
 }
 
+/* Donate button */
+.donate-inline {
+  background-color: #ffcc01;
+  color: #000;
+  font-weight: 700;
+  border-radius: 20px;
+  padding: 0.2rem 0.25rem;          /* reduced padding */
+  text-decoration: none;
+  font-family: 'Montserrat', sans-serif;
+  text-transform: uppercase;
+  font-size: 0.5rem;                /* smaller text */
+  transition: all 0.3s ease;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  display: inline-block;
+  margin-left: 10px;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+.donate-inline:hover {
+  background-color: #e6b800;
+  color: #000;
+}
 .dropdown-menu {
   background-color: #15376D;
   border: none;
@@ -62,33 +92,6 @@ html,body {
 .dropdown-item:hover {
   background-color: #1d4a9a;
   color: #ffcc01;
-}
-
-/* ========== DONATE BUTTON ========== */
-/* Vertical Donate Button (inside navbar) */
-.donate-inline {
-  background-color: #ffcc01;
-  color: #000;
-  font-weight: 700;
-  border-radius: 20px;
-  padding: 0.2rem 0.25rem;          /* reduced padding */
-  text-decoration: none;
-  font-family: 'Montserrat', sans-serif;
-  text-transform: uppercase;
-  font-size: 0.35rem;                /* smaller text */
-  transition: all 0.3s ease;
-  writing-mode: vertical-rl;
-  text-orientation: upright;
-  display: inline-block;
-  margin-left: 10px;
-  letter-spacing: 0.5px;
-  line-height: 1;
-}
-
-.donate-inline:hover {
-  background-color:  #ffcc01;
-  color: #000;
-  transform: scale(1.05);
 }
 
 /* Number count & Portfolio Highlight */
@@ -121,53 +124,102 @@ html,body {
   color: #000000;
 }
 
-/* Homepage Services */
+/* =========================
+   HOMEPAGE SERVICES SECTION
+   ========================= */
+
 .services-section {
-      background-color: #fff;
-      margin: 80px auto;
-      padding: 60px 40px;
-      max-width: 1200px;
-      border-radius: 4px;
-      text-align: center;
-    }
+  background-color: #fff;
+  margin: 80px auto;
+  padding: 60px 40px;
+  max-width: 1200px;
+  border-radius: 4px;
+  text-align: center;
+}
 
-    .services-section h2 {
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 800;
-      font-size: 2.5rem;
-      margin-bottom: 60px;
-      text-transform: uppercase;
-    }
+/* Title */
+.services-section h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 2.5rem;
+  margin-bottom: 60px;
+  text-transform: uppercase;
+}
 
-    .service-item {
-      font-size: 1.25rem;
-      margin-bottom: 25px;
-      text-align: left;
-    }
+/* Equal height columns */
+.services-section .row {
+  display: flex;
+  align-items: stretch; /* ensures equal height */
+  flex-wrap: wrap; /* keeps layout responsive */
+}
 
-    .service-item i {
-      color: #0b2c67;
-      font-size: 1.8rem;
-      margin-right: 10px;
-      vertical-align: middle;
-    }
+.services-section .col-lg-5,
+.services-section .col-lg-7 {
+  display: flex;
+  flex-direction: column;
+}
 
-    .learn-more-btn {
-      background-color: #ffcc01;
-      color: #000;
-      font-weight: 700;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 1.2rem;
-      border: none;
-      border-radius: 40px;
-      padding: 15px 45px;
-      margin-top: 30px;
-      transition: 0.3s ease;
-    }
+/* Image styling */
+.services-section img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
 
-    .learn-more-btn:hover {
-      background-color: #ffcc01;
-    }
+/* Service list items */
+.service-item {
+  font-size: 1.25rem;
+  margin-bottom: 25px;
+  text-align: left;
+}
+
+.service-item i {
+  color: #0b2c67;
+  font-size: 1.8rem;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+/* Learn More button */
+.learn-more-btn {
+  background-color: #ffcc01;
+  color: #000;
+  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 40px;
+  padding: 15px 45px;
+  margin-top: 30px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.learn-more-btn:hover {
+  background-color: #ffdd33;
+  transform: translateY(-2px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 991px) {
+  .services-section {
+    padding: 40px 20px;
+  }
+
+  .services-section h2 {
+    font-size: 2rem;
+    margin-bottom: 40px;
+  }
+
+  .service-item {
+    font-size: 1.1rem;
+  }
+
+  .learn-more-btn {
+    font-size: 1rem;
+    padding: 12px 35px;
+  }
+}
 
 /* Hide donate button on small screens */
 @media (max-width: 992px) {

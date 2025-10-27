@@ -7,181 +7,216 @@
     <h2 class="text-center fw-bold mb-5 text-uppercase">Our Services</h2>
 
     <!-- SERVICE 1 -->
-    <div class="row align-items-center mb-5">
-      <div class="col-lg-5 mb-4 mb-lg-0">
-        <img src="{{ url_for('static', filename='images/teacher_recruitment_service.jpg') }}" alt="Teacher Recruitment" class="img-fluid rounded shadow-sm">
+    <div id="teacher-recruitment" class="row g-4 align-items-stretch mb-5">
+      <div class="col-lg-5 d-flex">
+        <div class="service-img-wrapper w-100">
+          <img 
+            src="{{ url_for('static', filename='images/teacher_recruitment_service.jpg') }}" 
+            alt="Teacher Recruitment"
+            class="img-fluid rounded shadow-sm"
+          >
+        </div>
       </div>
-      <div class="col-lg-7">
-        <h4 class="fw-bold mb-3">Teacher Recruitment</h4>
-        <p>Streamlined recruitment processes to connect schools with highly qualified and passionate teachers. We prioritize matching schools with candidates who align with their vision and culture.</p>
-        <p>Are you a <strong>teacher</strong> looking for employment?</p>
-        <a href="#" class="btn btn-warning fw-bold rounded-pill px-3 py-2 mb-3">View our job posts</a><br>
-        <p>Are you a <strong>school</strong> with vacancies?</p>
-        <a href="{{ url_for('main.book_service') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2">Get in touch</a>
+      <div class="col-lg-7 d-flex flex-column justify-content-center">
+        <div>
+          <h4 class="fw-bold mb-3">Teacher Recruitment</h4>
+          <p>Streamlined recruitment processes to connect schools with highly qualified and passionate teachers. We prioritize matching schools with candidates who align with their vision and culture.</p>
+          <p>Are you a <strong>teacher</strong> looking for employment?</p>
+          <a href="{{ url_for('jobs.job_listings') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2 mb-3">View our job posts</a><br>
+          <p>Are you a <strong>school</strong> with vacancies?</p>
+          <a href="{{ url_for('main.book_service') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2">Get in touch</a>
+        </div>
       </div>
     </div>
 
     <hr class="my-5">
 
     <!-- SERVICE 2 -->
-    <div class="row align-items-center mb-5">
-      <div class="col-lg-5 mb-4 mb-lg-0">
-        <img src="{{ url_for('static', filename='images/professional_dev-2.jpg') }}" alt="Teacher Professional Development" class="img-fluid rounded shadow-sm">
+    <div id="teacher-development" class="row g-4 align-items-stretch mb-5">
+      <div class="col-lg-5 d-flex">
+        <div class="service-img-wrapper w-100">
+          <img src="{{ url_for('static', filename='images/professional_dev-2.jpg') }}" alt="Teacher Professional Development" class="img-fluid rounded shadow-sm">
+        </div>
       </div>
-      <div class="col-lg-7">
-        <h4 class="fw-bold mb-3">Teacher Professional Development</h4>
-        <p>We offer customized training programs to equip teachers with the latest pedagogical strategies, classroom management techniques, and subject-specific expertise. These can be done whether online or face-to-face.</p>
-        <p>Our workshops and seminars are designed to:</p>
-        <ul>
-          <li>Foster professional growth</li>
-          <li>Enhance instructional effectiveness</li>
-          <li>Support lifelong learning among educators</li>
-        </ul>
-        <p>Are you a school in need of this service and more?</p>
-        <a href="{{ url_for('main.book_service') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2">Get in touch</a>
+      <div class="col-lg-7 d-flex flex-column justify-content-center">
+        <div>
+          <h4 class="fw-bold mb-3">Teacher Professional Development</h4>
+          <p>We offer customized training programs to equip teachers with the latest pedagogical strategies, classroom management techniques, and subject-specific expertise. These can be done whether online or face-to-face.</p>
+          <p>Our workshops and seminars are designed to:</p>
+          <ul>
+            <li>Foster professional growth</li>
+            <li>Enhance instructional effectiveness</li>
+            <li>Support lifelong learning among educators</li>
+          </ul>
+          <p>Are you a school in need of this service and more?</p>
+          <a href="{{ url_for('main.book_service') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2">Get in touch</a>
+        </div>
       </div>
     </div>
 
     <hr class="my-5">
 
     <!-- SERVICE 3 -->
-    <div class="row align-items-center mb-5">
-      <div class="col-lg-5 mb-4 mb-lg-0">
-        <img src="{{ url_for('static', filename='images/school_restructuring-3.jpg') }}" alt="School Structuring and Restructuring" class="img-fluid rounded shadow-sm">
+    <div id="school-structuring" class="row g-4 align-items-stretch mb-5">
+      <div class="col-lg-5 d-flex">
+        <div class="service-img-wrapper w-100">
+          <img src="{{ url_for('static', filename='images/school_restructuring-3.jpg') }}" alt="School Structuring and Restructuring" class="img-fluid rounded shadow-sm">
+        </div>
       </div>
-      <div class="col-lg-7">
-        <h4 class="fw-bold mb-3">School Structuring and Restructuring</h4>
-        <p>We offer comprehensive services for establishing new schools or revitalizing existing ones, focusing on:</p>
-        <ul>
-          <li>Organizational design</li>
-          <li>Administrative systems</li>
-          <li>Physical infrastructure planning</li>
-          <li>School culture cultivation</li>
-        </ul>
-        <p>Are you in need of this service and more?</p>
-        <a href="{{ url_for('main.book_service') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2">Get in touch</a>
+      <div class="col-lg-7 d-flex flex-column justify-content-center">
+        <div>
+          <h4 class="fw-bold mb-3">School Structuring and Restructuring</h4>
+          <p>We offer comprehensive services for establishing new schools or revitalizing existing ones, focusing on:</p>
+          <ul>
+            <li>Organizational design</li>
+            <li>Administrative systems</li>
+            <li>Physical infrastructure planning</li>
+            <li>School culture cultivation</li>
+          </ul>
+          <p>Are you in need of this service and more?</p>
+          <a href="{{ url_for('main.book_service') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2">Get in touch</a>
+        </div>
       </div>
     </div>
 
     <hr class="my-5">
 
     <!-- SERVICE 4 -->
-    <div class="row align-items-center">
-      <div class="col-lg-5 mb-4 mb-lg-0">
-        <img src="{{ url_for('static', filename='images/stationery-5.jpg') }}" alt="Book Shop" class="img-fluid rounded shadow-sm">
+    <div id="bookshop" class="row g-4 align-items-stretch mb-5">
+      <div class="col-lg-5 d-flex">
+        <div class="service-img-wrapper w-100">
+          <img src="{{ url_for('static', filename='images/stationery-5.jpg') }}" alt="Book Shop" class="img-fluid rounded shadow-sm">
+        </div>
       </div>
-      <div class="col-lg-7">
-        <h4 class="fw-bold mb-3">Book Shop</h4>
-        <p>Purchase all your stationeries at wholesale or retail prices at RealMindX Bookshop. We provide deliveries to all locations and offer pickups as well.</p>
-        <p>Are you a school in need of this service and more?</p>
-        <a href="https://bookshop.realmindxgh.com" class="btn btn-warning fw-bold rounded-pill px-3 py-2">
-          Visit our bookshop <i class="fa fa-shopping-cart ms-1"></i>
-        </a>
+      <div class="col-lg-7 d-flex flex-column justify-content-center">
+        <div>
+          <h4 class="fw-bold mb-3">Book Shop</h4>
+          <p>Purchase all your stationeries at wholesale or retail prices at RealMindX Bookshop. We provide deliveries to all locations and offer pickups as well.</p>
+          <p>Are you a school in need of this service and more?</p>
+          <a href="https://bookshop.realmindxgh.com" class="btn btn-warning fw-bold rounded-pill px-3 py-2">
+            Visit our bookshop <i class="fa fa-shopping-cart ms-1"></i>
+          </a>
+        </div>
       </div>
     </div>
+
     <hr class="my-5">
 
     <!-- SERVICE 5 -->
-    <div class="row align-items-center mb-5">
-      <div class="col-lg-5 mb-4 mb-lg-0">
-        <img src="{{ url_for('static', filename='images/home_teaching-1.jpg') }}" alt="Online Tutoring" class="img-fluid rounded shadow-sm">
+    <div id="after-school" class="row g-4 align-items-stretch mb-5">
+      <div class="col-lg-5 d-flex">
+        <div class="service-img-wrapper w-100">
+          <img src="{{ url_for('static', filename='images/home_teaching-1.jpg') }}" alt="After School/Weekend Tutoring" class="img-fluid rounded shadow-sm">
+        </div>
       </div>
-      <div class="col-lg-7">
-        <h4 class="fw-bold mb-3">After School/Weekend Tutoring (Online/In-Person)</h4>
-        <p>We offer tailored tutoring programs for students across all grade levels to provide additional academic support in a structured, engaging, and student-centred manner.</p>
-        <p>Options include:</p>
-        <ul>
-          <li>Student-specific tutoring (e.g., Mathematics, Science, English, etc.)</li>
-          <li>Homework assistance and exam preparation</li>
-          <li>Support lifelong learning among educators</li>
-        </ul>
-        <p>Are you a school in need of this service and more?</p>
-        <a href="{{ url_for('main.book_service') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2">Get in touch</a>
+      <div class="col-lg-7 d-flex flex-column justify-content-center">
+        <div>
+          <h4 class="fw-bold mb-3">After School/Weekend Tutoring (Online/In-Person)</h4>
+          <p>We offer tailored tutoring programs for students across all grade levels to provide additional academic support in a structured, engaging, and student-centred manner.</p>
+          <p>Options include:</p>
+          <ul>
+            <li>Student-specific tutoring (e.g., Mathematics, Science, English, etc.)</li>
+            <li>Homework assistance and exam preparation</li>
+            <li>Support lifelong learning among educators</li>
+          </ul>
+          <p>Are you a school in need of this service and more?</p>
+          <a href="{{ url_for('main.book_service') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2">Get in touch</a>
+        </div>
       </div>
     </div>
 
     <hr class="my-5">
 
     <!-- SERVICE 6 -->
-    <div class="row align-items-center mb-5">
-      <div class="col-lg-5 mb-4 mb-lg-0">
-        <img src="{{ url_for('static', filename='images/Research.jpg') }}" alt="Research and Assignments" class="img-fluid rounded shadow-sm">
+    <div id="research" class="row g-4 align-items-stretch mb-5">
+      <div class="col-lg-5 d-flex">
+        <div class="service-img-wrapper w-100">
+          <img src="{{ url_for('static', filename='images/Research.jpg') }}" alt="Research and Assignments" class="img-fluid rounded shadow-sm">
+        </div>
       </div>
-      <div class="col-lg-7">
-        <h4 class="fw-bold mb-3">Research and Assignments</h4>
-        <p>Comprehensive academic support for students, professionals and researchers.</p>
-        <p>Our services include:</p>
-        <ul>
-          <li>Research proposal development and guidance.</li>
-          <li>Thesis and dissertation assistance</li>
-          <li>Data analysis and interpretation</li>
-          <li>Assignments and academic writing support</li>
-        </ul>
-        <p>Are you a school in need of this service and more?</p>
-        <a href="{{ url_for('main.book_service') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2">Get in touch</a>
+      <div class="col-lg-7 d-flex flex-column justify-content-center">
+        <div>
+          <h4 class="fw-bold mb-3">Research and Assignments</h4>
+          <p>Comprehensive academic support for students, professionals and researchers.</p>
+          <ul>
+            <li>Research proposal development and guidance</li>
+            <li>Thesis and dissertation assistance</li>
+            <li>Data analysis and interpretation</li>
+            <li>Assignments and academic writing support</li>
+          </ul>
+          <p>Are you a school in need of this service and more?</p>
+          <a href="{{ url_for('main.book_service') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2">Get in touch</a>
+        </div>
       </div>
     </div>
 
     <hr class="my-5">
+
     <!-- SERVICE 7 -->
-    <div class="row align-items-center mb-5">
-      <div class="col-lg-5 mb-4 mb-lg-0">
-        <img src="{{ url_for('static', filename='images/secretarial_services.jpg') }}" alt="Secretarial Services" class="img-fluid rounded shadow-sm">
+    <div id="secretarial" class="row g-4 align-items-stretch mb-5">
+      <div class="col-lg-5 d-flex">
+        <div class="service-img-wrapper w-100">
+          <img src="{{ url_for('static', filename='images/secretarial_services.jpg') }}" alt="Secretarial Services" class="img-fluid rounded shadow-sm">
+        </div>
       </div>
-      <div class="col-lg-7">
-        <h4 class="fw-bold mb-3">Secretarial Services</h4>
-        <p>Professional documentation and administrative support to enhance efficiency and accuracy in academic and business settings.</p>
-        <p>Our services include:</p>
-        <ul>
-          <li>Preparation of business proposals and reports</li>
-          <li>Proofreading and editing for clarity and coherence</li>
-          <li>Plagiarism checks and content originality</li>
-          <li>Formatting and document structuring</li>
-        </ul>
-        <p>Are you a school in need of this service and more?</p>
-        <a href="{{ url_for('main.book_service') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2">Get in touch</a>
+      <div class="col-lg-7 d-flex flex-column justify-content-center">
+        <div>
+          <h4 class="fw-bold mb-3">Secretarial Services</h4>
+          <p>Professional documentation and administrative support to enhance efficiency and accuracy in academic and business settings.</p>
+          <ul>
+            <li>Preparation of business proposals and reports</li>
+            <li>Proofreading and editing for clarity and coherence</li>
+            <li>Plagiarism checks and content originality</li>
+            <li>Formatting and document structuring</li>
+          </ul>
+          <p>Are you a school in need of this service and more?</p>
+          <a href="{{ url_for('main.book_service') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2">Get in touch</a>
+        </div>
       </div>
     </div>
 
     <hr class="my-5">
+
     <!-- SERVICE 8 -->
-    <div class="row align-items-center mb-5">
-      <div class="col-lg-5 mb-4 mb-lg-0">
-        <img src="{{ url_for('static', filename='images/special_needs-4.jpg') }}" alt="Special Education Support" class="img-fluid rounded shadow-sm">
+    <div  id="special-education" class="row g-4 align-items-stretch mb-5">
+      <div class="col-lg-5 d-flex">
+        <div class="service-img-wrapper w-100">
+          <img src="{{ url_for('static', filename='images/special_needs-4.jpg') }}" alt="Special Education Support" class="img-fluid rounded shadow-sm">
+        </div>
       </div>
-      <div class="col-lg-7">
-        <h4 class="fw-bold mb-3">Special Education Support</h4>
-        <p>Dedicated support services for students with special needs, including:</p>
-        <ul>
-          <li>Individualized Education Plans (IEPs)</li>
-          <li>Teacher training on inclusive practices</li>
-          <li>Resource provision and classroom adaptations</li>
-        </ul>
-        <p>Are you a school in need of this service and more?</p>
-        <a href="{{ url_for('main.book_service') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2">Get in touch</a>
+      <div class="col-lg-7 d-flex flex-column justify-content-center">
+        <div>
+          <h4 class="fw-bold mb-3">Special Education Support</h4>
+          <p>Dedicated support services for students with special needs, including:</p>
+          <ul>
+            <li>Individualized Education Plans (IEPs)</li>
+            <li>Teacher training on inclusive practices</li>
+            <li>Resource provision and classroom adaptations</li>
+          </ul>
+          <p>Are you a school in need of this service and more?</p>
+          <a href="{{ url_for('main.book_service') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2">Get in touch</a>
+        </div>
       </div>
     </div>
 
     <hr class="my-5">
+
     <!-- SERVICE 9 -->
-    <div class="row align-items-center mb-5">
-      <div class="col-lg-5 mb-4 mb-lg-0">
-        <img src="{{ url_for('static', filename='images/educational_consulting.jpg') }}" alt="Educational Consulting" class="img-fluid rounded shadow-sm">
+    <div id="consulting" class="row g-4 align-items-stretch mb-5">
+      <div class="col-lg-5 d-flex">
+        <div class="service-img-wrapper w-100">
+          <img src="{{ url_for('static', filename='images/educational_consulting.jpg') }}" alt="Educational Consulting" class="img-fluid rounded shadow-sm">
+        </div>
       </div>
-      <div class="col-lg-7">
-        <h4 class="fw-bold mb-3">Educational Consulting</h4>
-        <p>
-            Expert guidance for schools, educators, and organizations to improve educational outcomes and institutional effectiveness.
-            Our consulting services include school policy development and implementation strategies.
-            We provide data-driven insights and tailored solutions to enhance teaching and learning, and school management.
-        </p>
-        <p>Are you a school in need of this service and more?</p>
-        <a href="{{ url_for('main.book_service') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2">Get in touch</a>
+      <div class="col-lg-7 d-flex flex-column justify-content-center">
+        <div>
+          <h4 class="fw-bold mb-3">Educational Consulting</h4>
+          <p>Expert guidance for schools, educators, and organizations to improve educational outcomes and institutional effectiveness. We provide data-driven insights and tailored solutions to enhance teaching, learning, and management.</p>
+          <p>Are you a school in need of this service and more?</p>
+          <a href="{{ url_for('main.book_service') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2">Get in touch</a>
+        </div>
       </div>
     </div>
-
-    <hr class="my-5">
-
   </div>
 </section>
 {% endblock %}
