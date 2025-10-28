@@ -34,7 +34,7 @@ def create_app():
     app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
     app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
     app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
-    app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5MB max
+    app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20MB max
     app.config.from_object('learning_app.config.Config')
 
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
