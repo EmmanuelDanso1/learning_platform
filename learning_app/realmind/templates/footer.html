@@ -8,61 +8,87 @@
     <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
       <div class="carousel-inner">
 
-        <!-- Slide 1 -->
-        <div class="carousel-item active">
-          <div class="row justify-content-center">
-            <div class="col-md-5 mx-3 p-4 testimonial-box bg-white shadow rounded-3">
-              <p class="testimonial-text mb-3">
-                “<em>RealMindX transformed our school's teacher recruitment!</em>”
-              </p>
-              <p class="testimonial-author fw-bold text-primary">Mr. James, Principal of Bright Minds School</p>
-            </div>
-            <div class="col-md-5 mx-3 p-4 testimonial-box bg-white shadow rounded-3">
-              <p class="testimonial-text mb-3">
-                “<em>Our research projects have improved greatly through RealMindX CPD programs!</em>”
-              </p>
-              <p class="testimonial-author fw-bold text-primary">Mrs. Clara, Head of Research, Future Scholars Academy</p>
-            </div>
-          </div>
-        </div>
+        <!-- Testimonial Carousel -->
+      <div id="testimonialCarousel" class="carousel slide text-center" data-bs-ride="carousel">
+        <div class="carousel-inner">
 
-        <!-- Slide 2 -->
-        <div class="carousel-item">
-          <div class="row justify-content-center">
-            <div class="col-md-5 mx-3 p-4 testimonial-box bg-white shadow rounded-3">
-              <p class="testimonial-text mb-3">
-                “<em>RealMindX made teacher development accessible and enjoyable.</em>”
-              </p>
-              <p class="testimonial-author fw-bold text-primary">Mr. Daniel, Training Coordinator</p>
-            </div>
-            <div class="col-md-5 mx-3 p-4 testimonial-box bg-white shadow rounded-3">
-              <p class="testimonial-text mb-3">
-                “<em>We recruited the best teachers easily through their platform.</em>”
-              </p>
-              <p class="testimonial-author fw-bold text-primary">Mrs. Grace, Principal, Elite High School</p>
+          <!-- Slide 1 -->
+          <div class="carousel-item active">
+            <div class="testimonial-wrapper d-flex justify-content-center">
+              <div class="testimonial-box bg-white shadow rounded-3 p-4">
+                <p class="testimonial-text mb-3">
+                  “<em>RealMindX transformed our school's teacher recruitment!</em>”
+                </p>
+                <p class="testimonial-author fw-bold text-primary">
+                  Mr. James, Principal of Bright Minds School
+                </p>
+              </div>
             </div>
           </div>
+
+          <!-- Slide 2 -->
+          <div class="carousel-item">
+            <div class="testimonial-wrapper d-flex justify-content-center">
+              <div class="testimonial-box bg-white shadow rounded-3 p-4">
+                <p class="testimonial-text mb-3">
+                  “<em>Our research projects have improved greatly through RealMindX CPD programs!</em>”
+                </p>
+                <p class="testimonial-author fw-bold text-primary">
+                  Mrs. Clara, Head of Research, Future Scholars Academy
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 3 -->
+          <div class="carousel-item">
+            <div class="testimonial-wrapper d-flex justify-content-center">
+              <div class="testimonial-box bg-white shadow rounded-3 p-4">
+                <p class="testimonial-text mb-3">
+                  “<em>RealMindX made teacher development accessible and enjoyable.</em>”
+                </p>
+                <p class="testimonial-author fw-bold text-primary">
+                  Mr. Daniel, Training Coordinator
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 4 -->
+          <div class="carousel-item">
+            <div class="testimonial-wrapper d-flex justify-content-center">
+              <div class="testimonial-box bg-white shadow rounded-3 p-4">
+                <p class="testimonial-text mb-3">
+                  “<em>We recruited the best teachers easily through their platform.</em>”
+                </p>
+                <p class="testimonial-author fw-bold text-primary">
+                  Mrs. Grace, Principal, Elite High School
+                </p>
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        <!-- Add more slides below -->
+        <!-- Carousel controls -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+
+        <!-- Indicators -->
+        <div class="carousel-indicators mt-4">
+          <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="0" class="active"></button>
+          <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="1"></button>
+          <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="2"></button>
+          <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="3"></button>
+        </div>
       </div>
 
-      <!-- Carousel controls -->
-      <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-      </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-      </button>
-
-      <!-- Indicators -->
-      <div class="carousel-indicators mt-4">
-        <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="0" class="active"></button>
-        <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="1"></button>
-        <!-- add more buttons for additional slides -->
-      </div>
 
     </div>
   </div>

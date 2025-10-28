@@ -4,49 +4,48 @@
 {% block fullwidth %}
 <!-- Videos Section with Full Background Overlay and Full-Width Carousel -->
 <section class="position-relative w-100" style="height:100vh; overflow:hidden;">
+
   <!-- Carousel -->
   <div id="educationCarousel" class="carousel slide w-100 h-100" data-bs-ride="carousel">
     <div class="carousel-inner h-100">
       <div class="carousel-item active h-100">
-        <img src="{{ url_for('static', filename='images/home_teaching-1.jpg') }}" class="d-block w-100 h-100 object-fit-cover" alt="home_teaching">
+        <img src="{{ url_for('static', filename='images/home_teaching-1.jpg') }}" alt="home_teaching">
       </div>
       <div class="carousel-item h-100">
-        <img src="{{ url_for('static', filename='images/professional_dev-2.jpg') }}" class="d-block w-100 h-100 object-fit-cover" alt="professional_dev">
+        <img src="{{ url_for('static', filename='images/professional_dev-2.jpg') }}" alt="professional_dev">
       </div>
       <div class="carousel-item h-100">
-        <img src="{{ url_for('static', filename='images/school_restructuring-3.jpg') }}" class="d-block w-100 h-100 object-fit-cover" alt="school_restructuring">
+        <img src="{{ url_for('static', filename='images/school_restructuring-3.jpg') }}" alt="school_restructuring">
       </div>
       <div class="carousel-item h-100">
-        <img src="{{ url_for('static', filename='images/special_needs-4.jpg') }}" class="d-block w-100 h-100 object-fit-cover" alt="special_needs">
+        <img src="{{ url_for('static', filename='images/special_needs-4.jpg') }}" alt="special_needs">
       </div>
       <div class="carousel-item h-100">
-        <img src="{{ url_for('static', filename='images/stationery-5.jpg') }}" class="d-block w-100 h-100 object-fit-cover" alt="stationery">
+        <img src="{{ url_for('static', filename='images/stationery-5.jpg') }}" alt="stationery">
       </div>
     </div>
   </div>
 
   <!-- Dark overlay -->
-  <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
+  <div class="hero-overlay"></div>
 
-  <!-- Text + Buttons -->
-  <div class="position-absolute top-50 start-50 translate-middle text-center text-white px-3">
-    <h1 class="fw-bold display-4 text-uppercase text-white">Welcome to RealMindX</h1>
-    <h2 class="fw-bold text-primary text-uppercase mb-3">Education</h2>
-    <p class="fs-5 text-warning text-uppercase fw-semibold mb-5">
-      Holistic Learning Conveniently for Every Mind
-    </p>
+  <!-- Hero text & buttons -->
+  <div class="hero-content">
+    <h1 style="color: #fff;">Welcome to RealMindX</h1>
+    <h2 style="color: #143760;">Education</h2>
+    <p style="color: #ffcc01;">Holistic Learning Conveniently for Every Mind</p>
 
-    <div class="d-flex justify-content-center gap-4 flex-wrap">
-      <a href="https://bookshop.realmindxgh.com" class="btn btn-warning fw-semibold px-4 py-3 rounded-pill shadow-sm">
-        Visit our bookshop <i class="fa-solid fa-cart-shopping ms-2"></i>
+    <div class="hero-buttons d-flex justify-content-center flex-wrap gap-3">
+      <a href="https://bookshop.realmindxgh.com" class="btn">
+        Visit our Bookshop <i class="fa-solid fa-cart-shopping ms-2"></i>
       </a>
-      <a href="{{ url_for('jobs.job_listings') }}" class="btn btn-warning fw-semibold px-4 py-3 rounded-pill shadow-sm">
+      <a href="{{ url_for('jobs.job_listings') }}" class="btn">
         View Teaching Opportunities <i class="fa-solid fa-arrow-right ms-2"></i>
       </a>
     </div>
   </div>
 
-  <!-- Optional carousel controls -->
+  <!-- Carousel controls -->
   <button class="carousel-control-prev" type="button" data-bs-target="#educationCarousel" data-bs-slide="prev">
     <span class="carousel-control-prev-icon"></span>
     <span class="visually-hidden">Previous</span>
@@ -56,6 +55,7 @@
     <span class="visually-hidden">Next</span>
   </button>
 </section>
+
 <section class="py-5" style="background-color: #ffcc01;">
   <div class="container text-dark">
     <div class="row justify-content-center align-items-start g-5">
