@@ -1,39 +1,91 @@
-{% extends "index.html"  %}
+{% extends "index.html" %}
 
 {% block content %}
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card shadow-lg p-4">
-                    <h2 class="text-center mb-4"> Sign Up</h2>
-                    <form method="POST">
-                        {{ form.hidden_tag() }}  <!-- Ensure CSRF token is included -->
-                        
-                        <div>
-                            <label>Full Name</label>
-                            {{ form.username(class="form-control", placeholder="Enter username") }}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg p-4 border-0 rounded-4">
+                <h2 class="text-center mb-4 fw-bold">Sign Up</h2>
+
+                <form method="POST">
+                    {{ form.hidden_tag() }}  <!-- CSRF protection -->
+
+                    <!-- Full Name -->
+                    <div class="mb-3">
+                        <label>Full Name</label>
+                        {{ form.username(class="form-control", placeholder="Enter full name") }}
+                    </div>
+
+                    <!-- Email -->
+                    <div class="mb-3">
+                        <label>Email</label>
+                        {{ form.email(class="form-control", placeholder="Enter email") }}
+                    </div>
+
+                    <!-- Password -->
+                    <div class="mb-3">
+                        <label>Password</label>
+                        <div class="input-group">
+                            {{ form.password(class="form-control", id="password", placeholder="Enter password") }}
+                            <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                                <i class="fa fa-eye"></i>
+                            </button>
                         </div>
-                        
-                        <div>
-                            <label>Email</label>
-                            {{ form.email(class="form-control", placeholder="Enter email") }}
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="mb-3">
+                        <label>Confirm Password</label>
+                        <div class="input-group">
+                            {{ form.confirm_password(class="form-control", id="confirmPassword", placeholder="Confirm password") }}
+                            <button type="button" class="btn btn-outline-secondary" id="toggleConfirmPassword">
+                                <i class="fa fa-eye"></i>
+                            </button>
                         </div>
-                        
-                        <div>
-                            <label>Password</label>
-                            {{ form.password(class="form-control", placeholder="Enter password") }}
-                        </div>
-                        
-                        <div>
-                            <label>Confirm Password</label>
-                            {{ form.confirm_password(class="form-control", placeholder="Confirm password") }}
-                        </div><br>
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </form>
-                    <a href="{{ url_for('auth.user_login') }}" style="text-decoration: none;">Already have an account? Login</a>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid mt-3">
+                        <button type="submit" class="btn btn-primary fw-semibold">Submit</button>
+                    </div>
+                </form>
+
+                <!-- Login Link -->
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('auth.user_login') }}" class="text-decoration-none">
+                        Already have an account? <span class="fw-semibold">Login</span>
+                    </a>
                 </div>
             </div>
         </div>
-        
     </div>
+</div>
+
+<!-- Password Toggle Script -->
+<script>
+    // Toggle main password
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    const passwordIcon = togglePassword.querySelector('i');
+
+    togglePassword.addEventListener('click', () => {
+        const isHidden = passwordInput.type === 'password';
+        passwordInput.type = isHidden ? 'text' : 'password';
+        passwordIcon.classList.toggle('fa-eye');
+        passwordIcon.classList.toggle('fa-eye-slash');
+    });
+
+    // Toggle confirm password
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+    const confirmInput = document.getElementById('confirmPassword');
+    const confirmIcon = toggleConfirmPassword.querySelector('i');
+
+    toggleConfirmPassword.addEventListener('click', () => {
+        const isHidden = confirmInput.type === 'password';
+        confirmInput.type = isHidden ? 'text' : 'password';
+        confirmIcon.classList.toggle('fa-eye');
+        confirmIcon.classList.toggle('fa-eye-slash');
+    });
+</script>
+
 {% endblock %}

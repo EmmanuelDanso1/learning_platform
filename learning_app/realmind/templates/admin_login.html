@@ -1,29 +1,58 @@
 {% extends 'index.html' %}
 {% block content %}
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card shadow-lg p-4">
-                    <h2 class="text-center mb-4"> Admin Login </h2>
-                    <form method="POST">
-                        {{ form.hidden_tag() }}  <!-- Ensure CSRF token is included -->
-                    
-                        <div>
-                            <label>Email</label>
-                            {{ form.email(class="form-control", placeholder="Enter email") }}
-                        </div><br>
-                        
-                        <div>
-                            <label>Password</label>
-                            {{ form.password(class="form-control", placeholder="Enter password") }}
-                        </div><br>
-                        <div>
-                            <button type="submit" class="btn btn-primary">Submit</button>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg p-4 border-0 rounded-4">
+                <h2 class="text-center mb-4 fw-bold">Admin Login</h2>
+                
+                <form method="POST">
+                    {{ form.hidden_tag() }}  <!-- CSRF token -->
+
+                    <!-- Email -->
+                    <div class="mb-3">
+                        <label>Email</label>
+                        {{ form.email(class="form-control", placeholder="Enter email") }}
+                    </div>
+
+                    <!-- Password with toggle -->
+                    <div class="mb-3">
+                        <label for="password">Password</label>
+                        <div class="input-group">
+                            {{ form.password(class="form-control", id="password", placeholder="Enter password") }}
+                            <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                                <i class="fa fa-eye"></i>
+                            </button>
                         </div>
-                    </form>
-                    <a href="{{ url_for('auth.admin_signup') }}" style="text-decoration: none;">Don't have an account? Signup here</a>
+                    </div>
+
+                    <!-- Submit -->
+                    <div class="d-grid mt-3">
+                        <button type="submit" class="btn btn-primary fw-semibold">Login</button>
+                    </div>
+                </form>
+
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('auth.admin_signup') }}" class="text-decoration-none">
+                        Don't have an account? <span class="fw-semibold">Signup here</span>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Password Toggle Script -->
+<script>
+    const togglePassword = document.querySelector('#togglePassword');
+    const passwordField = document.querySelector('#password');
+    const icon = togglePassword.querySelector('i');
+
+    togglePassword.addEventListener('click', () => {
+        const isHidden = passwordField.type === 'password';
+        passwordField.type = isHidden ? 'text' : 'password';
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+    });
+</script>
 {% endblock %}
