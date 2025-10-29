@@ -2,33 +2,30 @@
 {% block content %}
 
 <!-- ===============================
-     HERO SLIDESHOW SECTION
+     HERO SLIDESHOW SECTION (ABOUT)
    =============================== -->
-<section id="about-carousel" class="carousel slide" data-bs-ride="carousel">
-  <div class="carousel-inner">
-    <!-- Slide 1 -->
-    <div class="carousel-item active">
-      <img src="{{ url_for('static', filename='images/18.png') }}" class="d-block w-100 hero-slide" alt="RealMindX Logo 1">
+<section id="about-carousel" class="mb-5">
+  <div id="aboutCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <img src="{{ url_for('static', filename='images/18.png') }}" class="d-block w-100 rounded hero-slide" alt="RealMindX Logo 1">
+      </div>
+      <div class="carousel-item">
+        <img src="{{ url_for('static', filename='images/19.png') }}" class="d-block w-100 rounded hero-slide" alt="RealMindX Logo 2">
+      </div>
+      <div class="carousel-item">
+        <img src="{{ url_for('static', filename='images/20.png') }}" class="d-block w-100 rounded hero-slide" alt="RealMindX Logo 3">
+      </div>
     </div>
-    <!-- Slide 2 -->
-    <div class="carousel-item">
-      <img src="{{ url_for('static', filename='images/19.png') }}" class="d-block w-100 hero-slide" alt="RealMindX Logo 2">
-    </div>
-    <!-- Slide 3 -->
-    <div class="carousel-item">
-      <img src="{{ url_for('static', filename='images/20.png') }}" class="d-block w-100 hero-slide" alt="RealMindX Logo 3">
-    </div>
-  </div>
 
-  <!-- Carousel controls -->
-  <button class="carousel-control-prev" type="button" data-bs-target="#about-carousel" data-bs-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Previous</span>
-  </button>
-  <button class="carousel-control-next" type="button" data-bs-target="#about-carousel" data-bs-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Next</span>
-  </button>
+    <!-- Controls -->
+    <button class="carousel-control-prev" type="button" data-bs-target="#aboutCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#aboutCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </button>
+  </div>
 </section>
 
 <!-- ===============================
