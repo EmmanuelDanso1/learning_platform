@@ -106,6 +106,15 @@ p, a, span, li, button {
   background-color: #e6b800;
   color: #000;
 }
+/* Mobile view: make Donate horizontal */
+@media (max-width: 768px) {
+  .donate-inline {
+    writing-mode: horizontal-tb;
+    text-orientation: mixed;
+    font-size: 0.7rem;
+    padding: 0.3rem 0.5rem;
+  }
+}
 .dropdown-menu {
   background-color: #15376D;
   border: none;
