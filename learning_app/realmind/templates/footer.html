@@ -1,102 +1,74 @@
 <!-- show testimonials only at homepage and excludes it for other pages -->
 {% if request.endpoint == 'main.home' %}
-<!-- Testimonials Section -->
 <section class="testimonials-section text-center py-5" style="background:#ffcc01;">
   <div class="container">
     <h2 class="text-uppercase fw-bold mb-5">What Our Clients Say:</h2>
 
-    <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
-      <div class="carousel-inner">
-
-        <!-- Testimonial Carousel -->
-      <div id="testimonialCarousel" class="carousel slide text-center" data-bs-ride="carousel">
-        <div class="carousel-inner">
-
-          <!-- Slide 1 -->
-          <div class="carousel-item active">
-            <div class="testimonial-wrapper d-flex justify-content-center">
-              <div class="testimonial-box bg-white shadow rounded-3 p-4">
-                <p class="testimonial-text mb-3">
-                  “<em>RealMindX transformed our school's teacher recruitment!</em>”
-                </p>
-                <p class="testimonial-author fw-bold text-primary">
-                  Mr. James, Principal of Bright Minds School
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Slide 2 -->
-          <div class="carousel-item">
-            <div class="testimonial-wrapper d-flex justify-content-center">
-              <div class="testimonial-box bg-white shadow rounded-3 p-4">
-                <p class="testimonial-text mb-3">
-                  “<em>Our research projects have improved greatly through RealMindX CPD programs!</em>”
-                </p>
-                <p class="testimonial-author fw-bold text-primary">
-                  Mrs. Clara, Head of Research, Future Scholars Academy
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Slide 3 -->
-          <div class="carousel-item">
-            <div class="testimonial-wrapper d-flex justify-content-center">
-              <div class="testimonial-box bg-white shadow rounded-3 p-4">
-                <p class="testimonial-text mb-3">
-                  “<em>RealMindX made teacher development accessible and enjoyable.</em>”
-                </p>
-                <p class="testimonial-author fw-bold text-primary">
-                  Mr. Daniel, Training Coordinator
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Slide 4 -->
-          <div class="carousel-item">
-            <div class="testimonial-wrapper d-flex justify-content-center">
-              <div class="testimonial-box bg-white shadow rounded-3 p-4">
-                <p class="testimonial-text mb-3">
-                  “<em>We recruited the best teachers easily through their platform.</em>”
-                </p>
-                <p class="testimonial-author fw-bold text-primary">
-                  Mrs. Grace, Principal, Elite High School
-                </p>
-              </div>
-            </div>
-          </div>
-
+    <div class="testimonial-slider">
+      <div class="testimonial-track">
+        <div class="testimonial-box">
+          <p class="testimonial-text mb-3">“<em>RealMindX transformed our school's teacher recruitment!</em>”</p>
+          <p class="testimonial-author fw-bold text-primary">Mr. James, Principal of Bright Minds School</p>
         </div>
-
-        <!-- Carousel controls -->
-        <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
-          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-          <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
-          <span class="carousel-control-next-icon" aria-hidden="true"></span>
-          <span class="visually-hidden">Next</span>
-        </button>
-
-        <!-- Indicators -->
-        <div class="carousel-indicators mt-4">
-          <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="0" class="active"></button>
-          <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="1"></button>
-          <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="2"></button>
-          <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="3"></button>
+        <div class="testimonial-box">
+          <p class="testimonial-text mb-3">“<em>Our research projects have improved greatly through RealMindX CPD programs!</em>”</p>
+          <p class="testimonial-author fw-bold text-primary">Mrs. Clara, Head of Research</p>
+        </div>
+        <div class="testimonial-box">
+          <p class="testimonial-text mb-3">“<em>RealMindX made teacher development enjoyable.</em>”</p>
+          <p class="testimonial-author fw-bold text-primary">Mr. Daniel, Training Coordinator</p>
+        </div>
+        <div class="testimonial-box">
+          <p class="testimonial-text mb-3">“<em>We recruited the best teachers easily through their platform.</em>”</p>
+          <p class="testimonial-author fw-bold text-primary">Mrs. Grace, Principal, Elite High School</p>
         </div>
       </div>
-
-
     </div>
   </div>
 </section>
+
+
+{% block script %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const track = document.querySelector(".testimonial-track");
+  const boxes = Array.from(document.querySelectorAll(".testimonial-box"));
+
+  let index = 0;
+  const visibleCount = 2;
+  const boxWidth = boxes[0].offsetWidth + 20; // width + margin
+  const slideInterval = 4000;
+
+  // Clone first few slides for seamless looping
+  boxes.slice(0, visibleCount).forEach(box => {
+    const clone = box.cloneNode(true);
+    track.appendChild(clone);
+  });
+
+  function slide() {
+    index++;
+    track.style.transition = "transform 1s ease-in-out";
+    track.style.transform = `translateX(-${index * boxWidth}px)`;
+
+    // When reaching the end of original slides, reset without visual jump
+    if (index === boxes.length) {
+      setTimeout(() => {
+        track.style.transition = "none";
+        track.style.transform = "translateX(0)";
+        index = 0;
+      }, 1000);
+    }
+  }
+
+  setInterval(slide, slideInterval);
+});
+</script>
+
+{% endblock %}
 {% endif %}
 <footer  class="footer-section text-light pt-5 pb-4" >
-  <div class="container">
-    <div class="row gy-5">
+  <div class="container-fluid">
+    <div class="row gy-5" style="row-gap: 1rem !important;">
       <!-- Brand & Mission -->
       <div class="col-lg-3 col-md-6 text-md-start text-center">
         <h5 class="footer-title">RealMindX Education</h5>
@@ -119,46 +91,32 @@
         </ul>
       </div>
 
-      <!-- Contact Info -->
-      <div class="col-lg-3 col-md-6 text-md-start text-center">
-        <h5 class="footer-title">Contact</h5>
-        <p><i class="fa fa-map-marker-alt me-2"></i> Dome Pillar 2</p>
-        <p>
-          <i class="fa fa-envelope me-2"></i>
-          <a href="mailto:realmindxgh@gmail.com" style="text-decoration:none; color:inherit;">
-            realmindxgh@gmail.com
-          </a>
-        </p>
-        <p><i class="fa fa-phone me-2"></i> +233 55 803 9190</p>
-        <p><i class="fa fa-phone me-2"></i> +233 55 452 9493</p>
-        <p><i class="fa fa-phone me-2"></i> +233 55 132 4729</p>
+      <!-- Contact -->
+      <div class="col-lg-3 col-md-6 text-md-start text-center" style="line-height: 1.2;">
+        <h5 class="footer-title" style="color: #ffcc01; margin-bottom: 0.4rem;">Contact</h5>
+        <p style="margin-bottom: 0.2rem;"><i class="fa fa-map-marker-alt me-2"></i> Dome Pillar 2</p>
+        <p style="margin-bottom: 0.2rem;"><i class="fa fa-envelope me-2"></i> <a href="mailto:realmindxgh@gmail.com">realmindxgh@gmail.com</a></p>
+        <p style="margin-bottom: 0.2rem;"><i class="fa fa-phone me-2"></i> +233 55 803 9190</p>
+        <p style="margin-bottom: 0.2rem;"><i class="fa fa-phone me-2"></i> +233 55 452 9493</p>
+        <p style="margin-bottom: 0.2rem;"><i class="fa fa-phone me-2"></i> +233 55 132 4729</p>
       </div>
 
       <!-- Follow Us -->
       <div class="col-lg-3 col-md-6 text-md-start text-center">
-        <h5 class="footer-title">Follow Us</h5>
-        <div class="social-icons mb-3">
-          <a href="https://x.com/RealMindXgh" target="_blank" style="text-decoration: none;">
-            <i class="fa-brands fa-x-twitter" style="color:#000000; font-size:18px; margin-right:8px;"></i>
-          </a>
-          <a href="https://web.facebook.com/profile.php?id=61566941171883" target="_blank" style="text-decoration: none;">
-            <i class="fa-brands fa-facebook" style="color:#1877F2; font-size:18px; margin-right:8px;"></i>
-          </a>
-          <a href="https://www.instagram.com/realmindxgh/" target="_blank" style="text-decoration: none;">
-            <i class="fa-brands fa-instagram" style="color:#E1306C; font-size:18px; margin-right:8px;"></i>
-          </a>
-          <a href="https://www.youtube.com/@realmindxgh" target="_blank" style="text-decoration: none;">
-            <i class="fa-brands fa-youtube" style="color:#FF0000; font-size:18px; margin-right:8px;"></i>
-          </a>
-          <a href="https://wa.link/d6x888" target="_blank" style="text-decoration: none;">
-            <i class="fa-brands fa-whatsapp" style="color:#25D366; font-size:18px;"></i>
-          </a>
-
-        <a href="{{ url_for('main.contact') }}" class="btn btn-warning rounded-pill fw-bold px-4 py-2">CONTACT US</a>
-        <p class="mt-2 text-warning mb-0">Need tailored educational solutions?</p>
+        <h5 class="footer-title  mb-3" style="color: #ffcc01;">Follow Us</h5>
+        <div class="social-icons d-flex justify-content-md-start justify-content-center">
+          <a href="https://x.com/RealMindXgh" target="_blank"  style="text-decoration:none;"> <i class="fa-brands fa-x-twitter" style="color:#000000; font-size:18px; "></i> </a> 
+          <a href="https://web.facebook.com/profile.php?id=61566941171883" target="_blank"  style="text-decoration:none;"> <i class="fa-brands fa-facebook" style="color:#1877F2; font-size:18px;"></i> </a>
+          <a href="https://www.instagram.com/realmindxgh/" target="_blank" style="text-decoration:none;"> <i class="fa-brands fa-instagram" style="color:#E1306C; font-size:18px;"></i> </a>
+          <a href="https://www.youtube.com/@realmindxgh" target="_blank" style="text-decoration:none;"> <i class="fa-brands fa-youtube" style="color:#FF0000; font-size:18px;"></i> </a>
+          <a href="https://wa.link/d6x888" target="_blank" style="text-decoration:none;"> <i class="fa-brands fa-whatsapp" style="color:#25D366; font-size:18px;"></i> </a>
+        </div>
       </div>
+      <!-- will do that later -->
+      <!-- <a href="{{ url_for('main.contact') }}" class="btn btn-warning rounded-pill fw-bold px-4 py-2">CONTACT US</a>
+      <p class="mt-2 text-warning mb-0">Need tailored educational solutions?</p> -->
     </div>
-
+    
     <!-- Copyright -->
     <div class="text-center mt-4 pt-3 border-top border-light">
       <small id="copyright"></small>

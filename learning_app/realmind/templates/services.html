@@ -90,7 +90,7 @@
       </div>
       <div class="col-lg-7 d-flex flex-column justify-content-center">
         <div>
-          <h4 class="fw-bold mb-3">Book Shop</h4>
+          <h4 class="fw-bold mb-3">Bookshop</h4>
           <p>Purchase all your stationeries at wholesale or retail prices at RealMindX Bookshop. We provide deliveries to all locations and offer pickups as well.</p>
           <p>Are you a school in need of this service and more?</p>
           <a href="https://bookshop.realmindxgh.com" class="btn btn-warning fw-bold rounded-pill px-3 py-2">
@@ -119,7 +119,7 @@
             <li>Homework assistance and exam preparation</li>
             <li>Support lifelong learning among educators</li>
           </ul>
-          <p>Are you a school in need of this service and more?</p>
+          <p>Are you in need of this service and more?</p>
           <a href="{{ url_for('main.book_service') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2">Get in touch</a>
         </div>
       </div>
@@ -144,7 +144,7 @@
             <li>Data analysis and interpretation</li>
             <li>Assignments and academic writing support</li>
           </ul>
-          <p>Are you a school in need of this service and more?</p>
+          <p>Are you in need of this service and more?</p>
           <a href="{{ url_for('main.book_service') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2">Get in touch</a>
         </div>
       </div>
@@ -169,7 +169,7 @@
             <li>Plagiarism checks and content originality</li>
             <li>Formatting and document structuring</li>
           </ul>
-          <p>Are you a school in need of this service and more?</p>
+          <p>Are you in need of this service and more?</p>
           <a href="{{ url_for('main.book_service') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2">Get in touch</a>
         </div>
       </div>
@@ -193,7 +193,7 @@
             <li>Teacher training on inclusive practices</li>
             <li>Resource provision and classroom adaptations</li>
           </ul>
-          <p>Are you a school in need of this service and more?</p>
+          <p>Are you in need of this service and more?</p>
           <a href="{{ url_for('main.book_service') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2">Get in touch</a>
         </div>
       </div>
@@ -212,11 +212,30 @@
         <div>
           <h4 class="fw-bold mb-3">Educational Consulting</h4>
           <p>Expert guidance for schools, educators, and organizations to improve educational outcomes and institutional effectiveness. We provide data-driven insights and tailored solutions to enhance teaching, learning, and management.</p>
-          <p>Are you a school in need of this service and more?</p>
+          <p>Are you in need of this service and more?</p>
           <a href="{{ url_for('main.book_service') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2">Get in touch</a>
         </div>
       </div>
     </div>
   </div>
 </section>
+<!--This ensures that when the browser scrolls to an anchor (like #teacher-development), 
+it stops just below your fixed navbar, 
+so the section title isn’t hidden behind it.
+-->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const navbarHeight = document.querySelector('.navbar').offsetHeight;
+  if (window.location.hash) {
+    const target = document.querySelector(window.location.hash);
+    if (target) {
+      window.scrollTo({
+        top: target.offsetTop - navbarHeight - 10,
+        behavior: "smooth"
+      });
+    }
+  }
+});
+</script>
+
 {% endblock %}

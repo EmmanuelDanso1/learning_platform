@@ -19,36 +19,35 @@
 
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg custom-navbar fixed-top">
-  <div class="container-fluid p-0"> <!-- remove padding for full width -->
+  <div class="container-fluid px-3">
 
-    <!-- Left logo area -->
-    <div class="navbar-logo-section d-flex align-items-center px-3">
-      <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.home') }}">
-        <img src="{{ url_for('static', filename='images/16.png') }}" alt="RealmindX Logo" class="logo-img">
-      </a>
-    </div>
+    <!-- Left: Logo -->
+    <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.home') }}">
+      <img src="{{ url_for('static', filename='images/real.jpg') }}" alt="RealmindX Logo" class="logo-img">
+    </a>
 
-    <!-- Toggle button -->
-    <button class="navbar-toggler me-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" >
-      <span class="navbar-toggler-icon" style="color: #fff;"></span>
+    <!-- Toggle (mobile) -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
     </button>
 
-    <!-- Right links -->
-    <div class="collapse navbar-collapse justify-content-end pe-4" id="navbarNav">
-      <ul class="navbar-nav align-items-center">
+    <!-- Middle: Navigation Links -->
+    <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+      <ul class="navbar-nav text-center">
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.home') }}">HOME</a></li>
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="{{ url_for('main.about') }}" id="aboutDropdown" data-bs-toggle="dropdown">ABOUT</a>
+          <a class="nav-link dropdown-toggle" href="{{ url_for('main.about') }}" data-bs-toggle="dropdown">ABOUT</a>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="{{ url_for('main.about') }}#who">Who We Are</a></li>
             <li><a class="dropdown-item" href="{{ url_for('main.about') }}#mission">Our Mission</a></li>
             <li><a class="dropdown-item" href="{{ url_for('main.about') }}#vision">Our Vision</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('main.about') }}#goals">Our Goal</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('main.about') }}#goals">Our Goals</a></li>
             <li><a class="dropdown-item" href="{{ url_for('main.about') }}#choose-realmindx">Why Choose RealMindX Education</a></li>
           </ul>
         </li>
+
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="{{ url_for('main.services') }}" id="servicesDropdown" data-bs-toggle="dropdown">SERVICES</a>
+          <a class="nav-link dropdown-toggle" href="{{ url_for('main.services') }}" data-bs-toggle="dropdown">SERVICES</a>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="{{ url_for('main.services') }}#teacher-recruitment">Teacher Recruitment</a></li>
             <li><a class="dropdown-item" href="{{ url_for('main.services') }}#teacher-development">Teacher Professional Development</a></li>
@@ -61,15 +60,23 @@
             <li><a class="dropdown-item" href="{{ url_for('main.services') }}#research">Research and Assignments</a></li>
           </ul>
         </li>
+
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.news') }}">NEWS</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.gallery') }}">GALLERY</a></li>
         <li class="nav-item"><a class="nav-link" href="https://bookshop.realmindxgh.com" target="_blank">BOOKSHOP</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.contact') }}">CONTACT</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('jobs.job_listings') }}">JOB POST</a></li>
-        <li class="nav-item">
-          <a href="{{ url_for('donation.donate') }}" class="btn btn-warning donate-inline">DONATE</a>
-        </li>
       </ul>
+
+      <!-- ✅ Move Donate button here -->
+      <div class="text-center mt-3 d-lg-none">
+        <a href="{{ url_for('donation.donate') }}" class="btn btn-warning btn-donate">DONATE</a>
+      </div>
+    </div>
+
+    <!-- Keep this for desktop -->
+    <div class="d-none d-lg-block">
+      <a href="{{ url_for('donation.donate') }}" class="btn btn-warning btn-donate ms-2">DONATE</a>
     </div>
   </div>
 </nav>
