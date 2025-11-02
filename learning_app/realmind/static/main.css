@@ -365,13 +365,14 @@ p, a, span, li, button {
 
 .service-item i {
   color: #0b2c67;           /* keep your original color */
-  font-size: 3rem;        /* larger icon */
+  font-size: 2.5rem;        /* larger icon */
   flex-shrink: 0;           /* prevent icon from shrinking */
 }
 
 .service-item a {
   text-decoration: none;
   color: #000;
+  font-size: 1.3rem;
   font-weight: 500;
   transition: color 0.3s ease;
 }
@@ -701,6 +702,35 @@ h2, h3, h4, h5, h6 {
 .social-icons a:hover {
   color: #ffcc01;
   transform: translateY(-3px);
+}
+
+/* MOBILE: remove spacing completely */
+@media (max-width: 576px) {
+  .social-icons {
+    gap: 0 !important;        /* removes all spacing */
+    justify-content: center;  /* keep icons centered */
+  }
+
+  .social-icons a {
+    margin: 0 !important;
+  }
+
+  .social-icons i {
+    font-size: 20px; /* optional: slightly larger on phones */
+  }
+}
+
+/* footer align */
+/* MOBILE VIEW: Left-align text */
+@media (max-width: 576px) {
+  .footer-section .text-center,
+  .footer-section [class*="text-md-start"] {
+    text-align: left !important;
+  }
+
+  .footer-section .social-icons {
+    justify-content: flex-start !important; /* align icons left */
+  }
 }
 
 /* Contact Us Button */
