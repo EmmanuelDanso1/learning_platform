@@ -353,22 +353,40 @@ p, a, span, li, button {
     margin-bottom: 40px;
   }
 
-  /* ===== Service list items ===== */
+ /* ===== Service list items ===== */
 .service-item {
   display: flex;
-  align-items: center;      /* vertically centers icon and text */
-  gap: 10px;                /* space between icon and text */
-  margin-bottom: 25px;      /* keep your original spacing */
+  align-items: center;       /* vertically center icon and text */
+  gap: 10px;                 /* spacing between icon and text */
+  margin-bottom: 25px;       /* spacing between items */
   text-align: left;
   font-size: 1.25rem;
 }
 
+/* Adjust icon to match text height nicely */
 .service-item i {
-  color: #0b2c67;           /* keep your original color */
-  font-size: 2.5rem;        /* larger icon */
-  flex-shrink: 0;           /* prevent icon from shrinking */
+  color: #0b2c67;            /* icon color */
+  font-size: 1.4rem;         /* aligns visually with text */
+  line-height: 1;            /* removes extra vertical space */
+  vertical-align: middle;
+  transform: translateY(5px);
+  flex-shrink: 0;            /* prevents icon from shrinking */
 }
 
+.service-item i::before {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+@media (max-width: 768px) {
+  .service-item i {
+    transform: translateY(6px);
+  }
+}
+
+
+
+/* Text styling */
 .service-item a {
   text-decoration: none;
   color: #000;
@@ -377,8 +395,10 @@ p, a, span, li, button {
   transition: color 0.3s ease;
 }
 
-.service-item a:hover {
-  color: #ffcc00;           /* gold hover */
+/* Hover effect */
+.service-item a:hover,
+.service-item i:hover {
+  color: #ffcc01;            /* gold hover for both text and icon */
 }
 
   .learn-more-btn {
