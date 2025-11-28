@@ -182,7 +182,9 @@
     
     <!-- Latest News -->
     <div class="col-md-6 mb-4">
-      <h2 class="fw-bold mb-4 text-dark" style="font-family:'Montserrat', sans-serif; font-weight:600;">LATEST NEWS</h2>
+      <h2 class="fw-bold mb-4 text-dark" style="font-family:'Montserrat', sans-serif; font-weight:600;">
+        LATEST NEWS
+      </h2>
       <div class="p-3 rounded-4 shadow-sm" style="background-color: #ffcc01;">
         {% if latest_news %}
           <div id="latestNewsCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000" data-bs-pause="hover">
@@ -192,15 +194,15 @@
                   <div class="card border-0 rounded-4 shadow-sm">
                     {% if news.image_url %}
                       <img src="{{ url_for('static', filename=news.image_url) }}" 
-                           class="card-img-top rounded-top-4" 
-                           style="height: 300px; object-fit: cover;" 
-                           alt="News Image">
+                          class="card-img-top rounded-top-4" 
+                          style="height: 300px; object-fit: cover;" 
+                          alt="{{ news.title }}">
                     {% endif %}
                     <div class="card-body text-start">
                       <h5 class="fw-bold">{{ news.title }}</h5>
                       <p style="font-family: 'Arimo', sans-serif;">{{ news.content[:100] }}...</p>
                       <a href="{{ url_for('main.news_detail', news_id=news.id) }}" 
-                         class="fw-bold text-primary text-decoration-none" style="font-family: 'Arimo', sans-serif;">
+                        class="fw-bold text-primary text-decoration-none" style="font-family: 'Arimo', sans-serif;">
                         Read More...
                       </a>
                     </div>

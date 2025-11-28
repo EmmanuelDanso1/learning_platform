@@ -311,6 +311,9 @@ from flask_wtf.csrf import generate_csrf
 @admin_bp.route('/admin/post-news', methods=['GET', 'POST'])
 @login_required
 def post_news():
+    # Absolute path for production
+    UPLOAD_FOLDER = "/var/www/learning_platform/learning_app/realmind/static/uploads/news"
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
     if request.method == 'POST':
         title = request.form['title']
         content = request.form['content']
@@ -319,11 +322,12 @@ def post_news():
 
         if image and image.filename:
             filename = secure_filename(image.filename)
-            upload_dir = os.path.join(current_app.root_path, 'static', 'uploads')
-            os.makedirs(upload_dir, exist_ok=True)
-            path = os.path.join(upload_dir, filename)
+            # Generate a unique filename using UUID
+            unique_filename = f"{uuid.uuid4().hex}_{filename}"
+            path = os.path.join(UPLOAD_FOLDER, unique_filename)
             image.save(path)
-            image_url = f'uploads/{filename}'
+            # Store relative path for templates
+            image_url = f'uploads/news/{unique_filename}'
 
         news_item = News(title=title, content=content, image_url=image_url, admin_id=current_user.id)
         db.session.add(news_item)
@@ -341,6 +345,9 @@ def edit_news(news_id):
     news_item = News.query.get_or_404(news_id)
     if news_item.admin_id != current_user.id:
         abort(403)
+    # Absolute path for production
+    UPLOAD_FOLDER = "/var/www/learning_platform/learning_app/realmind/static/uploads/news"
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
     if request.method == 'POST':
         news_item.title = request.form['title']
@@ -349,11 +356,11 @@ def edit_news(news_id):
 
         if image and image.filename:
             filename = secure_filename(image.filename)
-            upload_dir = os.path.join(current_app.root_path, 'static', 'uploads')
-            os.makedirs(upload_dir, exist_ok=True)
-            path = os.path.join(upload_dir, filename)
+            # Generate unique UUID 
+            unique_filename = f"{uuid.uuid4().hex}_{filename}"
+            path = os.path.join(UPLOAD_FOLDER, unique_filename)
             image.save(path)
-            news_item.image_url = f'uploads/{filename}'
+            news_item.image_url = f'uploads/news/{unique_filename}'
 
         db.session.commit()
         flash('News updated successfully!', 'success')
@@ -362,8 +369,9 @@ def edit_news(news_id):
     return render_template('admin_post_news.html', news_item=news_item, editing=True, csrf_token=generate_csrf())
 
 
-
 # --- Delete News ---
+import os
+
 @admin_bp.route('/admin/delete-news/<int:news_id>', methods=['POST'])
 @login_required
 def delete_news(news_id):
@@ -371,10 +379,20 @@ def delete_news(news_id):
     if news_item.admin_id != current_user.id:
         abort(403)
 
+    # Absolute path for production
+    UPLOAD_FOLDER = "/var/www/learning_platform/learning_app/realmind/static/uploads/news"
+
+    # Delete associated image file if it exists
+    if news_item.image_url:
+        image_path = os.path.join("/var/www/learning_platform/learning_app/realmind/static", news_item.image_url)
+        if os.path.exists(image_path):
+            os.remove(image_path)
+
     db.session.delete(news_item)
     db.session.commit()
     flash('News deleted successfully.', 'success')
     return redirect(url_for('admin.admin_news_dashboard'))
+
 
 
 # Admin News Dashboard with CSRF token sent to template
