@@ -65,10 +65,18 @@
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.gallery') }}">GALLERY</a></li>
         <li class="nav-item"><a class="nav-link" href="https://bookshop.realmindxgh.com" target="_blank">BOOKSHOP</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.contact') }}">CONTACT</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('jobs.job_listings') }}">JOB POST</a></li>
+        <!-- Teaching Jobs Dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">TEACHING JOBS</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ url_for('jobs.job_listings') }}">Job Posts</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('auth.user_login') }}">Login</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('auth.user_signup') }}">Sign Up</a></li>
+          </ul>
+        </li>
       </ul>
 
-      <!-- ✅ Move Donate button here -->
+      <!--  Move Donate button here -->
       <div class="text-center mt-3 d-lg-none">
         <a href="{{ url_for('donation.donate') }}" class="btn btn-warning btn-donate">DONATE</a>
       </div>
