@@ -12,6 +12,11 @@ class User(UserMixin, db.Model):
     profile_pic = db.Column(db.String(255), nullable=True)
     applications = db.relationship('Application', backref='user', lazy=True)
 
+    # Email verification Fields
+    is_verified = db.Column(db.Boolean, default=False)
+    otp_code = db.Column(db.String(6), nullable=True)
+    otp_expiry = db.Column(db.DateTime, nullable=True)
+
     def __repr__(self):
         return f"<User {self.username}>"
     
