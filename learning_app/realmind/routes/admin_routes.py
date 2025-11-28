@@ -125,7 +125,7 @@ def upload_gallery():
 
         #Absolute rendering paths
         UPLOAD_FOLDER = os.path.join(
-            "/var/www/learning_platform/learning_app/static/uploads/gallery"
+            "/var/www/learning_platform/learning_app/realmind/static/uploads/gallery"
          )
         os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
