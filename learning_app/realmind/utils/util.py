@@ -2,7 +2,7 @@
 import os
 
 # File upload settings
-UPLOAD_FOLDER = os.path.join('static', 'uploads', 'gallery')
+UPLOAD_FOLDER = "/var/www/learning_platform/learning_app/realmind/static/uploads/gallery"
 PROFILE_PIC_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 DOCUMENT_EXTENSIONS = {'pdf', 'doc', 'docx'}
 ALLOWED_IMAGE_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif', 'webp'}

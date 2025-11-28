@@ -8,6 +8,7 @@ from learning_app.extensions import db, mail
 from flask_mail import Message
 from flask_wtf.csrf import generate_csrf,validate_csrf, CSRFError
 import os
+import uuid
 import json
 from datetime import datetime
 import requests
@@ -119,11 +120,16 @@ def upload_gallery():
             flash('Invalid or missing file.', 'danger')
             return redirect(request.url)
 
-        filename = secure_filename(file.filename)
-        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'gallery')
-        os.makedirs(upload_folder, exist_ok=True)
+        ext = os.path.splitext(file.filename)[1]
+        filename = f"{uuid.uuid4()}{ext}"
 
-        save_path = os.path.join(upload_folder, filename)
+        #Absolute rendering paths
+        UPLOAD_FOLDER = os.path.join(
+            "/var/www/learning_platform/learning_app/static/uploads/gallery"
+         )
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+        save_path = os.path.join(UPLOAD_FOLDER, filename)
         file.save(save_path)
 
         file_type = 'video' if filename.lower().endswith(('.mp4', '.mov', '.avi')) else 'image'
@@ -146,6 +152,9 @@ def edit_gallery(item_id):
     if not isinstance(current_user, Admin):
         abort(403)
 
+    #Absolute pathe for gallery edits   
+    UPLOAD_FOLDER = "/var/www/learning_platform/learning_app/realmind/static/uploads/gallery"
+
     if request.method == 'POST':
         caption = request.form.get('caption')
         file = request.files.get('file')
@@ -154,12 +163,15 @@ def edit_gallery(item_id):
             item.caption = caption
 
         if file and allowed_file(file.filename):
-            old_path = os.path.join(current_app.root_path, 'static/uploads/gallery', item.filename)
+            old_path = os.path.join(UPLOAD_FOLDER, item.filename)
             if os.path.exists(old_path):
                 os.remove(old_path)
 
-            filename = secure_filename(file.filename)
-            new_path = os.path.join(current_app.root_path, 'static/uploads/gallery', filename)
+            ext = os.path.splitext(file.filename)[1]
+            filename = f"{uuid.uuid4()}{ext}"
+
+            # save filename
+            new_path = os.path.join(UPLOAD_FOLDER, filename)
             file.save(new_path)
 
             item.filename = filename
@@ -177,7 +189,9 @@ def edit_gallery(item_id):
 def delete_gallery(item_id):
     item = Gallery.query.get_or_404(item_id)
 
-    file_path = os.path.join(current_app.root_path, 'static/uploads/gallery', item.filename)
+    # Absolute static path (same as upload & edit)
+    UPLOAD_FOLDER = "/var/www/learning_platform/learning_app/realmind/static/uploads/gallery"
+    file_path = os.path.join(UPLOAD_FOLDER, item.filename)
     if os.path.exists(file_path):
         os.remove(file_path)
 
