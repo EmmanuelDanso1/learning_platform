@@ -24,7 +24,8 @@ def init_oauth(app):
         server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
         client_kwargs={
             "scope": "openid email profile"
-        }
+        },
+        redirect_uri="https://www.realmindxgh.com/oauth/google/authorized"
     )
 
 # ===========================
