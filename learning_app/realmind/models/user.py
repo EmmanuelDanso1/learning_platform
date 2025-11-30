@@ -6,30 +6,37 @@ from learning_app.extensions import db
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), nullable=False)
+    fullname = db.Column(db.String(150), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
-    password = db.Column(db.String(255), nullable=False)
+
+    # Allow NULL for Google OAuth users
+    password = db.Column(db.String(255), nullable=True)
+
     profile_pic = db.Column(db.String(255), nullable=True)
     applications = db.relationship('Application', backref='user', lazy=True)
 
-    # Email verification Fields
+    # Email verification
     is_verified = db.Column(db.Boolean, default=False)
     otp_code = db.Column(db.String(6), nullable=True)
     otp_expiry = db.Column(db.DateTime, nullable=True)
 
+    # NEW FIELD - track login provider
+    auth_provider = db.Column(db.String(20), default="local")  # local | google
+
     def __repr__(self):
-        return f"<User {self.username}>"
+        return f"<User {self.fullname}>"
     
     def get_id(self):
         return f"user:{self.id}"
-    
+
     @property
     def is_admin(self):
         return False
 
-    
     def set_password(self, password):
         self.password = generate_password_hash(password)
     
     def check_password(self, password):
+        if not self.password:
+            return False  # OAuth users cannot use password login
         return check_password_hash(self.password, password)

@@ -17,22 +17,85 @@ s = URLSafeTimedSerializer(os.getenv('SECRET_KEY'))
 @auth_bp.route('/admin/signup', methods=['GET', 'POST'])
 def admin_signup():
     form = AdminSignupForm()
+    
     if form.validate_on_submit():
         existing_admin = Admin.query.filter_by(email=form.email.data).first()
         if existing_admin:
             flash('Email already exists. Please log in.', 'danger')
             return redirect(url_for('auth.admin_login'))
 
-        hashed_pw = generate_password_hash(form.password.data)
-        new_admin = Admin(username=form.username.data, email=form.email.data, password=hashed_pw)
+        # Create admin
+        new_admin = Admin(
+            fullname=form.fullname.data,
+            email=form.email.data,
+            password=generate_password_hash(form.password.data),
+            is_verified=False
+        )
+
+        # Generate OTP
+        otp = new_admin.generate_otp()
+
         db.session.add(new_admin)
         db.session.commit()
 
-        login_user(new_admin)
-        flash('Admin account created successfully!', 'success')
-        return redirect(url_for('admin.admin_dashboard'))  # Use correct blueprint name
+        # Send OTP email
+        try:
+            msg = Message(
+                subject="Admin Verification Code",
+                recipients=[new_admin.email],
+                sender="realmindxgh@gmail.com"
+            )
+            msg.body = f"Your verification code is: {otp}\nThis code expires in 10 minutes."
+            mail.send(msg)
+        except Exception as e:
+            print("Email sending error:", e)
+            flash('Error sending verification email. Please try again.', 'danger')
+            return redirect(url_for('auth.admin_signup'))
+
+        flash('Admin account created! Check your email for the verification code.', 'success')
+        return redirect(url_for('auth.verify_admin_otp', admin_id=new_admin.id))
 
     return render_template('admin_signup.html', form=form)
+
+# Verify Admin Email
+@auth_bp.route('/admin/verify/<int:admin_id>', methods=['GET', 'POST'])
+def verify_admin_otp(admin_id):
+    admin = Admin.query.get_or_404(admin_id)
+    if request.method == 'POST':
+        input_otp = request.form.get('otp')
+        if admin.otp_code == input_otp and admin.otp_expiry > datetime.utcnow():
+            admin.is_verified = True
+            admin.otp_code = None
+            admin.otp_expiry = None
+            db.session.commit()
+            flash('Email verified successfully!', 'success')
+            return redirect(url_for('auth.admin_login'))
+        else:
+            flash('Invalid or expired OTP.', 'danger')
+    return render_template('admin_verify.html', admin=admin)
+
+@auth_bp.route('/admin/resend-otp/<int:admin_id>', methods=['GET', 'POST'])
+def resend_admin_otp(admin_id):
+    admin = Admin.query.get_or_404(admin_id)
+
+    # Generate a new OTP
+    otp = admin.generate_otp()  # uses the method in Admin model
+    db.session.commit()
+
+    # Send OTP email
+    try:
+        msg = Message(
+            subject="Admin Verification Code",
+            recipients=[admin.email],
+            sender="realmindxgh@gmail.com"
+        )
+        msg.body = f"Your new verification code is: {otp}\nThis code expires in 10 minutes."
+        mail.send(msg)
+        flash('A new OTP has been sent to your email.', 'success')
+    except Exception as e:
+        flash('Error sending verification email. Please try again later.', 'danger')
+
+    return redirect(url_for('auth.verify_admin_otp', admin_id=admin.id))
 
 @auth_bp.route('/user/signup', methods=['GET', 'POST'])
 def user_signup():
@@ -46,18 +109,12 @@ def user_signup():
             flash('Email already registered. Please log in.', 'danger')
             return redirect(url_for('auth.user_login'))
 
-        # Check if username exists
-        existing_username = User.query.filter_by(username=form.username.data).first()
-        if existing_username:
-            flash('Username already taken. Please choose another.', 'danger')
-            return redirect(url_for('auth.user_signup'))
-
         # Create user
         hashed_password = generate_password_hash(form.password.data)
         otp = generate_otp()
 
         new_user = User(
-            username=form.username.data,
+            fullname=form.fullname.data,
             email=form.email.data,
             password=hashed_password,
             is_verified=False,
@@ -73,7 +130,7 @@ def user_signup():
             msg = Message(
                 subject="Your Verification Code",
                 recipients=[new_user.email],
-                sender="noreply@yourdomain.com"
+                sender="realmindxgh@gmail.com"
             )
             msg.body = f"Your email verification code is: {otp}\nThis code expires in 10 minutes."
             mail.send(msg)
@@ -135,6 +192,7 @@ def resend_otp(user_id):
     flash('A new OTP has been sent to your email.', 'success')
     return redirect(url_for('auth.verify_otp', user_id=user.id))
 
+
 @auth_bp.route('/user/login', methods=['GET', 'POST'])
 def user_login():
     form = LoginForm()
@@ -142,21 +200,39 @@ def user_login():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
 
-        # Check if user exists and password is correct
-        if user and check_password_hash(user.password, form.password.data):
+        if not user:
+            flash("Invalid email or password.", "danger")
+            return redirect(url_for("auth.user_login"))
 
-            # Check if email is verified
-            if not user.is_verified:
-                flash("Please verify your email before logging in.", "warning")
-                return redirect(url_for('auth.verify_otp', user_id=user.id))
+        # If user uses Google login only
+        if user.auth_provider == "google":
+            flash("This account is linked to Google Login. Please login using Google.", "warning")
+            return redirect(url_for("auth.user_login"))
 
-            # Email verified, log in
-            login_user(user)
-            next_page = session.pop('next', None)
-            return redirect(url_for(next_page)) if next_page else redirect(url_for('user.users_dashboard'))
+        # For local users, ensure they have a password
+        if not user.password:
+            flash("No password set. Please use Google Login.", "warning")
+            return redirect(url_for("auth.user_login"))
 
-        # Invalid credentials
-        flash("Invalid email or password.", "danger")
+        # Check password
+        if not check_password_hash(user.password, form.password.data):
+            flash("Invalid email or password.", "danger")
+            return redirect(url_for("auth.user_login"))
+
+        # Check if email is verified
+        if not user.is_verified:
+            flash("Please verify your email before logging in.", "warning")
+            return redirect(url_for('auth.verify_otp', user_id=user.id))
+
+        # Successful login
+        login_user(user)
+
+        # Handle next page redirection
+        next_page = session.pop('next', None)
+        if next_page:
+            return redirect(next_page)
+
+        return redirect(url_for('user.users_dashboard'))
 
     return render_template("user_login.html", form=form)
 
@@ -199,7 +275,7 @@ def forgot_password():
 Hello {user.username},
 
 We received a request to reset your password.
-
+r
 Click the link below to reset it:
 {reset_link}
 

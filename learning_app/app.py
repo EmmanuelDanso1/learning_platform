@@ -7,6 +7,7 @@ from flask_mail import Mail
 from flask_migrate import Migrate
 from dotenv import load_dotenv
 from itsdangerous import URLSafeTimedSerializer
+from learning_app.realmind.routes.oauth_routes import oauth_bp, init_oauth
 # Load environment variables early
 load_dotenv()
 
@@ -59,7 +60,6 @@ def create_app():
                 return User.query.get(int(user_id.split(":")[1]))
         return None
 
-
     # Blueprints
     from learning_app.realmind.routes.main_routes import main_bp
     from learning_app.realmind.routes.auth_routes import auth_bp
@@ -70,6 +70,12 @@ def create_app():
     # recieve orders
     from learning_app.realmind.routes.receive_orders_api import api_bp
 
+    # Initialize OAuth
+    init_oauth(app)
+
+    # Register OAuth blueprint
+    app.register_blueprint(oauth_bp, url_prefix="/oauth")
+
     app.register_blueprint(main_bp, name='main')
     app.register_blueprint(auth_bp, name='auth')
     app.register_blueprint(admin_bp, name='admin')
@@ -77,6 +83,7 @@ def create_app():
     app.register_blueprint(donation_bp, name='donation')
     app.register_blueprint(user_bp, name='user')
     app.register_blueprint(api_bp, name='api')
+
 
     # Create tables (optional, only for dev)
     with app.app_context():

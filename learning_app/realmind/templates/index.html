@@ -104,11 +104,10 @@
 
   {% block content %}{% endblock %}
 </main>
+<br>
 {% if not (current_user.is_authenticated and current_user.is_admin) %}
   {% include 'footer.html' %}
 {% endif %}
-
-<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <a href="https://wa.link/q5rjtp" class="whatsapp-float" target="_blank" style="position: fixed;
   bottom: 20px;

@@ -5,10 +5,10 @@ from datetime import datetime
 import os, uuid
 from wtforms.validators import ValidationError
 from flask_wtf.csrf import generate_csrf,validate_csrf, CSRFError
-from learning_app.extensions import db, mail  # adjust import paths accordingly
+from learning_app.extensions import db, mail  
 from learning_app.realmind.models import JobPost, Application, User
 from flask_mail import Message
-from learning_app.realmind.utils.util import allowed_document , allowed_profile_pic, UPLOAD_FOLDER # Make sure this utility exists
+from learning_app.realmind.utils.util import allowed_document , allowed_profile_pic, UPLOAD_FOLDER 
 
 
 user_bp = Blueprint('user', __name__)

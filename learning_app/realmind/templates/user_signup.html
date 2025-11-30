@@ -6,14 +6,23 @@
         <div class="col-md-6">
             <div class="card shadow-lg p-4 border-0 rounded-4">
                 <h2 class="text-center mb-4 fw-bold">Sign Up</h2>
+                <!-- Google Button -->
+                <a href="{{ url_for('oauth_bp.google_login') }}" class="social-btn google-btn w-100 mb-2">
+                    <img src="{{ url_for('static', filename='images/google.svg') }}" class="icon">
+                    <span>Continue with Google</span>
+                </a>
 
+                <br>
+                <div class="divider">
+                    <span>or</span>
+                </div>
                 <form method="POST">
                     {{ form.hidden_tag() }}  <!-- CSRF protection -->
 
                     <!-- Full Name -->
                     <div class="mb-3">
                         <label>Full Name</label>
-                        {{ form.username(class="form-control", placeholder="Enter full name") }}
+                        {{ form.fullname(class="form-control", placeholder="Enter full name") }}
                     </div>
 
                     <!-- Email -->
