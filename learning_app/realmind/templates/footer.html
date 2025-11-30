@@ -1,3 +1,4 @@
+
 <!-- show testimonials only at homepage and excludes it for other pages -->
 {% if request.endpoint == 'main.home' %}
 <section class="testimonials-section text-center py-5" style="background:#ffcc01;">
@@ -66,68 +67,93 @@ document.addEventListener("DOMContentLoaded", () => {
 
 {% endblock %}
 {% endif %}
-<footer  class="footer-section text-light pt-5 pb-4" >
-  <div class="container-fluid">
-    <div class="row gy-5" style="row-gap: 1rem !important;">
-      <!-- Brand & Mission -->
-      <div class="col-lg-3 col-md-6 text-md-start ">
-        <h5 class="footer-title">RealMindX Education</h5>
-        <p>Empowering minds through education, innovation and community support.</p>
-      </div>
 
-      <!-- Quick Links -->
-      <div class="col-lg-3 col-md-6 text-md-start ">
-        <h5 class="footer-title">Quick Links</h5>
-        <ul class="list-unstyled">
-          <li><a href="{{ url_for('main.home') }}" class="footer-link">Home</a></li>
-          <li><a href="{{ url_for('main.about') }}" class="footer-link">About</a></li>
-          <li><a href="{{ url_for('main.services') }}" class="footer-link">Services</a></li>
-          <li><a href="{{ url_for('main.news') }}" class="footer-link">News</a></li>
-          <li><a href="{{ url_for('main.gallery') }}" class="footer-link">Gallery</a></li>
-          <li><a href="https://bookshop.realmindxgh.com" target="_blank" class="footer-link">Bookshop</a></li>
-          <li><a href="{{ url_for('main.contact') }}" class="footer-link">Contact</a></li>
-          <li><a href="{{ url_for('jobs.job_listings') }}" class="footer-link">Job Post</a></li>
-          <li><a href="{{ url_for('donation.donate') }}" class="footer-link">Donate</a></li>
-        </ul>
-      </div>
+<!-- ======================================= -->
+<!-- AUTHENTICATED OR NORMAL FOOTER SECTION -->
+<!-- ======================================= -->
 
-      <!-- Contact -->
-      <div class="col-lg-3 col-md-6 text-md-start " style="line-height: 1.2;">
-        <h5 class="footer-title" style="color: #ffcc01; margin-bottom: 0.4rem;">Contact</h5>
-        <p style="margin-bottom: 0.2rem;"><i class="fa fa-map-marker-alt me-2"></i> Dome Pillar 2</p>
-        <p style="margin-bottom: 0.2rem;"><i class="fa fa-envelope me-2"></i> <a href="mailto:realmindxgh@gmail.com">realmindxgh@gmail.com</a></p>
-        <p style="margin-bottom: 0.2rem;"><i class="fa fa-phone me-2"></i> +233 55 803 9190</p>
-        <p style="margin-bottom: 0.2rem;"><i class="fa fa-phone me-2"></i> +233 55 452 9493</p>
-        <p style="margin-bottom: 0.2rem;"><i class="fa fa-phone me-2"></i> +233 55 132 4729</p>
-      </div>
+{% if current_user.is_authenticated %}
 
-      <!-- Follow Us -->
-      <div class="col-lg-3 col-md-6 text-md-start ">
-        <h5 class="footer-title  mb-3" style="color: #ffcc01;">Follow Us</h5>
-        <div class="social-icons d-flex justify-content-md-start justify-content-center">
-          <a href="https://x.com/RealMindXgh" target="_blank"  style="text-decoration:none;"> <i class="fa-brands fa-x-twitter" style="color:#000000; font-size:18px; "></i> </a> 
-          <a href="https://web.facebook.com/profile.php?id=61566941171883" target="_blank"  style="text-decoration:none;"> <i class="fa-brands fa-facebook" style="color:#1877F2; font-size:18px;"></i> </a>
-          <a href="https://www.instagram.com/realmindxgh/" target="_blank" style="text-decoration:none;"> <i class="fa-brands fa-instagram" style="color:#E1306C; font-size:18px;"></i> </a>
-          <a href="https://www.youtube.com/@realmindxgh" target="_blank" style="text-decoration:none;"> <i class="fa-brands fa-youtube" style="color:#FF0000; font-size:18px;"></i> </a>
-          <a href="https://wa.link/d6x888" target="_blank" style="text-decoration:none;"> <i class="fa-brands fa-whatsapp" style="color:#25D366; font-size:18px;"></i> </a>
-        </div>
-      </div>
-      <!-- will do that later -->
-      <!-- <a href="{{ url_for('main.contact') }}" class="btn btn-warning rounded-pill fw-bold px-4 py-2">CONTACT US</a>
-      <p class="mt-2 text-warning mb-0">Need tailored educational solutions?</p> -->
-    </div>
-    
-    <!-- Copyright -->
-    <div class="text-center mt-4 pt-3 border-top border-light">
-      <small id="copyright"></small>
-    </div>
+<!-- AUTHENTICATED USER FOOTER (Minimal Version) -->
+<footer class="footer-section text-light pt-3 pb-3">
+  <div class="container text-center">
+    <small id="copyright"></small>
   </div>
 </footer>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const currentYear = new Date().getFullYear();
-    document.getElementById("copyright").textContent =
-      `© ${currentYear} RealMindX Education. All rights reserved.`;
-  });
+document.addEventListener("DOMContentLoaded", function() {
+  const currentYear = new Date().getFullYear();
+  document.getElementById("copyright").textContent =
+    `© ${currentYear} RealMindX Education. All rights reserved.`;
+});
 </script>
+
+{% else %}
+
+  <footer  class="footer-section text-light pt-5 pb-4" >
+    <div class="container-fluid">
+      <div class="row gy-5" style="row-gap: 1rem !important;">
+        <!-- Brand & Mission -->
+        <div class="col-lg-3 col-md-6 text-md-start ">
+          <h5 class="footer-title">RealMindX Education</h5>
+          <p>Empowering minds through education, innovation and community support.</p>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="col-lg-3 col-md-6 text-md-start ">
+          <h5 class="footer-title">Quick Links</h5>
+          <ul class="list-unstyled">
+            <li><a href="{{ url_for('main.home') }}" class="footer-link">Home</a></li>
+            <li><a href="{{ url_for('main.about') }}" class="footer-link">About</a></li>
+            <li><a href="{{ url_for('main.services') }}" class="footer-link">Services</a></li>
+            <li><a href="{{ url_for('main.news') }}" class="footer-link">News</a></li>
+            <li><a href="{{ url_for('main.gallery') }}" class="footer-link">Gallery</a></li>
+            <li><a href="https://bookshop.realmindxgh.com" target="_blank" class="footer-link">Bookshop</a></li>
+            <li><a href="{{ url_for('main.contact') }}" class="footer-link">Contact</a></li>
+            <li><a href="{{ url_for('jobs.job_listings') }}" class="footer-link">Job Post</a></li>
+            <li><a href="{{ url_for('donation.donate') }}" class="footer-link">Donate</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact -->
+        <div class="col-lg-3 col-md-6 text-md-start " style="line-height: 1.2;">
+          <h5 class="footer-title" style="color: #ffcc01; margin-bottom: 0.4rem;">Contact</h5>
+          <p style="margin-bottom: 0.2rem;"><i class="fa fa-map-marker-alt me-2"></i> Dome Pillar 2</p>
+          <p style="margin-bottom: 0.2rem;"><i class="fa fa-envelope me-2"></i> <a href="mailto:realmindxgh@gmail.com">realmindxgh@gmail.com</a></p>
+          <p style="margin-bottom: 0.2rem;"><i class="fa fa-phone me-2"></i> +233 55 803 9190</p>
+          <p style="margin-bottom: 0.2rem;"><i class="fa fa-phone me-2"></i> +233 55 452 9493</p>
+          <p style="margin-bottom: 0.2rem;"><i class="fa fa-phone me-2"></i> +233 55 132 4729</p>
+        </div>
+
+        <!-- Follow Us -->
+        <div class="col-lg-3 col-md-6 text-md-start ">
+          <h5 class="footer-title  mb-3" style="color: #ffcc01;">Follow Us</h5>
+          <div class="social-icons d-flex justify-content-md-start justify-content-center">
+            <a href="https://x.com/RealMindXgh" target="_blank"  style="text-decoration:none;"> <i class="fa-brands fa-x-twitter" style="color:#000000; font-size:18px; "></i> </a> 
+            <a href="https://web.facebook.com/profile.php?id=61566941171883" target="_blank"  style="text-decoration:none;"> <i class="fa-brands fa-facebook" style="color:#1877F2; font-size:18px;"></i> </a>
+            <a href="https://www.instagram.com/realmindxgh/" target="_blank" style="text-decoration:none;"> <i class="fa-brands fa-instagram" style="color:#E1306C; font-size:18px;"></i> </a>
+            <a href="https://www.youtube.com/@realmindxgh" target="_blank" style="text-decoration:none;"> <i class="fa-brands fa-youtube" style="color:#FF0000; font-size:18px;"></i> </a>
+            <a href="https://wa.link/d6x888" target="_blank" style="text-decoration:none;"> <i class="fa-brands fa-whatsapp" style="color:#25D366; font-size:18px;"></i> </a>
+          </div>
+        </div>
+        <!-- will do that later -->
+        <!-- <a href="{{ url_for('main.contact') }}" class="btn btn-warning rounded-pill fw-bold px-4 py-2">CONTACT US</a>
+        <p class="mt-2 text-warning mb-0">Need tailored educational solutions?</p> -->
+      </div>
+      
+      <!-- Copyright -->
+      <div class="text-center mt-4 pt-3 border-top border-light">
+        <small id="copyright"></small>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const currentYear = new Date().getFullYear();
+      document.getElementById("copyright").textContent =
+        `© ${currentYear} RealMindX Education. All rights reserved.`;
+    });
+  </script>
+{% endif %}
