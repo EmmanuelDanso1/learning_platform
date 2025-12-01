@@ -121,8 +121,25 @@
 
   </div>
 </nav>
+{% if current_user.is_authenticated %}
+</nav>
 
+{% if current_user.is_authenticated %}
+<!-- ================= FULL-WIDTH YELLOW DASHBOARD NAV ================= -->
+<div class="user-dashboard-nav">
+  <div class="links-wrapper">
+    <a href="#" class="nav-link-divider">View Profile</a>
+    <a href="#" class="nav-link-divider">Edit Profile</a>
+    <a href="#" class="nav-link-divider">Apply for a Job</a>
+    <a href="#" class="nav-link-divider">Application History</a>
+    <a href="#" class="nav-link-divider">Messages</a>
+    <a href="#" class="nav-link-divider px-5"></a>
+    <a href="{{ url_for('auth.logout') }}" class="nav-link-divider">Logout</a>
+  </div>
+</div>
+{% endif %}
 
+{% endif %}
 <!-- Page Content -->
 {% block fullwidth %}{% endblock %}
 

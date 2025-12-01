@@ -15,6 +15,36 @@ html,body {
   scroll-padding-top: 100px;
 }
 
+/* Users Dashboard nav */
+.user-dashboard-nav {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);   /* ESCAPES bootstrap container padding */
+    background: #FFD000;
+    padding: 12px 0;
+    z-index: 998;
+    position: relative;
+    top: 70px; /* shift under navbar if needed */
+}
+
+.links-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.nav-link-divider {
+    font-weight: bold;
+    color: black;
+    text-decoration: none;
+    padding: 0 20px;
+    border-right: 3px solid black;
+}
+
+.nav-link-divider:last-child {
+    border-right: none;
+}
+
 /* icons for google and microsoft */
 .social-btn {
     display: flex;
