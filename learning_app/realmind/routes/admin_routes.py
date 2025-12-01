@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for,jsonify, flash, send_from_directory, abort, request, current_app
+from flask import Blueprint, render_template, redirect, url_for,jsonify, flash, send_from_directory, abort, request, current_app,session
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 # using the imports from __init__.py file
@@ -12,6 +12,7 @@ import uuid
 import json
 from datetime import datetime
 import requests
+from learning_app.realmind.models.user import User
 from learning_app.realmind.utils.email import send_order_status_email
 from learning_app.realmind.utils.util import UPLOAD_FOLDER, allowed_profile_pic,allowed_image_file, allowed_document, allowed_file
 
@@ -1252,3 +1253,105 @@ def update_received_order_status(order_id):
         return jsonify({'error': 'API request error'}), 500
 
     return jsonify({'success': True, 'status': new_status})
+
+# Bulk and single Email send
+@admin_bp.route('/users')
+@login_required
+def list_users():
+    users = User.query.order_by(User.id.desc()).all()
+    return render_template('admin/users_list.html', users=users)
+
+# send individual message/email
+@admin_bp.route('/message/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def send_message_single(user_id):
+    user = User.query.get_or_404(user_id)
+
+    if request.method == 'POST':
+        subject = request.form['subject']
+        body = request.form['body']
+
+        # send email
+        send_email(user.email, subject, body)
+
+        flash('Message sent successfully', 'success')
+        return redirect(url_for('admin.list_users'))
+
+    return render_template('admin/message_single.html', user=user)
+
+@admin_bp.route('/bulk_message', methods=['GET', 'POST'])
+@login_required
+def bulk_message():
+    # Only admins can use this route
+    if not isinstance(current_user, Admin):
+        abort(403)
+
+    # ------------------------------------------
+    # Admin selected checkboxes in user list
+    # ------------------------------------------
+    selected_ids_json = request.form.get("selected_ids")
+
+    if selected_ids_json:
+        selected_ids = json.loads(selected_ids_json)
+
+        if not selected_ids:
+            flash("Please select at least one user.", "warning")
+            return redirect(url_for('admin.list_users'))
+
+        # Save selected user IDs in session so the next POST knows who to send to
+        session['bulk_selected_users'] = selected_ids
+
+        # Show the message writing form
+        return render_template("admin/bulk_message.html")
+
+    # ------------------------------------------
+    # Admin typed message + submitted form
+    # ------------------------------------------
+    if request.method == 'POST':
+        selected_ids = session.get('bulk_selected_users')
+
+        if not selected_ids:
+            flash("No users selected for bulk message.", "danger")
+            return redirect(url_for('admin.list_users'))
+
+        subject = request.form.get('subject')
+        body = request.form.get('message')
+
+        users = User.query.filter(User.id.in_(selected_ids)).all()
+
+        if not users:
+            flash("Selected users not found.", "danger")
+            return redirect(url_for('admin.list_users'))
+
+        # Send email
+        for user in users:
+            msg = Message(
+                subject=subject,
+                recipients=[user.email],
+                body=body,
+                sender="realmindxgh@gmail.com"
+            )
+            mail.send(msg)
+
+        flash(f"Message sent to {len(users)} users!", "success")
+
+        # Clear selections after sending
+        session.pop('bulk_selected_users', None)
+
+        return redirect(url_for('admin.list_users'))
+
+    # GET request: Show empty page (if someone just visits /bulk_message)
+    return render_template("admin/bulk_message.html")
+
+@admin_bp.route('/delete_user/<int:user_id>', methods=['POST'])
+@login_required
+def delete_user(user_id):
+    if not isinstance(current_user, Admin):
+        abort(403)
+
+    user = User.query.get_or_404(user_id)
+    db.session.delete(user)
+    db.session.commit()
+
+    flash(f"User {user.fullname} has been deleted.", "success")
+    return redirect(url_for('admin.list_users'))

@@ -14,7 +14,7 @@ class User(UserMixin, db.Model):
 
     profile_pic = db.Column(db.String(255), nullable=True)
     applications = db.relationship('Application', backref='user', lazy=True)
-
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     # Email verification
     is_verified = db.Column(db.Boolean, default=False)
     otp_code = db.Column(db.String(6), nullable=True)

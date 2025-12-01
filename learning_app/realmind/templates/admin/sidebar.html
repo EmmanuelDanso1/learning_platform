@@ -5,7 +5,34 @@
   }</style>
 <nav id="sidebar">
   <div class="accordion" id="adminAccordion">
+    <!-- Registered Users -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="registeredHeading">
+        <button class="accordion-button collapsed" type="button"
+          data-bs-toggle="collapse" data-bs-target="#registeredCollapse"
+          aria-expanded="false" aria-controls="registeredCollapse">
+          <i class="fas fa-users me-2"></i> <span>Registered Users</span>
+        </button>
+      </h2>
+      <div id="registeredCollapse" class="accordion-collapse collapse"
+          aria-labelledby="registeredHeading" data-bs-parent="#adminAccordion">
+        <div class="accordion-body px-0">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('admin.list_users') }}">
+                <i class="fas fa-user-check"></i> <span>View Registered Users</span>
+              </a>
+            </li>
 
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('admin.bulk_message') }}">
+                <i class="fas fa-envelope"></i> <span>Bulk Messaging</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
     <!-- Jobs -->
     <div class="accordion-item">
       <h2 class="accordion-header" id="jobsHeading">
