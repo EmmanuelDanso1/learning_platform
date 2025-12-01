@@ -51,9 +51,19 @@ def google_authorized():
 
     email = user_info.get("email")
 
-    fullname = user_info.get("name")
+    given = user_info.get("given_name")
+    family = user_info.get("family_name")
+    name = user_info.get("name")
+
+    # Construct the best possible full name
+    if name:
+        fullname = name
+    else:
+        fullname = " ".join(filter(None, [given, family]))
+
+    # FINAL fallback
     if not fullname or fullname.strip() == "":
-        fullname = email.split("@")[0]   # fallback
+        fullname = email.split("@")[0]
 
     return handle_oauth_user(email, fullname)
 
