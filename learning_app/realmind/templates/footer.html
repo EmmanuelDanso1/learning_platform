@@ -68,30 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
 {% endblock %}
 {% endif %}
 
-<!-- ======================================= -->
-<!-- AUTHENTICATED OR NORMAL FOOTER SECTION -->
-<!-- ======================================= -->
-
-{% if current_user.is_authenticated %}
-
-<!-- AUTHENTICATED USER FOOTER (Minimal Version) -->
-<footer class="footer-section text-light pt-3 pb-3">
-  <div class="container text-center">
-    <small id="copyright"></small>
-  </div>
-</footer>
-
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-  const currentYear = new Date().getFullYear();
-  document.getElementById("copyright").textContent =
-    `© ${currentYear} RealMindX Education. All rights reserved.`;
-});
-</script>
-
-{% else %}
-
-  <footer  class="footer-section text-light pt-5 pb-4" >
+<footer  class="footer-section text-light pt-5 pb-4" >
     <div class="container-fluid">
       <div class="row gy-5" style="row-gap: 1rem !important;">
         <!-- Brand & Mission -->
@@ -156,4 +133,3 @@ document.addEventListener("DOMContentLoaded", function() {
         `© ${currentYear} RealMindX Education. All rights reserved.`;
     });
   </script>
-{% endif %}
