@@ -50,9 +50,13 @@ def google_authorized():
     ).json()
 
     email = user_info.get("email")
-    fullname = user_info.get("name", email.split("@")[0])
+
+    fullname = user_info.get("name")
+    if not fullname or fullname.strip() == "":
+        fullname = email.split("@")[0]   # fallback
 
     return handle_oauth_user(email, fullname)
+
 
 
 
