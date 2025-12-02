@@ -16,14 +16,81 @@ user_bp = Blueprint('user', __name__)
 @user_bp.route('/users/dashboard')
 @login_required
 def users_dashboard():
-    # Ensure the current user is not an admin
-    if not isinstance(current_user, User):
-        return redirect(url_for('admin.admin_dashboard'))  # Ensure 'admin' is the admin blueprint name
+    # Redirect admins
+    if getattr(current_user, 'is_admin', False):
+        return redirect(url_for('admin.admin_dashboard'))
 
+    # Fetch jobs
     jobs = JobPost.query.order_by(JobPost.id.desc()).all()
     applied_jobs = [application.job_id for application in current_user.applications]
 
-    return render_template('users_dashboard.html', jobs=jobs, applied_jobs=applied_jobs)
+    return render_template(
+        'users_dashboard.html',
+        jobs=jobs,
+        applied_jobs=applied_jobs,
+        profile_complete=current_user.is_profile_complete
+    )
+
+
+# Profile completion
+@user_bp.route("/users/dashboard/edit-profile", methods=["GET", "POST"])
+@login_required
+def edit_profile():
+    # Prevent admins from using this page
+    if current_user.is_admin:
+        return redirect(url_for('admin.admin_dashboard'))
+
+    if request.method == "POST":
+        # Update profile fields
+        current_user.firstname = request.form.get("firstname")
+        current_user.surname = request.form.get("surname")
+        current_user.other_names = request.form.get("other_names")
+        current_user.phone = request.form.get("phone")
+        current_user.ghana_card_number = request.form.get("ghana_card_number")  
+        current_user.preferred_level = request.form.get("preferred_level")
+        current_user.preferred_subject = request.form.get("preferred_subject")
+
+        # --- DOCUMENT UPLOAD ---
+        documents = request.files.get("documents")
+        if documents and documents.filename != "":
+            filename = secure_filename(documents.filename)
+
+            upload_path = os.path.join(
+                current_app.config["UPLOAD_FOLDER_USERS"],
+                f"user_{current_user.id}",
+                "documents"
+            )
+            os.makedirs(upload_path, exist_ok=True)
+
+            file_path = os.path.join(upload_path, filename)
+            documents.save(file_path)
+
+            current_user.documents = filename 
+
+        # --- PROFILE PICTURE UPLOAD ---
+        pic = request.files.get("profile_pic")
+        if pic and pic.filename != "":
+            filename = secure_filename(pic.filename)
+
+            upload_path = os.path.join(
+                current_app.config["UPLOAD_FOLDER_USERS"],
+                f"user_{current_user.id}",
+                "profile"
+            )
+            os.makedirs(upload_path, exist_ok=True)
+
+            file_path = os.path.join(upload_path, filename)
+            pic.save(file_path)
+
+            current_user.profile_pic = filename
+
+        db.session.commit()
+        flash("Profile updated successfully!", "success")
+
+        return redirect(url_for("user.users_dashboard")) 
+
+    return render_template("edit_profile.html")
+
 
 @user_bp.route('/upload_profile_pic', methods=['POST'])
 @login_required

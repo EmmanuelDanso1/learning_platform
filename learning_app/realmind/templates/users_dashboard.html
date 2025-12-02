@@ -21,29 +21,30 @@
 
     <!-- Welcome Text -->
     <h1 class="fw-bold text-uppercase">WELCOME TO REALMINDX</h1>
+
     <h1 class="fw-bold text-uppercase" style="color:#0C2E60;">
         EDUCATION, {{ current_user.fullname }}
     </h1>
-    
 
     <!-- Subtitle -->
     <p class="mt-3 fw-semibold" style="letter-spacing:3px; color:#FFD000;">
         HOLISTIC LEARNING CONVENIENTLY FOR EVERY MIND
     </p>
 
-    <!-- Complete Profile Notice -->
-    <p class="mt-4 text-dark fw-semibold">
-        PLEASE COMPLETE YOUR PROFILE TO SEE JOBS TAILORED JUST FOR YOU
-    </p>
+    {% if not profile_complete %}
+        <!-- Complete Profile Notice -->
+        <p class="mt-4 text-dark fw-semibold">
+            PLEASE COMPLETE YOUR PROFILE TO SEE JOBS TAILORED JUST FOR YOU
+        </p>
 
-    <!-- Complete Profile Button -->
-    <a href="#"
-       class="btn fw-bold mt-3 px-5 py-3"
-       style="background:#FFD000; border-radius:40px; font-size:1.3rem;">
-        COMPLETE PROFILE
-    </a>
+        <!-- Complete Profile Button -->
+        <a href="{{ url_for('user.edit_profile') }}"
+           class="btn fw-bold mt-3 px-5 py-3"
+           style="background:#FFD000; border-radius:40px; font-size:1.3rem;">
+            COMPLETE PROFILE
+        </a>
+    {% endif %}
+
 </div>
-
-
 
 {% endblock %}
