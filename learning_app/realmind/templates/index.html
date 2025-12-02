@@ -157,10 +157,21 @@
       <!-- Profile -->
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button"
-           data-bs-toggle="dropdown">
-
-          <img src="{{ url_for('static', filename='images/default-profile.webp') }}"
-               width="38" height="38" class="rounded-circle border" style="object-fit: cover;">
+          data-bs-toggle="dropdown">
+          
+          {% if current_user.profile_pic %}
+            <img src="{{ url_for('static',
+                                  filename='uploads/users/user_' ~ current_user.id ~
+                                            '/profile/' ~ current_user.profile_pic) }}"
+                  width="38" height="38"
+                  class="rounded-circle border"
+                  style="object-fit: cover;">
+          {% else %}
+              <img src="{{ url_for('static', filename='images/default-profile.webp') }}"
+                  width="38" height="38"
+                  class="rounded-circle border"
+                  style="object-fit: cover;">
+          {% endif %}
         </a>
 
         <ul class="dropdown-menu dropdown-menu-end shadow">

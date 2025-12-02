@@ -46,117 +46,114 @@
         border: 2px solid #000;
         border-radius: 12px;
         padding: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .upload-submit {
-        background: #012169;
-        color: #fff;
-        border-radius: 12px;
-        padding: 8px 20px;
-        border: none;
     }
 </style>
 
 
 <div class="container py-5">
+    <form action="{{ url_for('user.edit_profile') }}" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-    <h2 class="text-center mb-4 fw-bold">Edit Profile</h2>
+        <h2 class="text-center mb-4 fw-bold">Edit Profile</h2>
 
-    <!-- PROFILE IMAGE -->
-    <div class="text-center mb-4">
-        <div class="profile-img-wrapper mb-3">
-            {% if current_user.profile_pic %}
-            <img src="{{ url_for('static', filename='uploads/users/user_' ~ current_user.id ~ '/' ~ current_user.profile_pic) }}" alt="Profile">
-            {% else %}
-            <img src="{{ url_for('static', filename='images/default-profile.webp') }}" alt="Profile">
-            {% endif %}
-        </div>
-
-        <form action="{{ url_for('user.edit_profile') }}" method="POST" enctype="multipart/form-data">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
+        <!-- PROFILE IMAGE -->
+        <div class="text-center mb-4">
+            <div class="profile-img-wrapper mb-3">
+                {% if current_user.profile_pic %}
+                <img id="previewImg" 
+                     src="{{ url_for('static', filename='uploads/users/user_' ~ current_user.id ~ '/profile/' ~ current_user.profile_pic) }}?v={{ current_user.profile_pic }}">
+                {% else %}
+                <img id="previewImg" src="{{ url_for('static', filename='images/default-profile.webp') }}">
+                {% endif %}
+            </div>
 
             <label class="upload-btn">
                 Upload Profile Picture
-                <input type="file" name="profile_pic" accept="image/*" hidden>
+                <input type="file" id="profileInput" name="profile_pic" accept="image/*" hidden>
             </label>
-    </div>
-
-
-    <!-- MAIN FORM -->
-    <div class="row gy-4">
-        <div class="col-md-4">
-                    <label class="form-label">First Name</label>
-            <input type="text" name="firstname" value="firstname" class="custom-input">
         </div>
 
-        <div class="col-md-4">
-            <label class="form-label">Surname</label>
-            <input type="text" name="surname" value="surname" class="custom-input">
-        </div>
 
-        <div class="col-md-4">
-            <label class="form-label">Other Names</label>
-            <input type="text" name="other_names" value="other_names" class="custom-input">
-        </div>
-
-        <div class="col-md-6">
-            <label class="form-label">E-mail Address</label>
-            <input type="email" name="email" value="{{ current_user.email }}" class="custom-input">
-        </div>
-
-        <div class="col-md-6">
-            <label class="form-label">Phone Number</label>
-            <input type="text" name="phone" value="phone" class="custom-input">
-        </div>
-
-        <div class="col-md-6">
-            <label class="form-label">Ghana Card Number</label>
-            <input type="text" name="ghana_card_number" value="GH-000000000-0" placeholder="GH-000000000-0" class="custom-input">
-        </div>
-
-        <div class="col-md-6">
-            <label class="form-label">Preferred Subject</label>
-            <select name="preferred_subject" class="custom-select">
-                <option value="">Please select subjects</option>
-                {% for subject in subjects %}
-                <option value="{{ subject }}" {% if current_user.preferred_subject == subject %}selected{% endif %}>
-                    {{ subject }}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="col-md-6">
-            <label class="form-label">Preferred Level</label>
-            <select name="preferred_level" class="custom-select">
-                <option value="">Please select levels</option>
-                {% for level in levels %}
-                <option value="{{ level }}" {% if current_user.preferred_level == level %}selected{% endif %}>
-                    {{ level }}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="col-md-6">
-            <label class="form-label">Document Upload</label>
-            <div class="upload-box">
-                <input type="file" name="documents" accept=".pdf,.jpg,.png,.jpeg" class="form-control">
-                <button class="upload-submit">Upload</button>
+        <!-- MAIN FORM -->
+        <div class="row gy-4">
+            <div class="col-md-4">
+                <label class="form-label">First Name</label>
+                <input type="text" name="firstname" value="{{ current_user.firstname }}" class="custom-input">
             </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Surname</label>
+                <input type="text" name="surname" value="{{ current_user.surname }}" class="custom-input">
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Other Names</label>
+                <input type="text" name="other_names" value="{{ current_user.other_names }}" class="custom-input">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">E-mail Address</label>
+                <input type="email" name="email" value="{{ current_user.email }}" class="custom-input">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Phone Number</label>
+                <input type="text" name="phone" value="{{ current_user.phone }}" class="custom-input">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Ghana Card Number</label>
+                <input type="text" name="ghana_card_number" value="{{ current_user.ghana_card_number }}" placeholder="GHA-000000000-0" class="custom-input">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Preferred Subject</label>
+                <select name="preferred_subject" class="custom-select">
+                    <option value="">Please select subjects</option>
+                    {% for subject in subjects %}
+                    <option value="{{ subject }}" {% if current_user.preferred_subject == subject %}selected{% endif %}>
+                        {{ subject }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Preferred Level</label>
+                <select name="preferred_level" class="custom-select">
+                    <option value="">Please select levels</option>
+                    {% for level in levels %}
+                    <option value="{{ level }}" {% if current_user.preferred_level == level %}selected{% endif %}>
+                        {{ level }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Document Upload</label>
+                <div class="upload-box">
+                    <input type="file" name="documents" accept=".pdf,.jpg,.png,.jpeg" class="form-control">
+                </div>
+            </div>
+
         </div>
 
-    </div>
-
-    <div class="text-center mt-5">
-        <button type="submit" class="btn btn-warning px-5 py-2 fw-bold">Save Changes</button>
-    </div>
-    
+        <div class="text-center mt-5">
+            <button type="submit" class="btn btn-warning px-5 py-2 fw-bold">Save Changes</button>
+        </div>
+        
     </form>
 </div>
+
+<!-- LIVE PREVIEW JS -->
+<script>
+document.getElementById("profileInput").addEventListener("change", function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        document.getElementById("previewImg").src = URL.createObjectURL(file);
+    }
+});
+</script>
 
 {% endblock %}

@@ -50,28 +50,35 @@ def edit_profile():
         current_user.preferred_level = request.form.get("preferred_level")
         current_user.preferred_subject = request.form.get("preferred_subject")
 
-        # --- DOCUMENT UPLOAD ---
+        # --- DOCUMENT UPLOAD (with UUID) ---
         documents = request.files.get("documents")
         if documents and documents.filename != "":
-            filename = secure_filename(documents.filename)
+            original_ext = os.path.splitext(documents.filename)[1]  # keep file extension
+            unique_filename = f"{uuid.uuid4()}{original_ext}"
 
             upload_path = os.path.join(
                 current_app.config["UPLOAD_FOLDER_USERS"],
                 f"user_{current_user.id}",
                 "documents"
             )
+
             os.makedirs(upload_path, exist_ok=True)
 
-            file_path = os.path.join(upload_path, filename)
+            file_path = os.path.join(upload_path, unique_filename)
             documents.save(file_path)
 
-            current_user.documents = filename 
+            current_user.documents = unique_filename
 
         # --- PROFILE PICTURE UPLOAD ---
+      
         pic = request.files.get("profile_pic")
-        if pic and pic.filename != "":
-            filename = secure_filename(pic.filename)
 
+        if pic and pic.filename.strip() != "":
+            # Create a unique + safe filename
+            ext = pic.filename.rsplit(".", 1)[-1]
+            filename = secure_filename(f"profile_{uuid.uuid4().hex}.{ext}")
+
+            # Folder: static/uploads/users/user_<id>/profile/
             upload_path = os.path.join(
                 current_app.config["UPLOAD_FOLDER_USERS"],
                 f"user_{current_user.id}",
@@ -79,12 +86,27 @@ def edit_profile():
             )
             os.makedirs(upload_path, exist_ok=True)
 
+            # File path
             file_path = os.path.join(upload_path, filename)
+
+            # Save new image
             pic.save(file_path)
 
+            # Delete old profile picture if it exists
+            if current_user.profile_pic:
+                old_path = os.path.join(upload_path, current_user.profile_pic)
+                if os.path.exists(old_path):
+                    try:
+                        os.remove(old_path)
+                    except Exception as e:
+                        current_app.logger.error(f"Error deleting old profile pic: {e}")
+
+            # Save new filename to database
             current_user.profile_pic = filename
 
+
         db.session.commit()
+        db.session.refresh(current_user)
         flash("Profile updated successfully!", "success")
 
         return redirect(url_for("user.users_dashboard")) 
