@@ -91,7 +91,7 @@
             </div>
             <div class="profile-col">
                 <div class="profile-label">Other Names</div>
-                <div class="profile-value">{{ current_user.othernames or 'Not set' }}</div>
+                <div class="profile-value">{{ current_user.other_names or 'Not set' }}</div>
             </div>
         </div>
 
@@ -107,21 +107,54 @@
             </div>
             <div class="profile-col">
                 <div class="profile-label">Ghana Card Number</div>
-                <div class="profile-value">{{ current_user.ghana_card or 'Not set' }}</div>
+                <div class="profile-value">{{ current_user.ghana_card_number or 'Not set' }}</div>
             </div>
         </div>
 
         <!-- Preferred Subject / Level / Documents -->
         <div class="profile-row">
             <div class="profile-col">
-                <div class="profile-label">Preferred Subject</div>
-                <div class="profile-value">{{ current_user.preferred_subject or 'Please select subjects' }}</div>
+                <div class="profile-label">Preferred Level</div>
+
+                {% if current_user.preferred_level %}
+                    {% set levels = current_user.preferred_level.split(",") %}
+                    <div class="profile-value">
+                        {% for level in levels %}
+                            <span>{{ level }}</span>{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="profile-value">Please select levels</div>
+                {% endif %}
+            </div>
+            
+           <div class="profile-col">
+            <div class="profile-label">Preferred Subject</div>
+
+                {% if current_user.preferred_subject %}
+                    {% set selected_subjects = current_user.preferred_subject.split(',') %}
+
+                    <div class="profile-value">
+                        {% for s in selected_subjects %}
+                            <span style="
+                                display:inline-block;
+                                background:#002b5c;
+                                color:#fff;
+                                padding:5px 12px;
+                                border-radius:8px;
+                                margin:3px;
+                                font-size:14px;
+                            ">
+                                {{ s }}
+                            </span>
+                        {% endfor %}
+                    </div>
+
+                {% else %}
+                    <div class="profile-value">Please select subjects</div>
+                {% endif %}
             </div>
 
-            <div class="profile-col">
-                <div class="profile-label">Preferred Level</div>
-                <div class="profile-value">{{ current_user.preferred_level or 'Please select levels' }}</div>
-            </div>
 
             <div class="profile-col">
                 <div class="profile-label">Documents</div>

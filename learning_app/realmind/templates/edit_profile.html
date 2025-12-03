@@ -105,45 +105,6 @@
                 <label class="form-label">Ghana Card Number</label>
                 <input type="text" name="ghana_card_number" value="{{ current_user.ghana_card_number }}" placeholder="GHA-000000000-0" class="custom-input">
             </div>
-
-            <div class="col-md-6">
-                <label class="form-label">Preferred Subject</label>
-                <select name="preferred_subject" class="custom-select">
-                    <option value="">Please select subjects</option>
-                    {% for subject in subjects %}
-                    <option value="{{ subject }}" {% if current_user.preferred_subject == subject %}selected{% endif %}>
-                        {{ subject }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label">Preferred Level</label>
-                <select name="preferred_level" class="custom-select">
-                    <option value="">Please select level</option>
-
-                    <!-- NEW FIXED OPTIONS -->
-                    <option value="Master's  Degree" {% if current_user.preferred_level == "Master's  Degree" %}selected{% endif %}>
-                        Master’s Degree
-                    </option>
-                    <option value="Bachelor's  Degree" {% if current_user.preferred_level == "Bachelor's  Degree" %}selected{% endif %}>
-                        Bachelor’s  Degree
-                    </option>
-                    <option value="Diploma" {% if current_user.preferred_level == "Diploma" %}selected{% endif %}>
-                        Diploma
-                    </option>
-
-                    <!-- YOUR EXISTING DYNAMIC LEVELS -->
-                    {% for level in levels %}
-                    <option value="{{ level }}" {% if current_user.preferred_level == level %}selected{% endif %}>
-                        {{ level }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-
-
             <div class="col-md-6">
                 <label class="form-label">Document Upload</label>
                 <div class="upload-box">
@@ -151,6 +112,79 @@
                 </div>
             </div>
 
+            <div class="col-md-6">
+                <label class="form-label">Preferred Subject</label>
+
+                <div class="custom-select-container" style="border:1px solid #ced4da; padding:10px; border-radius:5px; max-height:200px; overflow-y:auto;">
+                    {% set selected_subjects = (current_user.preferred_subject or '').split(',') %}
+
+                    {% for subject in subjects %}
+                    <div class="d-flex align-items-center mb-1">
+                        <input type="checkbox" 
+                            name="preferred_subject" 
+                            value="{{ subject }}"
+                            style="margin-right:8px;"
+                            {% if subject in selected_subjects %}checked{% endif %}>
+                        <span>{{ subject }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Other Input -->
+                {% set other_subject = '' %}
+                {% for s in selected_subjects %}
+                    {% if s not in subjects %}
+                        {% set other_subject = s %}
+                    {% endif %}
+                {% endfor %}
+                <input type="text" name="preferred_subject_other"
+                    id="subjectOtherInput"
+                    class="custom-input mt-2"
+                    placeholder="Enter other subject"
+                    value="{{ other_subject }}"
+                    {% if other_subject %}
+                    style="display: block;"
+                    {% else %}
+                    style="display: none;"
+                    {% endif %}>
+
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Preferred Level</label>
+
+                <div class="custom-select-container" style="border:1px solid #ced4da; padding:10px; border-radius:5px; max-height:250px; overflow-y:auto;">
+                    
+                    {% set saved_levels = (current_user.preferred_level or "").split(",") %}
+
+                    {% set level_options = [
+                        "Pre-School",
+                        "Lower Primary",
+                        "Upper Primary",
+                        "Junior High",
+                        "Lower Secondary",
+                        "Senior High",
+                        "Upper Secondary",
+                        "O-Level",
+                        "A-Level"
+                    ] %}
+
+                    {% for level in level_options %}
+                    <div class="d-flex align-items-center mb-1">
+                        <input type="checkbox"
+                            name="preferred_level"
+                            value="{{ level }}"
+                            style="margin-right:8px;"
+                            {% if level in saved_levels %}checked{% endif %}>
+
+                        <span>{{ level }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+
+            
         </div>
 
         <div class="text-center mt-5">
@@ -160,14 +194,34 @@
     </form>
 </div>
 
-<!-- LIVE PREVIEW JS -->
 <script>
+// Show live preview for profile image
 document.getElementById("profileInput").addEventListener("change", function(e) {
     const file = e.target.files[0];
     if (file) {
         document.getElementById("previewImg").src = URL.createObjectURL(file);
     }
 });
+
+/// Show/hide Other subject input when "Other" checkbox is checked
+const subjectCheckboxes = document.querySelectorAll("input[name='preferred_subject']");
+const otherInput = document.getElementById("subjectOtherInput");
+
+function toggleOtherInput() {
+    const otherChecked = Array.from(subjectCheckboxes).some(cb => cb.value === "Other" && cb.checked);
+    if (otherChecked) {
+        otherInput.style.display = "block";
+    } else {
+        otherInput.style.display = "none";
+        otherInput.value = "";
+    }
+}
+
+// Attach event listener to all checkboxes
+subjectCheckboxes.forEach(cb => cb.addEventListener("change", toggleOtherInput));
+
+// Run on page load
+window.addEventListener("DOMContentLoaded", toggleOtherInput);
 </script>
 
 {% endblock %}

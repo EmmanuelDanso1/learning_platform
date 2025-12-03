@@ -178,7 +178,7 @@
           <li><a class="dropdown-item" href="{{ url_for('user.users_dashboard') }}">Dashboard</a></li>
           <li><a class="dropdown-item" href="{{ url_for('user.view_profile') }}">View Profile</a></li>
           <li><a class="dropdown-item" href="{{ url_for('user.edit_profile') }}">Edit Profile</a></li>
-          <li><a class="dropdown-item" href="#">Apply for a Job</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('jobs.job_listings') }}">Apply for a Job</a></li>
           <li><a class="dropdown-item" href="#">Application History</a></li>
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item text-danger fw-bold" href="{{ url_for('auth.logout') }}">Logout</a></li>
@@ -203,7 +203,7 @@
     <a href="{{ url_for('user.users_dashboard') }}" class="nav-link-divider">Dashboard</a>
     <a href="{{ url_for('user.view_profile') }}" class="nav-link-divider">View Profile</a>
     <a href="{{ url_for('user.edit_profile') }}" class="nav-link-divider">Edit Profile</a>
-    <a href="#" class="nav-link-divider">Apply for a Job</a>
+    <a href="{{ url_for('jobs.job_listings') }}" class="nav-link-divider">Apply for a Job</a>
     <a href="#" class="nav-link-divider">Application History</a>
     <a href="#" class="nav-link-divider">Messages</a>
     <a href="{{ url_for('auth.logout') }}" class="nav-link-divider">Logout</a>

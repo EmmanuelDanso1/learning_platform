@@ -58,36 +58,68 @@ def users_dashboard():
     )
 
 
-# Profile completion
 @user_bp.route("/users/dashboard/edit-profile", methods=["GET", "POST"])
 @login_required
 def edit_profile():
-    # Prevent admins from using this page
     if current_user.is_admin:
         return redirect(url_for('admin.admin_dashboard'))
 
+    # SUBJECT LIST
+    subjects = [
+        "Mathematics", "English", "Integrated Science", "Creative Arts",
+        "Our World and Our People", "Ghanaian Language", "Computing",
+        "Physical Education", "Religious and Moral Education",
+        "Elective Mathematics", "Biology", "Physics", "Chemistry",
+        "General Agriculture", "Animal Husbandry", "Crop Husbandry",
+        "Fisheries", "Forestry", "Food and Nutrition", "Management in Living",
+        "Textile Studies", "Visual Arts", "Graphic Design", "Sculpture",
+        "Ceramics", "Picture Making", "General Knowledge in Art", "Music",
+        "French", "Literature in English", "Government", "History",
+        "Geography", "Economics", "Business Management", "Financial Accounting",
+        "Cost Accounting", "Elective ICT", "Christian Religious Studies",
+        "Islamic Religious Studies", "Arabic", "Tourism", "Auto Mechanics",
+        "Welding and Fabrication", "Building Construction", "Technical Drawing",
+        "Electrical Engineering Technology", "Plumbing", "Applied Electricity",
+        "Electronics", "Woodwork", "Metalwork", "Printing Craft",
+        "Spanish", "Sewing", "Pottery", "Other"
+    ]
+
     if request.method == "POST":
-        # Update profile fields
+
+        # BASIC PROFILE FIELDS
         current_user.firstname = request.form.get("firstname")
         current_user.surname = request.form.get("surname")
         current_user.other_names = request.form.get("other_names")
         current_user.phone = request.form.get("phone")
-        current_user.ghana_card_number = request.form.get("ghana_card_number")  
-        current_user.preferred_level = request.form.get("preferred_level")
-        current_user.preferred_subject = request.form.get("preferred_subject")
+        current_user.ghana_card_number = request.form.get("ghana_card_number")
 
-        # --- DOCUMENT UPLOAD (with UUID) ---
+        # MULTIPLE LEVELS
+        preferred_levels = request.form.getlist("preferred_level")
+        current_user.preferred_level = ",".join(preferred_levels)
+
+        # MULTIPLE SUBJECTS
+        selected_subjects = request.form.getlist("preferred_subject")
+
+        # ADD OPTIONAL OTHER SUBJECT
+        other_subject = request.form.get("preferred_subject_other")
+        if other_subject:
+           # Remove literal "Other" if it exists
+            selected_subjects = [s for s in selected_subjects if s != "Other"]
+            # Add the actual typed value
+            selected_subjects.append(other_subject)
+
+        current_user.preferred_subject = ",".join(selected_subjects)
+
+        # DOCUMENT UPLOAD
         documents = request.files.get("documents")
         if documents and documents.filename != "":
-            original_ext = os.path.splitext(documents.filename)[1]  # keep file extension
+            original_ext = os.path.splitext(documents.filename)[1]
             unique_filename = f"{uuid.uuid4()}{original_ext}"
 
             upload_path = os.path.join(
                 current_app.config["UPLOAD_FOLDER_USERS"],
-                f"user_{current_user.id}",
-                "documents"
+                f"user_{current_user.id}", "documents"
             )
-
             os.makedirs(upload_path, exist_ok=True)
 
             file_path = os.path.join(upload_path, unique_filename)
@@ -95,30 +127,22 @@ def edit_profile():
 
             current_user.documents = unique_filename
 
-        # --- PROFILE PICTURE UPLOAD ---
-      
+        # PROFILE PICTURE UPLOAD
         pic = request.files.get("profile_pic")
-
         if pic and pic.filename.strip() != "":
-            # Create a unique + safe filename
             ext = pic.filename.rsplit(".", 1)[-1]
             filename = secure_filename(f"profile_{uuid.uuid4().hex}.{ext}")
 
-            # Folder: static/uploads/users/user_<id>/profile/
             upload_path = os.path.join(
                 current_app.config["UPLOAD_FOLDER_USERS"],
-                f"user_{current_user.id}",
-                "profile"
+                f"user_{current_user.id}", "profile"
             )
             os.makedirs(upload_path, exist_ok=True)
 
-            # File path
             file_path = os.path.join(upload_path, filename)
-
-            # Save new image
             pic.save(file_path)
 
-            # Delete old profile picture if it exists
+            # DELETE OLD PIC
             if current_user.profile_pic:
                 old_path = os.path.join(upload_path, current_user.profile_pic)
                 if os.path.exists(old_path):
@@ -127,17 +151,15 @@ def edit_profile():
                     except Exception as e:
                         current_app.logger.error(f"Error deleting old profile pic: {e}")
 
-            # Save new filename to database
             current_user.profile_pic = filename
-
 
         db.session.commit()
         db.session.refresh(current_user)
         flash("Profile updated successfully!", "success")
+        return redirect(url_for("user.view_profile"))
 
-        return redirect(url_for("user.view_profile")) 
+    return render_template("edit_profile.html", subjects=subjects)
 
-    return render_template("edit_profile.html")
 
 @user_bp.route("/dashboard/view-profile")
 @login_required
