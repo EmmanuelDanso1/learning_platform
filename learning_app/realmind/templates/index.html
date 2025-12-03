@@ -176,8 +176,8 @@
 
         <ul class="dropdown-menu dropdown-menu-end shadow">
           <li><a class="dropdown-item" href="{{ url_for('user.users_dashboard') }}">Dashboard</a></li>
-          <li><a class="dropdown-item" href="#">View Profile</a></li>
-          <li><a class="dropdown-item" href="#">Edit Profile</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('user.view_profile') }}">View Profile</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('user.edit_profile') }}">Edit Profile</a></li>
           <li><a class="dropdown-item" href="#">Apply for a Job</a></li>
           <li><a class="dropdown-item" href="#">Application History</a></li>
           <li><hr class="dropdown-divider"></li>
@@ -200,12 +200,12 @@
 <!-- Full-width yellow dashboard nav -->
 <div class="user-dashboard-nav text-center">
   <div class="links-wrapper">
-    <a href="#" class="nav-link-divider">View Profile</a>
+    <a href="{{ url_for('user.users_dashboard') }}" class="nav-link-divider">Dashboard</a>
+    <a href="{{ url_for('user.view_profile') }}" class="nav-link-divider">View Profile</a>
     <a href="{{ url_for('user.edit_profile') }}" class="nav-link-divider">Edit Profile</a>
     <a href="#" class="nav-link-divider">Apply for a Job</a>
     <a href="#" class="nav-link-divider">Application History</a>
     <a href="#" class="nav-link-divider">Messages</a>
-    <a href="#" class="nav-link-divider px-5"></a>
     <a href="{{ url_for('auth.logout') }}" class="nav-link-divider">Logout</a>
   </div>
 </div>

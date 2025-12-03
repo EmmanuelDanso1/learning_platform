@@ -13,22 +13,48 @@ from learning_app.realmind.utils.util import allowed_document , allowed_profile_
 
 user_bp = Blueprint('user', __name__)
 
+
 @user_bp.route('/users/dashboard')
 @login_required
 def users_dashboard():
-    # Redirect admins
+
+    # Redirect admins to admin dashboard
     if getattr(current_user, 'is_admin', False):
         return redirect(url_for('admin.admin_dashboard'))
 
-    # Fetch jobs
+    # ------------------------------------
+    # Check if user profile is complete
+    # ------------------------------------
+    profile_complete = (
+        current_user.firstname and
+        current_user.surname and
+        current_user.other_names and
+        current_user.phone and
+        current_user.ghana_card_number and
+        current_user.preferred_subject and
+        current_user.preferred_level and
+        current_user.documents and
+        current_user.profile_pic
+    )
+
+    profile_complete = bool(profile_complete)
+
+    # ------------------------------------
+    # Fetch Jobs (for dashboard recommendations)
+    # ------------------------------------
     jobs = JobPost.query.order_by(JobPost.id.desc()).all()
+
+    # Jobs the user has applied for
     applied_jobs = [application.job_id for application in current_user.applications]
 
+    # ------------------------------------
+    # Render dashboard
+    # ------------------------------------
     return render_template(
         'users_dashboard.html',
         jobs=jobs,
         applied_jobs=applied_jobs,
-        profile_complete=current_user.is_profile_complete
+        profile_complete=profile_complete
     )
 
 
@@ -109,9 +135,15 @@ def edit_profile():
         db.session.refresh(current_user)
         flash("Profile updated successfully!", "success")
 
-        return redirect(url_for("user.users_dashboard")) 
+        return redirect(url_for("user.view_profile")) 
 
     return render_template("edit_profile.html")
+
+@user_bp.route("/dashboard/view-profile")
+@login_required
+def view_profile():
+    applications = current_user.applications 
+    return render_template("view_profile.html", applications=applications)
 
 
 @user_bp.route('/upload_profile_pic', methods=['POST'])

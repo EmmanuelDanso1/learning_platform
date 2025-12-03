@@ -1,0 +1,170 @@
+{% extends "index.html" %}
+{% block title %}View Profile{% endblock %}
+
+{% block content %}
+
+<style>
+    .profile-container {
+        max-width: 900px;
+        margin: 50px auto;
+        text-align: center;
+    }
+
+    .profile-image {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid #002b5c;
+        margin: 20px auto;
+    }
+
+    .profile-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-details {
+        margin-top: 30px;
+        text-align: left;
+    }
+
+    .profile-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .profile-col {
+        width: 30%;
+    }
+
+    .profile-label {
+        font-weight: bold;
+        color: #002b5c;
+        font-size: 16px;
+    }
+
+    .profile-value {
+        font-size: 17px;
+        margin-top: 5px;
+    }
+
+    .section-title {
+        text-align: center;
+        font-weight: bold;
+        color: #002b5c;
+        margin: 40px 0 20px;
+        font-size: 20px;
+    }
+
+    .no-applications {
+        text-align: center;
+        font-style: italic;
+        font-size: 17px;
+    }
+</style>
+
+<div class="profile-container">
+
+    <!-- Profile Image -->
+    <div class="profile-image">
+        {% if current_user.profile_pic %}
+            <img src="{{ url_for('static', filename='uploads/users/user_' ~ current_user.id ~ '/profile/' ~ current_user.profile_pic) }}">
+        {% else %}
+            <img src="{{ url_for('static', filename='images/default-profile.webp') }}">
+        {% endif %}
+    </div>
+
+    <!-- Surname, Other Names -->
+    <div class="profile-details">
+
+        <div class="profile-row">
+            <div class="profile-col">
+                <div class="profile-label">First Name</div>
+                <div class="profile-value">{{ current_user.firstname or 'Not set' }}</div>
+            </div>
+            <div class="profile-col">
+                <div class="profile-label">Surname</div>
+                <div class="profile-value">{{ current_user.surname or 'Not set' }}</div>
+            </div>
+            <div class="profile-col">
+                <div class="profile-label">Other Names</div>
+                <div class="profile-value">{{ current_user.othernames or 'Not set' }}</div>
+            </div>
+        </div>
+
+        <!-- Email / Phone / Ghana Card -->
+        <div class="profile-row">
+            <div class="profile-col">
+                <div class="profile-label">E-mail Address</div>
+                <div class="profile-value">{{ current_user.email }}</div>
+            </div>
+            <div class="profile-col">
+                <div class="profile-label">Phone Number</div>
+                <div class="profile-value">{{ current_user.phone or 'Not set' }}</div>
+            </div>
+            <div class="profile-col">
+                <div class="profile-label">Ghana Card Number</div>
+                <div class="profile-value">{{ current_user.ghana_card or 'Not set' }}</div>
+            </div>
+        </div>
+
+        <!-- Preferred Subject / Level / Documents -->
+        <div class="profile-row">
+            <div class="profile-col">
+                <div class="profile-label">Preferred Subject</div>
+                <div class="profile-value">{{ current_user.preferred_subject or 'Please select subjects' }}</div>
+            </div>
+
+            <div class="profile-col">
+                <div class="profile-label">Preferred Level</div>
+                <div class="profile-value">{{ current_user.preferred_level or 'Please select levels' }}</div>
+            </div>
+
+            <div class="profile-col">
+                <div class="profile-label">Documents</div>
+                {% if current_user.documents %}
+                    <div class="profile-value">
+                        <a href="{{ url_for('static', filename='uploads/users/user_' ~ current_user.id ~ '/documents/' ~ current_user.documents) }}" target="_blank">
+                            View Document(s)
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="profile-value">File(s) Not Uploaded</div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Applications Section -->
+    <div class="section-title">JOB APPLICATION HISTORY</div>
+
+    {% if applications|length == 0 %}
+        <p class="no-applications">You have not applied for any jobs yet</p>
+    {% else %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Job Title</th>
+                    <th>Status</th>
+                    <th>Date Applied</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applications %}
+                    <tr>
+                        <td>{{ app.job.title }}</td>
+                        <td>{{ app.status }}</td>
+                        <td>{{ app.date_applied.strftime('%d %b %Y') }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -121,7 +121,20 @@
             <div class="col-md-6">
                 <label class="form-label">Preferred Level</label>
                 <select name="preferred_level" class="custom-select">
-                    <option value="">Please select levels</option>
+                    <option value="">Please select level</option>
+
+                    <!-- NEW FIXED OPTIONS -->
+                    <option value="Master's  Degree" {% if current_user.preferred_level == "Master's  Degree" %}selected{% endif %}>
+                        Master’s Degree
+                    </option>
+                    <option value="Bachelor's  Degree" {% if current_user.preferred_level == "Bachelor's  Degree" %}selected{% endif %}>
+                        Bachelor’s  Degree
+                    </option>
+                    <option value="Diploma" {% if current_user.preferred_level == "Diploma" %}selected{% endif %}>
+                        Diploma
+                    </option>
+
+                    <!-- YOUR EXISTING DYNAMIC LEVELS -->
                     {% for level in levels %}
                     <option value="{{ level }}" {% if current_user.preferred_level == level %}selected{% endif %}>
                         {{ level }}
@@ -129,6 +142,7 @@
                     {% endfor %}
                 </select>
             </div>
+
 
             <div class="col-md-6">
                 <label class="form-label">Document Upload</label>
