@@ -4,43 +4,24 @@
 <h2 class="mb-4 text-center">Latest News</h2>
 
 {% if news_list %}
+<div class="row row-cols-1 row-cols-md-3 g-4">
   {% for item in news_list %}
-    <div class="card mb-4 shadow-sm rounded">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <h5 class="card-title mb-0">{{ item.title }}</h5>
+  <div class="col">
+    <div class="card h-100 shadow-sm rounded">
+      {% if item.image_url %}
+      <img src="{{ url_for('static', filename=item.image_url) }}" class="card-img-top" style="object-fit: cover; height: 200px;">
+      {% endif %}
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">{{ item.title }}</h5>
+        <p class="card-text">{{ item.content[:200] }}{% if item.content|length > 200 %}...{% endif %}</p>
+        <div class="mt-auto d-flex justify-content-between align-items-center">
+          <small class="text-muted">Posted on {{ item.created_at.strftime('%Y-%m-%d') }}</small>
           <div>
             {% if current_user.is_authenticated and current_user.is_admin %}
               <a href="{{ url_for('edit_news', news_id=item.id) }}" class="btn btn-sm btn-warning me-2">Edit</a>
               <button class="btn btn-sm btn-danger me-2" data-bs-toggle="modal" data-bs-target="#deleteModal{{ item.id }}">Delete</button>
             {% endif %}
-            <button class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#previewModal{{ item.id }}">Read More</button>
-          </div>
-        </div>
-        <p class="card-text">{{ item.content[:200] }}{% if item.content|length > 200 %}...{% endif %}</p>
-        {% if item.image_url %}
-          <img src="{{ url_for('static', filename=item.image_url) }}" class="img-fluid mt-2 rounded" style="max-height: 250px; object-fit: cover; width: 100%;">
-        {% endif %}
-        <small class="text-muted d-block mt-2">Posted on {{ item.created_at.strftime('%Y-%m-%d') }}</small>
-      </div>
-    </div>
-
-    <!-- Preview Modal -->
-    <div class="modal fade" id="previewModal{{ item.id }}" tabindex="-1" aria-labelledby="previewModalLabel{{ item.id }}" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="previewModalLabel{{ item.id }}">{{ item.title }}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <p>{{ item.content }}</p>
-            {% if item.image_url %}
-              <img src="{{ url_for('static', filename=item.image_url) }}" class="img-fluid mt-3 rounded" style="max-height: 400px; object-fit: contain; width: 100%;">
-            {% endif %}
-          </div>
-          <div class="modal-footer">
-            <small class="text-muted">Posted on {{ item.created_at.strftime('%Y-%m-%d') }}</small>
+            <a href="{{ url_for('main.news_detail', news_id=item.id) }}" class="btn btn-sm btn-info text-white">Read More</a>
           </div>
         </div>
       </div>
@@ -69,8 +50,10 @@
     </div>
     {% endif %}
 
+  </div>
   {% endfor %}
+</div>
 {% else %}
-  <p class="text-muted">You haven't posted any news yet.</p>
+<p class="text-muted">You haven't posted any news yet.</p>
 {% endif %}
 {% endblock %}

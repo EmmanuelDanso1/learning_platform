@@ -69,10 +69,12 @@ def book_service():
 
     return render_template('book_service.html')
 
-@main_bp.route('/news/<int:news_id>')
+@main_bp.route("/news/<int:news_id>")
 def news_detail(news_id):
-    news = News.query.get_or_404(news_id)
-    return render_template('news_detail.html', news=news)
+    news_item = News.query.get(news_id)
+    if not news_item:
+        abort(404)
+    return render_template("news_detail.html", news_item=news_item)
 
 @main_bp.route('/gallery')
 def gallery():
