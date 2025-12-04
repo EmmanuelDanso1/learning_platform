@@ -10,7 +10,6 @@
       <h2 class="card-title">{{ news_item.title }}</h2>
       <small class="text-muted mb-3 d-block">Posted on {{ news_item.created_at.strftime('%Y-%m-%d') }}</small>
       <p class="card-text">{{ news_item.content }}</p>
-      <a href="{{ url_for('main.services') }}" class="btn btn-secondary mt-3">Back to News</a>
     </div>
   </div>
 </div>
