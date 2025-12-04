@@ -227,6 +227,9 @@ def user_login():
         # Successful login
         login_user(user)
 
+        # automatic session for inactive user
+        session.permanent =True
+        
         # Handle next page redirection
         next_page = session.pop('next', None)
         if next_page:

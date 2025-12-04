@@ -67,7 +67,7 @@
             <li><a class="dropdown-item" href="{{ url_for('main.services') }}#consulting">Educational Consulting</a></li>
             <li><a class="dropdown-item" href="{{ url_for('main.services') }}#extracurricular">ExtraCurricular Offers</a></li>
 
-            
+
           </ul>
         </li>
 
@@ -242,6 +242,26 @@
    style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
   <img src="{{ url_for('static', filename='images/whatsapp.png') }}" alt="WhatsApp" width="60">
 </a>
+<!-- user inactive for 10 minutes -->
+<script>
+  let inactivityTimer;
+  const logoutTime = 10 * 60 * 1000; // 10 minutes
+
+  function resetInactivityTimer() {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(() => {
+          alert("You have been logged out due to inactivity.");
+          window.location.href = "{{ url_for('auth.user_logout') }}";
+      }, logoutTime);
+  }
+
+  // Reset timer on user activity
+  window.onload = resetInactivityTimer;
+  document.onmousemove = resetInactivityTimer;
+  document.onkeypress = resetInactivityTimer;
+  document.onclick = resetInactivityTimer;
+  document.onscroll = resetInactivityTimer;
+</script>
 
 </body>
 </html>

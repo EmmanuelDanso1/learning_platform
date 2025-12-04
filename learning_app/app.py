@@ -8,6 +8,7 @@ from flask_migrate import Migrate
 from dotenv import load_dotenv
 from itsdangerous import URLSafeTimedSerializer
 from learning_app.realmind.routes.oauth_routes import oauth_bp, init_oauth
+from datetime import timedelta
 # Load environment variables early
 load_dotenv()
 
@@ -23,6 +24,9 @@ serializer = URLSafeTimedSerializer(secret_key)
 csrf = CSRFProtect()
 def create_app():
     app = Flask(__name__, static_folder='realmind/static', template_folder='realmind/templates')
+
+    # SESSION CONFIGURATION: 10 minutes inactivity timeout
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
 
     # csrf token
     csrf.init_app(app)
