@@ -8,7 +8,7 @@ from flask_wtf.csrf import generate_csrf,validate_csrf, CSRFError
 from learning_app.extensions import db, mail  
 from learning_app.realmind.models import JobPost, Application, User
 from flask_mail import Message
-from learning_app.realmind.utils.util import allowed_document , allowed_profile_pic, UPLOAD_FOLDER 
+from learning_app.realmind.utils.util import allowed_document , allowed_profile_pic
 
 
 user_bp = Blueprint('user', __name__)
