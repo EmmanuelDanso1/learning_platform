@@ -12,6 +12,10 @@ class Config:
     # profile uplaod path
     UPLOAD_FOLDER_USERS = os.path.join(BASE_DIR, "realmind", "static", "uploads", "users")
 
+    UPLOAD_FOLDER = os.path.join(BASE_DIR, "realmind", "static", "uploads")
+
+
+
     PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_SECRET_KEY')
     PAYSTACK_INITIALIZE_URL = 'https://api.paystack.co/transaction/initialize'
     PAYSTACK_PUBLIC_KEY = os.getenv('PAYSTACK_PUBLIC_KEY')

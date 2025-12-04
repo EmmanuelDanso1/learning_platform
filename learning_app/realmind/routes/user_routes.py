@@ -244,99 +244,128 @@ def apply_homepage(job_id):
 def apply(job_id):
     job = JobPost.query.get_or_404(job_id)
 
-    existing_application = Application.query.filter_by(user_id=current_user.id, job_id=job.id).first()
+    # Prevent duplicate applications
+    existing_application = Application.query.filter_by(
+        user_id=current_user.id,
+        job_id=job.id
+    ).first()
+
     if existing_application:
-        flash('You have already applied for this job.', 'warning')
-        return redirect(url_for('user.users_dashboard'))
+        flash("You have already applied for this job.", "warning")
+        return redirect(url_for("user.users_dashboard"))
 
     if request.method == 'POST':
-        # CSRF Token Validation
-        token = request.form.get('csrf_token')
+        # CSRF validation
+        token = request.form.get("csrf_token")
         try:
             validate_csrf(token)
         except ValidationError:
-            abort(400, description="CSRF token is missing or invalid.")
+            abort(400, description="Invalid CSRF token.")
 
+        # Uploaded documents
         cv = request.files.get('cv')
         certificate = request.files.get('certificate')
         cover_letter = request.files.get('cover_letter')
 
+        # Validation
         if not cv or not allowed_document(cv.filename):
-            flash('CV must be a PDF, DOC, or DOCX file.', 'danger')
+            flash("CV must be a PDF, DOC, or DOCX.", "danger")
             return redirect(request.url)
 
         if not certificate or not allowed_document(certificate.filename):
-            flash('Certificate must be a PDF, DOC, or DOCX file.', 'danger')
+            flash("Certificate must be a PDF, DOC, or DOCX.", "danger")
             return redirect(request.url)
 
-        user_folder = os.path.join(current_app.root_path, current_app.config['UPLOAD_FOLDER'], f'user_{current_user.id}')
+        # --- Correct Upload Path ---
+        upload_root = current_app.config['UPLOAD_FOLDER']  
+        user_folder = os.path.join(upload_root, f"user_{current_user.id}")
         os.makedirs(user_folder, exist_ok=True)
 
+        # Save CV
         cv_filename = f"{uuid.uuid4().hex}_{secure_filename(cv.filename)}"
         cv_path = os.path.join(user_folder, cv_filename)
         cv.save(cv_path)
 
+        # Save Certificate
         certificate_filename = f"{uuid.uuid4().hex}_{secure_filename(certificate.filename)}"
         certificate_path = os.path.join(user_folder, certificate_filename)
         certificate.save(certificate_path)
 
+        # Save Cover Letter (optional)
         cover_letter_filename = None
         cover_letter_path = None
-        if cover_letter and cover_letter.filename != '':
+
+        if cover_letter and cover_letter.filename.strip():
             if not allowed_document(cover_letter.filename):
-                flash('Cover letter must be a PDF, DOC, or DOCX file.', 'danger')
+                flash("Cover letter must be a PDF, DOC, or DOCX.", "danger")
                 return redirect(request.url)
 
             cover_letter_filename = f"{uuid.uuid4().hex}_{secure_filename(cover_letter.filename)}"
             cover_letter_path = os.path.join(user_folder, cover_letter_filename)
             cover_letter.save(cover_letter_path)
 
-        new_application = Application(
+        # Save application record
+        new_app = Application(
             date_applied=datetime.now(),
             status='Under review',
-            cv=f'user_{current_user.id}/{cv_filename}',
-            certificate=f'user_{current_user.id}/{certificate_filename}',
-            cover_letter=f'user_{current_user.id}/{cover_letter_filename}' if cover_letter_filename else None,
+            cv=f"user_{current_user.id}/{cv_filename}",
+            certificate=f"user_{current_user.id}/{certificate_filename}",
+            cover_letter=f"user_{current_user.id}/{cover_letter_filename}" if cover_letter_filename else None,
             user_id=current_user.id,
             job_id=job.id
         )
-        db.session.add(new_application)
+
+        db.session.add(new_app)
         db.session.commit()
 
+        # Email Admin
         try:
             admin_msg = Message(
-                subject=f"New Job Application for {job.title}",
+                subject=f"New Job Application - {job.title}",
                 sender=os.getenv('MAIL_USERNAME'),
                 recipients=[os.getenv('MAIL_USERNAME')],
                 body=(
-                    f"New application received from {current_user.username} ({current_user.email}) "
-                    f"for the job: {job.title}.\n\nPlease find the attached documents."
+                    f"A new application was submitted.\n\n"
+                    f"Applicant: {current_user.username} ({current_user.email})\n"
+                    f"Job: {job.title}\n"
                 )
             )
+
             with current_app.open_resource(cv_path) as fp:
                 admin_msg.attach(cv_filename, "application/octet-stream", fp.read())
+
             with current_app.open_resource(certificate_path) as fp:
                 admin_msg.attach(certificate_filename, "application/octet-stream", fp.read())
+
             if cover_letter_path:
                 with current_app.open_resource(cover_letter_path) as fp:
                     admin_msg.attach(cover_letter_filename, "application/octet-stream", fp.read())
+
             mail.send(admin_msg)
+
         except Exception as e:
             print("Admin email error:", e)
 
+        # Email User
         try:
             user_msg = Message(
-                subject="Application Received - Realmindx Education",
+                subject="Your Job Application Has Been Received",
                 sender=os.getenv('MAIL_USERNAME'),
-                recipients=[current_user.email]
+                recipients=[current_user.email],
+                body=(
+                    f"Dear {current_user.username},\n\n"
+                    f"We received your application for the position: {job.title}.\n"
+                    f"Our team will review it shortly.\n\n"
+                    f"RealmindX Recruitment Team"
+                )
             )
-            user_msg.body = f"""Dear {current_user.username},\n\nThank you for applying for the position: {job.title}.\n\nWe have received your application and our team will review it shortly.\nIf you are shortlisted, someone from our team will contact you soon.\n\nBest regards,\nRealmIndx Recruitment Team\n"""
             mail.send(user_msg)
             flash("Application submitted successfully.", "success")
+
         except Exception as e:
             print("User email error:", e)
-            flash("Application submitted, but failed to send confirmation email.", "warning")
+            flash("Application submitted, but confirmation email failed.", "warning")
 
-        return redirect(url_for('user.users_dashboard'))
+        return redirect(url_for("user.users_dashboard"))
 
     return render_template('apply.html', job=job)
