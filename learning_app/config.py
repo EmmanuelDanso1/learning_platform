@@ -8,7 +8,7 @@ class Config:
     # users close browser
     SESSION_PERMANENT = False      # logout when browser closes
     SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_SECURE = False  # use True in production (HTTPS)
+    SESSION_COOKIE_SECURE = True  # use True in production (HTTPS)
     SESSION_COOKIE_SAMESITE = "Lax"
 
 
