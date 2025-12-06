@@ -10,6 +10,7 @@ from itsdangerous import URLSafeTimedSerializer
 from learning_app.realmind.routes.oauth_routes import oauth_bp, init_oauth
 from datetime import timedelta
 from learning_app.extensions import limiter
+from redis import Redis
 # Load environment variables early
 load_dotenv()
 
@@ -22,6 +23,8 @@ if not secret_key:
     secret_key = "fallback_secret_key"  # optional: for dev use only
 serializer = URLSafeTimedSerializer(secret_key)
 
+# redis
+redis_client = None
 
 # csrf token
 csrf = CSRFProtect()
@@ -31,6 +34,19 @@ def create_app():
     # SESSION CONFIGURATION: 10 minutes inactivity timeout
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
 
+    # redis config
+    # Load config
+    app.config.from_object("learning_app.config.ProductionConfig")
+
+    # Initialize Redis connection
+    global redis_client
+    redis_client = Redis(
+        host=app.config["REDIS_HOST"],
+        port=app.config["REDIS_PORT"],
+        password=app.config["REDIS_PASSWORD"],
+        decode_responses=True
+    )
+    
     # csrf token
     csrf.init_app(app)
     # Base config
