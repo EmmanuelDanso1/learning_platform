@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from itsdangerous import URLSafeTimedSerializer
 from learning_app.realmind.routes.oauth_routes import oauth_bp, init_oauth
 from datetime import timedelta
+from learning_app.extensions import limiter
 # Load environment variables early
 load_dotenv()
 
@@ -20,6 +21,8 @@ secret_key = os.getenv("SECRET_KEY")
 if not secret_key:
     secret_key = "fallback_secret_key"  # optional: for dev use only
 serializer = URLSafeTimedSerializer(secret_key)
+
+
 # csrf token
 csrf = CSRFProtect()
 def create_app():
@@ -43,6 +46,10 @@ def create_app():
     app.config.from_object('learning_app.config.Config')
 
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+    # rate limiting
+    # Initialize limiter with app
+    limiter.init_app(app)
 
     # Initialize extensions
     db.init_app(app)

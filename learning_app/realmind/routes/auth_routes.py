@@ -10,6 +10,8 @@ from learning_app.extensions import db, mail
 import os
 from datetime import datetime
 from learning_app.realmind.utils.otp_utils import generate_otp, otp_expiry_time
+# rate limiting
+from learning_app.extensions import limiter
 
 auth_bp = Blueprint('auth', __name__)
 s = URLSafeTimedSerializer(os.getenv('SECRET_KEY'))
@@ -194,6 +196,7 @@ def resend_otp(user_id):
 
 
 @auth_bp.route('/user/login', methods=['GET', 'POST'])
+@limiter.limit("5 per 10 minutes")  # max 5 login attempts per 10 minutes per IP
 def user_login():
     form = LoginForm()
 
@@ -225,11 +228,8 @@ def user_login():
             return redirect(url_for('auth.verify_otp', user_id=user.id))
 
         # Successful login
-        login_user(user)
+        login_user(user, remember=False)
 
-        # automatic session for inactive user
-        session.permanent =True
-        
         # Handle next page redirection
         next_page = session.pop('next', None)
         if next_page:

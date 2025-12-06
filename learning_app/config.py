@@ -4,6 +4,15 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
 
+    # Browser closes user is logout
+    # users close browser
+    SESSION_PERMANENT = False      # logout when browser closes
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SECURE = False  # use True in production (HTTPS)
+    SESSION_COOKIE_SAMESITE = "Lax"
+
+
+
     SECRET_KEY = os.getenv('SECRET_KEY')
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
 
