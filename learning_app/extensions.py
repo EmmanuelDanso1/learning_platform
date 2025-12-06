@@ -10,11 +10,13 @@ from urllib.parse import quote_plus
 
 # Load Redis password from environment variable
 # using quote_plus for encoding the "@" character
-REDIS_PASSWORD = quote_plus(os.getenv("REDIS_PASSWORD"))
+REDIS_PASSWORD = quote_plus(os.getenv("REDIS_PASSWORD", ""))
 
 limiter = Limiter(
     key_func=get_remote_address,
     default_limits=["200 per day", "50 per hour"],
+    # storage_uri="memory://"
+    # production
     storage_uri=f"redis://:{REDIS_PASSWORD}@127.0.0.1:6379/0"
 )
 
