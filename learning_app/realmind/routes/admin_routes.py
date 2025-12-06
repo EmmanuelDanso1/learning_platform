@@ -1254,6 +1254,14 @@ def update_received_order_status(order_id):
 
     return jsonify({'success': True, 'status': new_status})
 
+# View user profile
+@admin_bp.route("/view-user/<int:user_id>")
+@login_required
+def view_user(user_id):
+    user = User.query.get_or_404(user_id)
+    applications = Application.query.filter_by(user_id=user_id).all()
+    return render_template("admin/view_user.html", user=user, applications=applications)
+
 # Bulk and single Email send
 @admin_bp.route('/users')
 @login_required

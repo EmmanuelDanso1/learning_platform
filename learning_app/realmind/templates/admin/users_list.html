@@ -34,19 +34,27 @@
                             <td>{{ user.email }}</td>
 
                             <td>
-                                <!-- Single Message -->
-                                <a class="btn btn-primary btn-sm"
-                                   href="{{ url_for('admin.send_message_single', user_id=user.id) }}">
-                                    Message
-                                </a>
+                              <div class="d-flex gap-2">
 
-                                <!-- Delete Button (opens modal) -->
-                                <button type="button" class="btn btn-danger btn-sm"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#deleteModal{{ user.id }}">
-                                    Delete
-                                </button>
-                            </td>
+                                  <a class="btn btn-primary btn-sm"
+                                      href="{{ url_for('admin.send_message_single', user_id=user.id) }}">
+                                      Message
+                                  </a>
+
+                                  <a class="btn btn-info btn-sm"
+                                      href="{{ url_for('admin.view_user', user_id=user.id) }}">
+                                      View
+                                  </a>
+
+                                  <button type="button" class="btn btn-danger btn-sm"
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#deleteModal{{ user.id }}">
+                                      Delete
+                                  </button>
+
+                              </div>
+                          </td>
+
                         </tr>
 
                         <!-- DELETE CONFIRMATION MODAL -->
