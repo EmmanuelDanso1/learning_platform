@@ -22,35 +22,27 @@ def users_dashboard():
     if getattr(current_user, 'is_admin', False):
         return redirect(url_for('admin.admin_dashboard'))
 
-    # ------------------------------------
-    # Check if user profile is complete
-    # ------------------------------------
-    profile_complete = (
-        current_user.firstname and
-        current_user.surname and
-        current_user.other_names and
-        current_user.phone and
-        current_user.ghana_card_number and
-        current_user.preferred_subject and
-        current_user.preferred_level and
-        current_user.cv and
-        current_user.certificate and
+    # -------- REQUIRED FIELDS --------
+    required_fields = [
+        current_user.firstname,
+        current_user.surname,
+        current_user.phone,
+        current_user.ghana_card_number,
+        current_user.preferred_subject,
+        current_user.preferred_level,
+        current_user.cv,
+        current_user.certificate,
         current_user.profile_pic
-    )
+    ]
 
-    profile_complete = bool(profile_complete)
+    profile_complete = all(required_fields)
 
-    # ------------------------------------
-    # Fetch Jobs (for dashboard recommendations)
-    # ------------------------------------
+    # Fetch Jobs
     jobs = JobPost.query.order_by(JobPost.id.desc()).all()
 
-    # Jobs the user has applied for
-    applied_jobs = [application.job_id for application in current_user.applications]
+    # Jobs applied for
+    applied_jobs = [app.job_id for app in current_user.applications]
 
-    # ------------------------------------
-    # Render dashboard
-    # ------------------------------------
     return render_template(
         'users_dashboard.html',
         jobs=jobs,
@@ -85,106 +77,111 @@ def edit_profile():
         "Spanish", "Sewing", "Pottery", "Other"
     ]
 
+    # Helper to update only non-empty fields
+    def update_if_not_empty(model, field, value):
+        if value and value.strip():
+            setattr(model, field, value.strip())
+
     if request.method == "POST":
 
-        # BASIC PROFILE FIELDS
-        current_user.firstname = request.form.get("firstname")
-        current_user.surname = request.form.get("surname")
-        current_user.other_names = request.form.get("other_names")
-        current_user.phone = request.form.get("phone")
-        current_user.ghana_card_number = request.form.get("ghana_card_number")
+        # BASIC PROFILE FIELDS (safe update)
+        update_if_not_empty(current_user, "firstname", request.form.get("firstname"))
+        update_if_not_empty(current_user, "surname", request.form.get("surname"))
+        update_if_not_empty(current_user, "other_names", request.form.get("other_names"))
+        update_if_not_empty(current_user, "phone", request.form.get("phone"))
+        update_if_not_empty(current_user, "ghana_card_number", request.form.get("ghana_card_number"))
 
-        # MULTIPLE LEVELS
+        # MULTIPLE LEVELS (always overwrite because it's a list)
         preferred_levels = request.form.getlist("preferred_level")
         current_user.preferred_level = ",".join(preferred_levels)
 
         # MULTIPLE SUBJECTS
         selected_subjects = request.form.getlist("preferred_subject")
 
-        # ADD OPTIONAL OTHER SUBJECT
+        # If user typed "Other" subject
         other_subject = request.form.get("preferred_subject_other")
-        if other_subject:
-           # Remove literal "Other" if it exists
+        if other_subject and other_subject.strip():
             selected_subjects = [s for s in selected_subjects if s != "Other"]
-            # Add the actual typed value
-            selected_subjects.append(other_subject)
+            selected_subjects.append(other_subject.strip())
 
         current_user.preferred_subject = ",".join(selected_subjects)
 
-        # UPLOAD DIRECTORY
+        # UPLOAD DIR
         base_upload = os.path.join(
             current_app.config["UPLOAD_FOLDER_USERS"],
-            f"user_{current_user.id}", "documents"
+            f"user_{current_user.id}", 
+            "documents"
         )
         os.makedirs(base_upload, exist_ok=True)
 
         # ================================
-        #   UPLOAD CV
+        # CV UPLOAD
         # ================================
         cv_file = request.files.get("cv")
-        if cv_file and cv_file.filename.strip() != "":
+        if cv_file and cv_file.filename.strip():
             ext = cv_file.filename.rsplit(".", 1)[-1]
             filename = secure_filename(f"cv_{uuid.uuid4().hex}.{ext}")
-
             cv_path = os.path.join(base_upload, filename)
             cv_file.save(cv_path)
 
             # Delete old CV
             if current_user.cv:
-                old_cv_path = os.path.join(base_upload, current_user.cv)
-                if os.path.exists(old_cv_path):
+                old_cv = os.path.join(base_upload, current_user.cv)
+                if os.path.exists(old_cv):
                     try:
-                        os.remove(old_cv_path)
+                        os.remove(old_cv)
                     except:
                         pass
 
             current_user.cv = filename
 
         # ================================
-        #   UPLOAD CERTIFICATE
+        # CERTIFICATE UPLOAD
         # ================================
         certificate_file = request.files.get("certificate")
-        if certificate_file and certificate_file.filename.strip() != "":
+        if certificate_file and certificate_file.filename.strip():
             ext = certificate_file.filename.rsplit(".", 1)[-1]
             filename = secure_filename(f"cert_{uuid.uuid4().hex}.{ext}")
-
             cert_path = os.path.join(base_upload, filename)
             certificate_file.save(cert_path)
 
             # Delete old certificate
             if current_user.certificate:
-                old_cert_path = os.path.join(base_upload, current_user.certificate)
-                if os.path.exists(old_cert_path):
+                old_cert = os.path.join(base_upload, current_user.certificate)
+                if os.path.exists(old_cert):
                     try:
-                        os.remove(old_cert_path)
+                        os.remove(old_cert)
                     except:
                         pass
 
             current_user.certificate = filename
 
+        # ================================
         # PROFILE PICTURE UPLOAD
+        # ================================
         pic = request.files.get("profile_pic")
-        if pic and pic.filename.strip() != "":
+        if pic and pic.filename.strip():
             ext = pic.filename.rsplit(".", 1)[-1]
             filename = secure_filename(f"profile_{uuid.uuid4().hex}.{ext}")
 
             upload_path = os.path.join(
                 current_app.config["UPLOAD_FOLDER_USERS"],
-                f"user_{current_user.id}", "profile"
+                f"user_{current_user.id}",
+                "profile"
             )
             os.makedirs(upload_path, exist_ok=True)
 
             file_path = os.path.join(upload_path, filename)
             pic.save(file_path)
 
-            # DELETE OLD PIC
+            # Delete old picture
             if current_user.profile_pic:
-                old_path = os.path.join(upload_path, current_user.profile_pic)
-                if os.path.exists(old_path):
+                old_pic = os.path.join(upload_path, current_user.profile_pic)
+                if os.path.exists(old_pic):
                     try:
-                        os.remove(old_path)
+                        os.remove(old_pic)
                     except Exception as e:
-                        current_app.logger.error(f"Error deleting old profile pic: {e}")
+                        current_app.logger.error(f"Error deleting old profile picture: {e}")
 
             current_user.profile_pic = filename
 
@@ -194,6 +191,7 @@ def edit_profile():
         return redirect(url_for("user.view_profile"))
 
     return render_template("edit_profile.html", subjects=subjects)
+
 
 
 @user_bp.route("/dashboard/view-profile")

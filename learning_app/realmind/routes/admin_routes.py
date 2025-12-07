@@ -481,6 +481,8 @@ def add_product():
             'discount_percentage': discount_percentage
         }
 
+        BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
+        API_TOKEN = os.getenv("API_TOKEN")
         try:
             headers = {
                 'Authorization': f'Bearer {API_TOKEN}',
@@ -493,12 +495,12 @@ def add_product():
             }
 
             res = requests.post(
-                f"{os.getenv('API_BASE_URL')}/products",
+                f"{os.getenv('BOOKSHOP_API')}/products",
                 files=files,
                 headers=headers
             )
 
-            print("E-commerce response:", res.status_code, res.json())
+            print("Bookshop sync response:", res.status_code, res.json())
 
             if res.status_code == 201:
                 ecommerce_id = res.json().get('id')

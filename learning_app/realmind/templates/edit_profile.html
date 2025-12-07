@@ -79,27 +79,27 @@
 
             <div class="col-md-4">
                 <label class="form-label">First Name</label>
-                <input type="text" name="firstname" value="{{ current_user.firstname }}" class="custom-input">
+                <input type="text" name="firstname" value="{{ current_user.firstname or ''}}" class="custom-input">
             </div>
 
             <div class="col-md-4">
                 <label class="form-label">Surname</label>
-                <input type="text" name="surname" value="{{ current_user.surname }}" class="custom-input">
+                <input type="text" name="surname" value="{{ current_user.surname  or '' }}" class="custom-input">
             </div>
 
             <div class="col-md-4">
                 <label class="form-label">Other Names</label>
-                <input type="text" name="other_names" value="{{ current_user.other_names }}" class="custom-input">
+                <input type="text" name="other_names" value="{{ current_user.other_names  or '' }}" class="custom-input">
             </div>
 
             <div class="col-md-6">
                 <label class="form-label">E-mail Address</label>
-                <input type="email" name="email" value="{{ current_user.email }}" class="custom-input">
+                <input type="email" name="email" value="{{ current_user.email  or ''}}" class="custom-input">
             </div>
 
             <div class="col-md-6">
                 <label class="form-label">Phone Number</label>
-                <input type="text" name="phone" value="{{ current_user.phone }}" class="custom-input">
+                <input type="text" name="phone" value="{{ current_user.phone  or ''}}" class="custom-input">
             </div>
 
 
@@ -108,7 +108,7 @@
             <!-- ========================= -->
             <div class="col-md-4">
                 <label class="form-label">Ghana Card Number</label>
-                <input type="text" name="ghana_card_number" value="{{ current_user.ghana_card_number }}" placeholder="GHA-000000000-0" class="custom-input">
+                <input type="text" name="ghana_card_number" value="{{ current_user.ghana_card_number  or ''}}" placeholder="GHA-000000000-0" class="custom-input">
             </div>
 
             <div class="col-md-4">
