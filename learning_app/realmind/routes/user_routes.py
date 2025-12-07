@@ -33,7 +33,8 @@ def users_dashboard():
         current_user.ghana_card_number and
         current_user.preferred_subject and
         current_user.preferred_level and
-        current_user.documents and
+        current_user.cv and
+        current_user.certificate and
         current_user.profile_pic
     )
 
@@ -110,22 +111,56 @@ def edit_profile():
 
         current_user.preferred_subject = ",".join(selected_subjects)
 
-        # DOCUMENT UPLOAD
-        documents = request.files.get("documents")
-        if documents and documents.filename != "":
-            original_ext = os.path.splitext(documents.filename)[1]
-            unique_filename = f"{uuid.uuid4()}{original_ext}"
+        # UPLOAD DIRECTORY
+        base_upload = os.path.join(
+            current_app.config["UPLOAD_FOLDER_USERS"],
+            f"user_{current_user.id}", "documents"
+        )
+        os.makedirs(base_upload, exist_ok=True)
 
-            upload_path = os.path.join(
-                current_app.config["UPLOAD_FOLDER_USERS"],
-                f"user_{current_user.id}", "documents"
-            )
-            os.makedirs(upload_path, exist_ok=True)
+        # ================================
+        #   UPLOAD CV
+        # ================================
+        cv_file = request.files.get("cv")
+        if cv_file and cv_file.filename.strip() != "":
+            ext = cv_file.filename.rsplit(".", 1)[-1]
+            filename = secure_filename(f"cv_{uuid.uuid4().hex}.{ext}")
 
-            file_path = os.path.join(upload_path, unique_filename)
-            documents.save(file_path)
+            cv_path = os.path.join(base_upload, filename)
+            cv_file.save(cv_path)
 
-            current_user.documents = unique_filename
+            # Delete old CV
+            if current_user.cv:
+                old_cv_path = os.path.join(base_upload, current_user.cv)
+                if os.path.exists(old_cv_path):
+                    try:
+                        os.remove(old_cv_path)
+                    except:
+                        pass
+
+            current_user.cv = filename
+
+        # ================================
+        #   UPLOAD CERTIFICATE
+        # ================================
+        certificate_file = request.files.get("certificate")
+        if certificate_file and certificate_file.filename.strip() != "":
+            ext = certificate_file.filename.rsplit(".", 1)[-1]
+            filename = secure_filename(f"cert_{uuid.uuid4().hex}.{ext}")
+
+            cert_path = os.path.join(base_upload, filename)
+            certificate_file.save(cert_path)
+
+            # Delete old certificate
+            if current_user.certificate:
+                old_cert_path = os.path.join(base_upload, current_user.certificate)
+                if os.path.exists(old_cert_path):
+                    try:
+                        os.remove(old_cert_path)
+                    except:
+                        pass
+
+            current_user.certificate = filename
 
         # PROFILE PICTURE UPLOAD
         pic = request.files.get("profile_pic")

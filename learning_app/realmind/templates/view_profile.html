@@ -157,17 +157,31 @@
 
 
             <div class="profile-col">
-                <div class="profile-label">Documents</div>
-                {% if current_user.documents %}
+                <div class="profile-label">CV</div>
+                {% if current_user.cv %}
                     <div class="profile-value">
-                        <a href="{{ url_for('static', filename='uploads/users/user_' ~ current_user.id ~ '/documents/' ~ current_user.documents) }}" target="_blank">
-                            View Document(s)
+                        <a href="{{ url_for('static', filename='uploads/users/user_' ~ current_user.id ~ '/documents/' ~ current_user.cv) }}" target="_blank">
+                            View CV
                         </a>
                     </div>
                 {% else %}
-                    <div class="profile-value">File(s) Not Uploaded</div>
+                    <div class="profile-value">CV Not Uploaded</div>
                 {% endif %}
             </div>
+
+            <div class="profile-col">
+                <div class="profile-label">Certificate</div>
+                {% if current_user.certificate %}
+                    <div class="profile-value">
+                        <a href="{{ url_for('static', filename='uploads/users/user_' ~ current_user.id ~ '/documents/' ~ current_user.certificate) }}" target="_blank">
+                            View Certificate
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="profile-value">Certificate Not Uploaded</div>
+                {% endif %}
+            </div>
+
         </div>
 
     </div>

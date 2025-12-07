@@ -31,7 +31,8 @@ class User(UserMixin, db.Model):
     preferred_level = db.Column(db.String(150), nullable=True)
 
     # Document uploads i.e cv/certificates
-    documents = db.Column(db.String(255), nullable=True)
+    cv = db.Column(db.String(255), nullable=True)
+    certificate = db.Column(db.String(255), nullable=True)
 
     # NEW FIELD - track login provider
     auth_provider = db.Column(db.String(20), default="local")  # local | google

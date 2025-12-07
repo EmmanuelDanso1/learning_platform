@@ -114,6 +114,7 @@
         <!-- Preferred Level / Subject / Docs -->
         <div class="profile-row">
 
+            <!-- Preferred Level -->
             <div class="profile-col">
                 <div class="profile-label">Preferred Level</div>
 
@@ -129,6 +130,7 @@
                 {% endif %}
             </div>
 
+            <!-- Preferred Subject -->
             <div class="profile-col">
                 <div class="profile-label">Preferred Subject</div>
 
@@ -154,20 +156,40 @@
                 {% endif %}
             </div>
 
+            <!-- CV -->
             <div class="profile-col">
-                <div class="profile-label">Documents</div>
-                {% if user.documents %}
+                <div class="profile-label">CV</div>
+                {% if user.cv %}
                     <div class="profile-value">
-                        <a href="{{ url_for('static', filename='uploads/users/user_' ~ user.id ~ '/documents/' ~ user.documents) }}" target="_blank">
-                            View Document(s)
+                        <a href="{{ url_for('static',
+                            filename='uploads/users/user_' ~ user.id ~ '/documents/' ~ user.cv) }}"
+                            target="_blank">
+                            View CV
                         </a>
                     </div>
                 {% else %}
-                    <div class="profile-value">File(s) Not Uploaded</div>
+                    <div class="profile-value">CV Not Uploaded</div>
+                {% endif %}
+            </div>
+
+            <!-- Certificate -->
+            <div class="profile-col">
+                <div class="profile-label">Certificate</div>
+                {% if user.certificate %}
+                    <div class="profile-value">
+                        <a href="{{ url_for('static',
+                            filename='uploads/users/user_' ~ user.id ~ '/documents/' ~ user.certificate) }}"
+                            target="_blank">
+                            View Certificate
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="profile-value">Certificate Not Uploaded</div>
                 {% endif %}
             </div>
 
         </div>
+
 
     </div>
 

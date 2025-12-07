@@ -105,12 +105,35 @@
                 <label class="form-label">Ghana Card Number</label>
                 <input type="text" name="ghana_card_number" value="{{ current_user.ghana_card_number }}" placeholder="GHA-000000000-0" class="custom-input">
             </div>
+
+            <!-- CV Upload -->
             <div class="col-md-6">
-                <label class="form-label">Document Upload</label>
+                <label class="form-label">Upload CV</label>
                 <div class="upload-box">
-                    <input type="file" name="documents" accept=".pdf,.jpg,.png,.jpeg" class="form-control">
+                    <input type="file" name="cv" accept=".pdf,.doc,.docx" class="form-control">
                 </div>
+
+                {% if current_user.cv %}
+                    <small class="text-success">Current CV:
+                        <a href="{{ url_for('static', filename='uploads/users/user_' ~ current_user.id ~ '/documents/' ~ current_user.cv) }}" target="_blank">View / Download</a>
+                    </small>
+                {% endif %}
             </div>
+
+            <!-- Certificate Upload -->
+            <div class="col-md-6">
+                <label class="form-label">Upload Certificate</label>
+                <div class="upload-box">
+                    <input type="file" name="certificate" accept=".pdf,.jpg,.jpeg,.png" class="form-control">
+                </div>
+
+                {% if current_user.certificate %}
+                    <small class="text-success">Current Certificate:
+                        <a href="{{ url_for('static', filename='uploads/users/user_' ~ current_user.id ~ '/documents/' ~ current_user.certificate) }}" target="_blank">View / Download</a>
+                    </small>
+                {% endif %}
+            </div>
+
 
             <div class="col-md-6">
                 <label class="form-label">Preferred Subject</label>
