@@ -596,7 +596,7 @@ def edit_product(product_id):
         flash("Product updated successfully.", "success")
         return redirect(url_for('admin.manage_products'))
 
-    # ✅ Generate CSRF token for GET request and send to template
+    # Generate CSRF token for GET request and send to template
     csrf_token = generate_csrf()
     return render_template('admin/edit_product.html', product=product, csrf_token=csrf_token)
 

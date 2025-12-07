@@ -76,6 +76,7 @@
 
         <!-- MAIN FORM -->
         <div class="row gy-4">
+
             <div class="col-md-4">
                 <label class="form-label">First Name</label>
                 <input type="text" name="firstname" value="{{ current_user.firstname }}" class="custom-input">
@@ -101,13 +102,16 @@
                 <input type="text" name="phone" value="{{ current_user.phone }}" class="custom-input">
             </div>
 
-            <div class="col-md-6">
+
+            <!-- ========================= -->
+            <!-- GHANA CARD / CV / CERTIFICATE (INLINE) -->
+            <!-- ========================= -->
+            <div class="col-md-4">
                 <label class="form-label">Ghana Card Number</label>
                 <input type="text" name="ghana_card_number" value="{{ current_user.ghana_card_number }}" placeholder="GHA-000000000-0" class="custom-input">
             </div>
 
-            <!-- CV Upload -->
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <label class="form-label">Upload CV</label>
                 <div class="upload-box">
                     <input type="file" name="cv" accept=".pdf,.doc,.docx" class="form-control">
@@ -120,8 +124,7 @@
                 {% endif %}
             </div>
 
-            <!-- Certificate Upload -->
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <label class="form-label">Upload Certificate</label>
                 <div class="upload-box">
                     <input type="file" name="certificate" accept=".pdf,.jpg,.jpeg,.png" class="form-control">
@@ -135,6 +138,11 @@
             </div>
 
 
+
+
+            <!-- ========================= -->
+            <!-- PREFERRED SUBJECT & LEVEL -->
+            <!-- ========================= -->
             <div class="col-md-6">
                 <label class="form-label">Preferred Subject</label>
 
@@ -160,17 +168,13 @@
                         {% set other_subject = s %}
                     {% endif %}
                 {% endfor %}
+
                 <input type="text" name="preferred_subject_other"
                     id="subjectOtherInput"
                     class="custom-input mt-2"
                     placeholder="Enter other subject"
                     value="{{ other_subject }}"
-                    {% if other_subject %}
-                    style="display: block;"
-                    {% else %}
-                    style="display: none;"
-                    {% endif %}>
-
+                    {% if other_subject %}style="display:block;"{% else %}style="display:none;"{% endif %}>
             </div>
 
             <div class="col-md-6">
@@ -199,16 +203,14 @@
                             value="{{ level }}"
                             style="margin-right:8px;"
                             {% if level in saved_levels %}checked{% endif %}>
-
                         <span>{{ level }}</span>
                     </div>
                     {% endfor %}
                 </div>
             </div>
 
-
-            
         </div>
+
 
         <div class="text-center mt-5">
             <button type="submit" class="btn btn-warning px-5 py-2 fw-bold">Save Changes</button>
