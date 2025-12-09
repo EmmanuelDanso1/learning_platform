@@ -31,8 +31,7 @@ def users_dashboard():
         current_user.preferred_subject,
         current_user.preferred_level,
         current_user.cv,
-        current_user.certificate,
-        current_user.profile_pic
+        current_user.certificate
     ]
 
     profile_complete = all(required_fields)

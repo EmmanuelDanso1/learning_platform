@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Dashboard{% endblock %}</title>
+
+    <!-- FontAwesome & Bootstrap -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+        }
+
+        .bg-steel {
+            background-color: #143760;
+        }
+
+        #mainWrapper {
+            display: flex;
+            margin-top: 80px;
+            height: calc(100vh - 80px);
+        }
+
+        /* Sidebar */
+        #sidebar {
+            width: 250px;
+            background: #f8f9fa;
+            padding: 10px;
+            border-right: 1px solid #ddd;
+            overflow-y: auto;
+            transition: all .3s ease-in-out;
+        }
+
+        #sidebar.collapsed {
+            width: 70px;
+        }
+
+        #sidebar.collapsed .nav-link span,
+        #sidebar.collapsed .accordion-button span,
+        #sidebar.collapsed .accordion-button i,
+        #sidebar.collapsed .accordion-button::after {
+            display: none !important;
+        }
+
+        #sidebar.collapsed .accordion-button {
+            padding-left: 0.75rem !important;
+        }
+
+        @media (max-width: 768px) {
+            #sidebar {
+                transform: translateX(-250px);
+                position: absolute;
+                height: 100vh;
+                z-index: 999;
+            }
+
+            #sidebar.visible {
+                transform: translateX(0);
+            }
+
+            #mainWrapper {
+                flex-direction: column;
+            }
+        }
+
+        #mainContent {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        #sidebarToggle {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: white;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        /* Banner */
+        .dashboard-banner {
+            padding: 30px;
+            color: #0C2E60;
+            margin-bottom: 20px;
+            border-radius: 0 0 10px 10px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-steel fixed-top">
+    <div class="container-fluid">
+
+        <div class="d-flex align-items-center">
+            <button id="sidebarToggle">☰</button>
+
+            <a class="navbar-brand d-flex align-items-center ms-2"
+               href="{{ url_for('admin.admin_dashboard') }}">
+                <img src="{{ url_for('static', filename='images/real.jpg') }}"
+                     style="height: 50px; margin-right: 10px;">
+            </a>
+        </div>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+
+            <ul class="navbar-nav">
+
+                {% if current_user.is_authenticated %}
+                <li class="nav-item d-flex align-items-center ms-2">
+
+                    <div class="d-flex flex-column align-items-center text-white me-3">
+                        {% if current_user.profile_pic %}
+                            <img src="{{ url_for('static', filename='uploads/' ~ current_user.profile_pic) }}"
+                                 style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='images/default-profile.webp') }}"
+                                 style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                        {% endif %}
+                        <small>{{ current_user.username }}</small>
+                    </div>
+
+                    <a class="btn btn-danger" href="{{ url_for('auth.logout') }}">Logout</a>
+                </li>
+                {% endif %}
+            </ul>
+
+        </div>
+    </div>
+</nav>
+
+<!-- SIDEBAR + MAIN CONTENT -->
+<div id="mainWrapper">
+
+    {% include 'admin/sidebar.html' %}
+
+    <main id="mainContent">
+        {% block content %}{% endblock %}
+    </main>
+
+</div>
+
+<script>
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+
+    sidebarToggle.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+            sidebar.classList.toggle('visible');
+        } else {
+            sidebar.classList.toggle('collapsed');
+        }
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
