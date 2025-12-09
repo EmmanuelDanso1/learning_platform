@@ -442,7 +442,7 @@ def add_product():
         upload_path = None
         if image_file and allowed_file(image_file.filename):
             filename = secure_filename(image_file.filename)
-            upload_path = os.path.join(current_app.root_path, 'static', 'uploads', filename)
+            upload_path = os.path.join(current_app.root_path, 'realmind','static', 'uploads', filename)
             os.makedirs(os.path.dirname(upload_path), exist_ok=True)
             image_file.save(upload_path)
 
@@ -466,6 +466,7 @@ def add_product():
         db.session.commit()
 
         # Sync to e-commerce
+        BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
         API_TOKEN = os.getenv('API_TOKEN')
         product_data = {
             'name': name,
@@ -480,9 +481,6 @@ def add_product():
             'brand': brand,
             'discount_percentage': discount_percentage
         }
-
-        BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
-        API_TOKEN = os.getenv("API_TOKEN")
         try:
             headers = {
                 'Authorization': f'Bearer {API_TOKEN}',
@@ -495,7 +493,7 @@ def add_product():
             }
 
             res = requests.post(
-                f"{os.getenv('BOOKSHOP_API')}/products",
+                f"{BOOKSHOP_API}/products",
                 files=files,
                 headers=headers
             )
@@ -558,7 +556,7 @@ def edit_product(product_id):
         image_file = request.files.get('image')
         if image_file and allowed_file(image_file.filename):
             filename = secure_filename(image_file.filename)
-            upload_path = os.path.join(current_app.root_path, 'static', 'uploads', filename)
+            upload_path = os.path.join(current_app.root_path, 'realmind','static', 'uploads', filename)
             os.makedirs(os.path.dirname(upload_path), exist_ok=True)
             image_file.save(upload_path)
             product.image_filename = filename
@@ -582,12 +580,14 @@ def edit_product(product_id):
                 'discount_percentage': product.discount_percentage,
                 'category': category_name
             }
-
+            # Sync to e-commerce
+            BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
+            API_TOKEN = os.getenv('API_TOKEN')
             try:
                 API_TOKEN = os.getenv('API_TOKEN')
                 headers = {'Authorization': f'Bearer {API_TOKEN}'}
                 res = requests.put(
-                    f"{os.getenv('API_BASE_URL')}/products/{ecommerce_id}",
+                    f"{BOOKSHOP_API}/products/{ecommerce_id}",
                     json=product_data,
                     headers=headers
                 )
@@ -612,7 +612,9 @@ def delete_product(product_id):
         abort(400, description="Invalid CSRF token")
 
     product = Product.query.get_or_404(product_id)
-
+    # Sync to e-commerce
+    BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
+    API_TOKEN = os.getenv('API_TOKEN')
     # Sync delete to E-commerce site via API
     ecommerce_id = product.ecommerce_product_id
     if ecommerce_id:
@@ -620,7 +622,7 @@ def delete_product(product_id):
             API_TOKEN = os.getenv('API_TOKEN')
             headers = {'Authorization': f'Bearer {API_TOKEN}'}
             res = requests.delete(
-                f"{os.getenv("API_BASE_URL")}products/{ecommerce_id}", 
+                f"{BOOKSHOP_API}products/{ecommerce_id}", 
                 headers=headers,
                 timeout=10
             )
@@ -637,7 +639,7 @@ def delete_product(product_id):
 
     # Delete image locally
     if product.image_filename:
-        image_path = os.path.join(current_app.root_path, 'static/uploads', product.image_filename)
+        image_path = os.path.join(current_app.root_path, 'realmind/static/uploads', product.image_filename)
         if os.path.exists(image_path):
             os.remove(image_path)
 
@@ -659,7 +661,7 @@ def manage_products():
 @admin_bp.route('/admin/uploads/<path:filename>')
 @login_required
 def uploaded_file(filename):
-    upload_folder = current_app.config.get('UPLOAD_FOLDER') or os.path.join(current_app.root_path, 'static/uploads/')
+    upload_folder = current_app.config.get('UPLOAD_FOLDER') or os.path.join(current_app.root_path, 'realmind/static/uploads/')
     return send_from_directory(upload_folder, filename)
 
 # View applicants for a job
@@ -711,7 +713,7 @@ def upload_info():
             return redirect(url_for('admin.upload_info'))
 
         # Save locally
-        upload_dir = os.path.join(current_app.root_path, 'static/uploads')
+        upload_dir = os.path.join(current_app.root_path, 'realmind/static/uploads')
         os.makedirs(upload_dir, exist_ok=True)
 
         doc_filename = secure_filename(doc_file.filename)
@@ -740,7 +742,7 @@ def upload_info():
         data = {
             'title': title,
             'source': source,
-            'uploaded_by': current_user.username
+            'uploaded_by': current_user.fullname
         }
 
         files = {
@@ -752,10 +754,12 @@ def upload_info():
         headers = {
             'Authorization': f'Bearer {os.getenv("API_TOKEN")}'
         }
-
+        # Sync to e-commerce
+        BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
+        API_TOKEN = os.getenv('API_TOKEN')
         try:
             res = requests.post(
-                f'{os.getenv('API_BASE_URL')}/info',
+                f'{BOOKSHOP_API}/info',
                 data=data,
                 files=files,
                 headers=headers
@@ -821,6 +825,9 @@ def edit_info(id):
         flash("Info document updated successfully.", "success")
 
         # Sync with e-commerce platform
+        # Sync to e-commerce
+        BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
+        API_TOKEN = os.getenv('API_TOKEN')
         try:
             if info.ecommerce_id:
                 ecommerce_base_url = os.getenv('ECOMMERCE_API_BASE_URL')
@@ -837,7 +844,7 @@ def edit_info(id):
                     files['image'] = (image.filename, open(image_path, 'rb'), image.mimetype)
 
                 response = requests.patch(
-                    f"{os.getenv('API_BASE_URL')}/info/{info.ecommerce_id}",
+                    f"{BOOKSHOP_API}/info/{info.ecommerce_id}",
                     data=payload,
                     files=files,
                     headers={'Authorization': f'Bearer {api_token}'}
@@ -889,14 +896,15 @@ def delete_info(id):
     db.session.delete(info)
     db.session.commit()
     flash("Info document deleted.", "success")
-
+    # Sync to e-commerce
+    BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
     # Sync deletion to e-commerce
     try:
         if info.ecommerce_id:
             
             api_token = os.getenv('API_TOKEN')
 
-            delete_url = f"{os.getenv('API_BASE_URL')}/info/{info.ecommerce_id}"
+            delete_url = f"{BOOKSHOP_API}/info/{info.ecommerce_id}"
             headers = {'Authorization': f'Bearer {api_token}'}
 
             response = requests.delete(delete_url, headers=headers)
@@ -971,10 +979,12 @@ def post_flier():
             headers = {'Authorization': f'Bearer {API_TOKEN}'}
             data = {'title': title}
             files = {'image': open(save_path, 'rb')}
-
+            # Sync to e-commerce
+            BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
+            API_TOKEN = os.getenv('API_TOKEN')
             try:
                 res = requests.post(
-                    f'{os.getenv('API_BASE_URL')}/fliers',
+                    f'{BOOKSHOP_API}/fliers',
                     data=data,
                     files=files,
                     headers=headers
@@ -1020,13 +1030,14 @@ def update_flier(flier_id):
         # Save new image if uploaded
         if new_image and allowed_image_file(new_image.filename):
             filename = secure_filename(new_image.filename)
-            path = os.path.join(current_app.root_path, 'static', 'fliers', filename)
+            path = os.path.join(current_app.root_path, 'realmind' 'static', 'fliers', filename)
             os.makedirs(os.path.dirname(path), exist_ok=True)
             new_image.save(path)
             flier.image_filename = filename
 
         db.session.commit()
-
+        # Sync to e-commerce
+        BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
         # Sync with e-commerce
         try:
             API_TOKEN = os.getenv('API_TOKEN')
@@ -1038,7 +1049,7 @@ def update_flier(flier_id):
                 files['image'] = open(path, 'rb')
 
             res = requests.put(
-                f"{os.getenv('API_BASE_URL')}/fliers/{flier.id}",
+                f"{BOOKSHOP_API}/fliers/{flier.id}",
                 data=data,
                 files=files,
                 headers=headers
@@ -1069,18 +1080,19 @@ def delete_flier(flier_id):
         abort(400, description="Invalid CSRF token.")
 
     flier = PromotionFlier.query.get_or_404(flier_id)
-    image_path = os.path.join(current_app.root_path, 'static', 'fliers', flier.image_filename)
+    image_path = os.path.join(current_app.root_path, 'realmind', 'static', 'fliers', flier.image_filename)
 
     db.session.delete(flier)
     db.session.commit()
 
     if os.path.exists(image_path):
         os.remove(image_path)
-
+    # Sync to e-commerce
+    BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
     try:
         API_TOKEN = os.getenv('API_TOKEN')
         headers = {'Authorization': f'Bearer {API_TOKEN}'}
-        res = requests.delete(f"{os.getenv('API_BASE_URL')}/fliers/{flier.id}", headers=headers)
+        res = requests.delete(f"{BOOKSHOP_API}/fliers/{flier.id}", headers=headers)
 
         if res.status_code == 200:
             flash("Flier deleted from both platforms.", "success")
@@ -1125,10 +1137,12 @@ def create_newsletter():
         db.session.commit()
 
         # Fetch subscribers from API
+        # Sync to e-commerce
+        BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
         API_TOKEN = os.getenv('API_TOKEN')
         try:
             res = requests.get(
-                f"{os.getenv('API_BASE_URL')}/newsletter-subscribers",
+                f"{BOOKSHOP_API}/newsletter-subscribers",
                 headers={'Authorization': f'Bearer {API_TOKEN}'}
             )
             subscribers = res.json().get('subscribers', [])
@@ -1240,7 +1254,10 @@ def update_received_order_status(order_id):
             current_app.logger.error(f"Failed to send delivery email: {e}")
 
     # Send API update to e-commerce
-    api_url = f"{os.getenv('API_BASE_URL')}/orders/{order.original_order_id}/status"
+    # Sync to e-commerce
+    BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
+    API_TOKEN = os.getenv('API_TOKEN')
+    api_url = f"{BOOKSHOP_API}/orders/{order.original_order_id}/status"
     token = os.getenv('API_TOKEN')
     headers = {'Authorization': f'Bearer {token}'}
     payload = {'status': new_status}
