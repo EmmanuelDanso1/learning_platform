@@ -62,13 +62,13 @@ def upload_admin_profile_pic():
 
     if file:
         filename = secure_filename(file.filename)
-        upload_path = os.path.join(current_app.root_path, 'static/uploads/', filename)
+        upload_path = os.path.join(current_app.root_path, 'realmind/static/uploads/', filename)
         file.save(upload_path)
 
         # Delete old picture if it exists
         if current_user.profile_pic:
             try:
-                old_path = os.path.join(current_app.root_path, 'static/uploads/', current_user.profile_pic)
+                old_path = os.path.join(current_app.root_path, 'realmind/static/uploads/', current_user.profile_pic)
                 if os.path.exists(old_path):
                     os.remove(old_path)
             except Exception:
@@ -91,7 +91,7 @@ def delete_admin_profile_pic():
 
     if current_user.profile_pic:
         try:
-            os.remove(os.path.join(current_app.root_path, 'static/uploads/', current_user.profile_pic))
+            os.remove(os.path.join(current_app.root_path, 'realmind/static/uploads/', current_user.profile_pic))
         except Exception:
             pass
 
