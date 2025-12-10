@@ -412,6 +412,7 @@ def admin_news_dashboard():
 @login_required
 def add_product():
     if request.method == 'POST':
+        # --- Collect form data ---
         name = request.form['name']
         description = request.form['description']
         price = float(request.form['price'])
@@ -419,34 +420,34 @@ def add_product():
         category_name = request.form['category_name'].strip().title()
         in_stock = request.form.get('in_stock') == 'true'
 
-        # New fields from form
+        # Optional fields
         author = request.form.get('author')
         grade = request.form.get('grade')
         level = request.form.get('level')
         subject = request.form.get('subject')
         brand = request.form.get('brand')
-
-        # Discount percentage (optional)
         discount_percentage = request.form.get('discount_percentage')
         discount_percentage = float(discount_percentage) if discount_percentage else 0.0
 
-        # Create or find category
+        # --- Handle category ---
         category = Category.query.filter_by(name=category_name).first()
         if not category:
             category = Category(name=category_name)
             db.session.add(category)
             db.session.commit()
 
-        # Save image locally
+        # --- Save image locally ---
         filename = None
         upload_path = None
         if image_file and allowed_file(image_file.filename):
             filename = secure_filename(image_file.filename)
-            upload_path = os.path.join(current_app.root_path, 'realmind','static', 'uploads', filename)
+            upload_path = os.path.join(
+                current_app.root_path, 'realmind', 'static', 'uploads', filename
+            )
             os.makedirs(os.path.dirname(upload_path), exist_ok=True)
             image_file.save(upload_path)
 
-        # Save product locally
+        # --- Save product locally ---
         product = Product(
             name=name,
             description=description,
@@ -463,56 +464,58 @@ def add_product():
             discount_percentage=discount_percentage
         )
         db.session.add(product)
-        db.session.commit()
+        db.session.commit()  # Commit once for local DB
 
-        # Sync to e-commerce
-        BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
-        API_TOKEN = os.getenv('API_TOKEN')
-        product_data = {
-            'name': name,
-            'description': description,
-            'price': price,
-            'in_stock': in_stock,
-            'category': category.name,
-            'author': author,
-            'grade': grade,
-            'level': level,
-            'subject': subject,
-            'brand': brand,
-            'discount_percentage': discount_percentage
-        }
+        # --- Sync to e-commerce ---
         try:
+            BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
+            API_TOKEN = os.getenv('API_TOKEN')
+
             headers = {
                 'Authorization': f'Bearer {API_TOKEN}',
                 'X-CSRFToken': request.cookies.get('csrf_token', '')
             }
 
-            files = {
-                'data': (None, json.dumps(product_data)),
-                'image': open(upload_path, 'rb')
+            product_data = {
+                'name': name,
+                'description': description,
+                'price': price,
+                'in_stock': in_stock,
+                'category': category.name,
+                'author': author,
+                'grade': grade,
+                'level': level,
+                'subject': subject,
+                'brand': brand,
+                'discount_percentage': discount_percentage
             }
 
-            res = requests.post(
-                f"{BOOKSHOP_API}/products",
-                files=files,
-                headers=headers
-            )
+            files = {
+                'data': (None, json.dumps(product_data)),
+                'image': open(upload_path, 'rb') if upload_path else None
+            }
 
-            print("Bookshop sync response:", res.status_code, res.json())
+            res = requests.post(f"{BOOKSHOP_API}/products", files=files, headers=headers)
+            print("Bookshop sync response:", res.status_code, res.text)
 
             if res.status_code == 201:
-                ecommerce_id = res.json().get('id')
-                if ecommerce_id:
-                    product.ecommerce_product_id = ecommerce_id
-                    db.session.commit()
+                data = res.json()
+                product.ecommerce_product_id = data.get('id')
+                product.bookshop_image_url = data.get('image_url')
+                db.session.commit()  # Commit e-commerce IDs once
+
         except Exception as e:
             print("Error syncing with e-commerce:", e)
+            flash("Product added locally but failed to sync with Bookshop.", "warning")
+        else:
+            flash("Product added and synced with Bookshop!", "success")
 
-        flash("Product added and synced!", "success")
         return redirect(url_for('admin.manage_products'))
 
+    # GET request
     csrf_token = generate_csrf()
     return render_template('admin/add_product.html', csrf_token=csrf_token)
+
 
 @admin_bp.route('/admin/edit-product/<int:product_id>', methods=['GET', 'POST'])
 @login_required

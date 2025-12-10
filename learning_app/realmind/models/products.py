@@ -9,6 +9,10 @@ class Product(db.Model):
     price = db.Column(db.Float, nullable=False)
     discount_percentage = db.Column(db.Float, default=0.0)
     image_filename = db.Column(db.String(120), nullable=True)
+    # syncing image
+    image_url = db.Column(db.String(255), nullable=True)
+    bookshop_image_url = db.Column(db.String(255), nullable=True)
+    
     in_stock = db.Column(db.Boolean, default=True)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     ecommerce_product_id = db.Column(db.Integer, nullable=True)
