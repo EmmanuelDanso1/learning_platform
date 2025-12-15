@@ -15,10 +15,13 @@ import requests
 from learning_app.realmind.models.user import User
 from learning_app.realmind.utils.email import send_order_status_email
 from learning_app.realmind.utils.util import UPLOAD_FOLDER, allowed_profile_pic,allowed_image_file, allowed_document, allowed_file
-
+import logging
 
 # upload files to the E_commerce
 from urllib.parse import urlparse
+
+logger = logging.getLogger(__name__)
+
 
 def is_url(value):
     try:
@@ -412,13 +415,20 @@ def admin_news_dashboard():
 @login_required
 def add_product():
     if request.method == 'POST':
+        logger.info("Admin add-product POST received")
+
         # --- Collect form data ---
         name = request.form['name']
         description = request.form['description']
         price = float(request.form['price'])
-        image_file = request.files['image']
+        image_file = request.files.get('image')
         category_name = request.form['category_name'].strip().title()
-        in_stock = request.form.get('in_stock') == 'true'
+        in_stock = request.form.get('in_stock') in ['true', 'on', '1']
+
+        logger.info(
+            f"Product data: name={name}, price={price}, "
+            f"in_stock={in_stock}, category={category_name}"
+        )
 
         # Optional fields
         author = request.form.get('author')
@@ -435,17 +445,29 @@ def add_product():
             category = Category(name=category_name)
             db.session.add(category)
             db.session.commit()
+            logger.info(f"Category created: {category_name}")
+        else:
+            logger.info(f"Category found: {category_name}")
 
         # --- Save image locally ---
         filename = None
         upload_path = None
+
         if image_file and allowed_file(image_file.filename):
             filename = secure_filename(image_file.filename)
             upload_path = os.path.join(
                 current_app.root_path, 'realmind', 'static', 'uploads', filename
             )
-            os.makedirs(os.path.dirname(upload_path), exist_ok=True)
-            image_file.save(upload_path)
+
+            try:
+                os.makedirs(os.path.dirname(upload_path), exist_ok=True)
+                image_file.save(upload_path)
+                logger.info(f"Image saved locally: {upload_path}")
+                logger.info(f"Image size: {os.path.getsize(upload_path)} bytes")
+            except Exception as img_err:
+                logger.exception(f"Failed to save local image: {img_err}")
+        else:
+            logger.warning("⚠ No valid image uploaded or file type not allowed")
 
         # --- Save product locally ---
         product = Product(
@@ -463,8 +485,10 @@ def add_product():
             brand=brand,
             discount_percentage=discount_percentage
         )
+
         db.session.add(product)
-        db.session.commit()  # Commit once for local DB
+        db.session.commit()
+        logger.info(f"Product saved locally: id={product.id}")
 
         # --- Sync to e-commerce ---
         try:
@@ -472,8 +496,7 @@ def add_product():
             API_TOKEN = os.getenv('API_TOKEN')
 
             headers = {
-                'Authorization': f'Bearer {API_TOKEN}',
-                'X-CSRFToken': request.cookies.get('csrf_token', '')
+                'Authorization': f'Bearer {API_TOKEN}'
             }
 
             product_data = {
@@ -490,31 +513,49 @@ def add_product():
                 'discount_percentage': discount_percentage
             }
 
-            files = {
-                'data': (None, json.dumps(product_data)),
-                'image': open(upload_path, 'rb') if upload_path else None
-            }
+            files = {'data': (None, json.dumps(product_data))}
+            if upload_path and os.path.exists(upload_path):
+                files['image'] = open(upload_path, 'rb')
+                logger.info("Sending image to Bookshop API")
+            else:
+                logger.warning("⚠ No image file to send to Bookshop API")
 
-            res = requests.post(f"{BOOKSHOP_API}/products", files=files, headers=headers)
-            print("Bookshop sync response:", res.status_code, res.text)
+            logger.info(f"Sending product to {BOOKSHOP_API}/products")
+
+            res = requests.post(
+                f"{BOOKSHOP_API}/products",
+                files=files,
+                headers=headers,
+                timeout=15
+            )
+
+            logger.info(
+                f"Bookshop response: status={res.status_code}, "
+                f"body={res.text[:200]}"
+            )
 
             if res.status_code == 201:
                 data = res.json()
                 product.ecommerce_product_id = data.get('id')
                 product.bookshop_image_url = data.get('image_url')
-                db.session.commit()  # Commit e-commerce IDs once
+                db.session.commit()
+                logger.info(
+                    f"Linked to Bookshop product: "
+                    f"id={product.ecommerce_product_id}, "
+                    f"image_url={product.bookshop_image_url}"
+                )
 
         except Exception as e:
-            print("Error syncing with e-commerce:", e)
+            logger.exception("Error syncing product with Bookshop")
             flash("Product added locally but failed to sync with Bookshop.", "warning")
         else:
             flash("Product added and synced with Bookshop!", "success")
 
         return redirect(url_for('admin.manage_products'))
 
-    # GET request
     csrf_token = generate_csrf()
     return render_template('admin/add_product.html', csrf_token=csrf_token)
+
 
 
 @admin_bp.route('/admin/edit-product/<int:product_id>', methods=['GET', 'POST'])
