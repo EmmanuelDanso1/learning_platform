@@ -518,7 +518,7 @@ def add_product():
                 files['image'] = open(upload_path, 'rb')
                 logger.info("Sending image to Bookshop API")
             else:
-                logger.warning("⚠ No image file to send to Bookshop API")
+                logger.warning(" No image file to send to Bookshop API")
 
             logger.info(f"Sending product to {BOOKSHOP_API}/products")
 
@@ -557,19 +557,21 @@ def add_product():
     return render_template('admin/add_product.html', csrf_token=csrf_token)
 
 
-
 @admin_bp.route('/admin/edit-product/<int:product_id>', methods=['GET', 'POST'])
 @login_required
 def edit_product(product_id):
     product = Product.query.get_or_404(product_id)
 
     if request.method == 'POST':
-        # Validate CSRF token
         try:
             validate_csrf(request.form.get('csrf_token'))
         except CSRFError:
+            current_app.logger.warning("Invalid CSRF on edit_product")
             abort(400, description="Invalid CSRF token")
 
+        current_app.logger.info(f"Editing product ID {product.id}")
+
+        # Basic fields
         product.name = request.form['name']
         product.description = request.form['description']
         product.price = float(request.form['price'])
@@ -582,11 +584,10 @@ def edit_product(product_id):
         product.subject = request.form.get('subject')
         product.brand = request.form.get('brand')
 
-        # Discount
         discount_raw = request.form.get('discount_percentage')
         product.discount_percentage = float(discount_raw) if discount_raw else 0.0
 
-        # Handle category
+        # Category
         category_name = request.form.get('category_name', '').strip().title()
         if category_name:
             category = Category.query.filter_by(name=category_name).first()
@@ -596,26 +597,34 @@ def edit_product(product_id):
                 db.session.commit()
             product.category_id = category.id
 
-        # Handle new image upload
+        # IMAGE
         image_file = request.files.get('image')
+        upload_path = None
         if image_file and allowed_file(image_file.filename):
             filename = secure_filename(image_file.filename)
-            upload_path = os.path.join(current_app.root_path, 'realmind','static', 'uploads', filename)
+            upload_path = os.path.join(
+                current_app.root_path, 'realmind', 'static', 'uploads', filename
+            )
             os.makedirs(os.path.dirname(upload_path), exist_ok=True)
             image_file.save(upload_path)
             product.image_filename = filename
 
+            current_app.logger.info(f"New image uploaded: {filename}")
+
         db.session.commit()
 
-        # Sync update to e-commerce
-        ecommerce_id = product.ecommerce_product_id
-        if ecommerce_id:
+        # ---- SYNC TO BOOKSHOP ----
+        if product.ecommerce_product_id:
+            BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
+            API_TOKEN = os.getenv("API_TOKEN")
+
+            headers = {'Authorization': f'Bearer {API_TOKEN}'}
+
             product_data = {
                 'name': product.name,
                 'description': product.description,
                 'price': product.price,
                 'in_stock': product.in_stock,
-                'image_filename': product.image_filename,
                 'author': product.author,
                 'grade': product.grade,
                 'level': product.level,
@@ -624,25 +633,39 @@ def edit_product(product_id):
                 'discount_percentage': product.discount_percentage,
                 'category': category_name
             }
-            # Sync to e-commerce
-            BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
-            API_TOKEN = os.getenv('API_TOKEN')
+
+            files = None
+            if upload_path:
+                files = {
+                    'data': (None, json.dumps(product_data)),
+                    'image': open(upload_path, 'rb')
+                }
+            else:
+                files = {'data': (None, json.dumps(product_data))}
+
             try:
-                API_TOKEN = os.getenv('API_TOKEN')
-                headers = {'Authorization': f'Bearer {API_TOKEN}'}
                 res = requests.put(
-                    f"{BOOKSHOP_API}/products/{ecommerce_id}",
-                    json=product_data,
-                    headers=headers
+                    f"{BOOKSHOP_API}/products/{product.ecommerce_product_id}",
+                    files=files,
+                    headers=headers,
+                    timeout=15
                 )
-                print("E-commerce sync update:", res.status_code, res.json())
+
+                current_app.logger.info(
+                    f"Bookshop update response {res.status_code}: {res.text}"
+                )
+
+                if res.status_code == 200:
+                    data = res.json()
+                    product.bookshop_image_url = data.get('image_url')
+                    db.session.commit()
+
             except Exception as e:
-                print("Error syncing product update to e-commerce:", e)
+                current_app.logger.error(f"Sync update failed: {e}")
 
         flash("Product updated successfully.", "success")
         return redirect(url_for('admin.manage_products'))
 
-    # Generate CSRF token for GET request and send to template
     csrf_token = generate_csrf()
     return render_template('admin/edit_product.html', product=product, csrf_token=csrf_token)
 
@@ -653,45 +676,54 @@ def delete_product(product_id):
     try:
         validate_csrf(request.form.get('csrf_token'))
     except CSRFError:
+        current_app.logger.warning("Invalid CSRF on delete_product")
         abort(400, description="Invalid CSRF token")
 
     product = Product.query.get_or_404(product_id)
-    # Sync to e-commerce
+    current_app.logger.info(f"Deleting product ID {product.id}")
+
     BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
-    API_TOKEN = os.getenv('API_TOKEN')
-    # Sync delete to E-commerce site via API
-    ecommerce_id = product.ecommerce_product_id
-    if ecommerce_id:
+    API_TOKEN = os.getenv("API_TOKEN")
+
+    # ---- DELETE FROM BOOKSHOP ----
+    if product.ecommerce_product_id:
         try:
-            API_TOKEN = os.getenv('API_TOKEN')
             headers = {'Authorization': f'Bearer {API_TOKEN}'}
             res = requests.delete(
-                f"{BOOKSHOP_API}products/{ecommerce_id}", 
+                f"{BOOKSHOP_API}/products/{product.ecommerce_product_id}",
                 headers=headers,
                 timeout=10
             )
 
+            current_app.logger.info(
+                f"Bookshop delete response {res.status_code}: {res.text}"
+            )
+
             if res.status_code != 200:
-                print("E-commerce deletion failed:", res.status_code, res.json())
-                flash("E-commerce deletion failed. Product not deleted.", "danger")
+                flash("Failed to delete product from Bookshop.", "danger")
                 return redirect(url_for('admin.manage_products'))
 
         except Exception as e:
-            print("Exception syncing delete to E-commerce:", e)
-            flash("Error deleting product from E-commerce site.", "danger")
+            current_app.logger.error(f"Bookshop delete error: {e}")
+            flash("Error deleting product from Bookshop.", "danger")
             return redirect(url_for('admin.manage_products'))
 
-    # Delete image locally
+    # ---- DELETE LOCAL IMAGE ----
     if product.image_filename:
-        image_path = os.path.join(current_app.root_path, 'realmind/static/uploads', product.image_filename)
+        image_path = os.path.join(
+            current_app.root_path, 'realmind', 'static', 'uploads', product.image_filename
+        )
         if os.path.exists(image_path):
             os.remove(image_path)
+            current_app.logger.info(f"Local image deleted: {image_path}")
 
-    # Delete product locally
     db.session.delete(product)
     db.session.commit()
-    flash("Product deleted successfully from both platforms.", "success")
+
+    current_app.logger.info(f"Product {product.id} fully deleted")
+    flash("Product deleted successfully.", "success")
     return redirect(url_for('admin.manage_products'))
+
 
 # manage products
 @admin_bp.route('/admin/manage-products')
@@ -738,7 +770,6 @@ def accept_application(application_id):
     db.session.commit()
     flash('Application accepted.', 'success')
     return redirect(url_for('admin.view_applicants', job_id=application.job_id))
-
 
 
 from flask_wtf.csrf import generate_csrf

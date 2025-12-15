@@ -4,59 +4,68 @@
 {% block content %}
 <div class="container my-5">
   <h2>Edit Product</h2>
+
   <form method="POST" enctype="multipart/form-data">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token}}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+    <!-- Product Name -->
     <div class="mb-3">
-      <label for="name" class="form-label">Product Name</label>
-      <input type="text" name="name" id="name" value="{{ product.name }}" class="form-control" required>
+      <label class="form-label">Product Name</label>
+      <input type="text" name="name" value="{{ product.name }}" class="form-control" required>
     </div>
 
+    <!-- Description -->
     <div class="mb-3">
-      <label for="description" class="form-label">Description</label>
-      <textarea name="description" id="description" rows="4" class="form-control" required>{{ product.description }}</textarea>
+      <label class="form-label">Description</label>
+      <textarea name="description" rows="4" class="form-control" required>{{ product.description }}</textarea>
     </div>
 
+    <!-- Price -->
     <div class="mb-3">
-      <label for="price" class="form-label">Price (₵)</label>
-      <input type="number" step="0.01" name="price" id="price" value="{{ product.price }}" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label for="discount_percentage" class="form-label">Discount (%)</label>
-      <input type="number" class="form-control" name="discount_percentage" min="0" max="100" value="{{ product.discount_percentage if product else '' }}">
+      <label class="form-label">Price (₵)</label>
+      <input type="number" step="0.01" name="price" value="{{ product.price }}" class="form-control" required>
     </div>
 
-    <!-- New Fields -->
+    <!-- Discount -->
+    <div class="mb-3">
+      <label class="form-label">Discount (%)</label>
+      <input type="number" class="form-control" name="discount_percentage"
+             min="0" max="100"
+             value="{{ product.discount_percentage }}">
+    </div>
+
+    <!-- Extra Fields -->
     <div class="row">
       <div class="col-md-6 mb-3">
-        <label for="author" class="form-label">Author</label>
-        <input type="text" name="author" id="author" value="{{ product.author or '' }}" class="form-control">
+        <label class="form-label">Author</label>
+        <input type="text" name="author" value="{{ product.author or '' }}" class="form-control">
       </div>
 
       <div class="col-md-6 mb-3">
-        <label for="brand" class="form-label">Brand</label>
-        <input type="text" name="brand" id="brand" value="{{ product.brand or '' }}" class="form-control">
+        <label class="form-label">Brand</label>
+        <input type="text" name="brand" value="{{ product.brand or '' }}" class="form-control">
       </div>
 
       <div class="col-md-4 mb-3">
-        <label for="grade" class="form-label">Grade</label>
-        <input type="text" name="grade" id="grade" value="{{ product.grade or '' }}" class="form-control">
+        <label class="form-label">Grade</label>
+        <input type="text" name="grade" value="{{ product.grade or '' }}" class="form-control">
       </div>
 
       <div class="col-md-4 mb-3">
-        <label for="level" class="form-label">Level</label>
-        <input type="text" name="level" id="level" value="{{ product.level or '' }}" class="form-control">
+        <label class="form-label">Level</label>
+        <input type="text" name="level" value="{{ product.level or '' }}" class="form-control">
       </div>
 
       <div class="col-md-4 mb-3">
-        <label for="subject" class="form-label">Subject</label>
-        <input type="text" name="subject" id="subject" value="{{ product.subject or '' }}" class="form-control">
+        <label class="form-label">Subject</label>
+        <input type="text" name="subject" value="{{ product.subject or '' }}" class="form-control">
       </div>
     </div>
 
-    <!-- Stock Status -->
+    <!-- Stock -->
     <div class="mb-3">
-      <label for="in_stock" class="form-label">Stock Status</label>
-      <select name="in_stock" id="in_stock" class="form-control">
+      <label class="form-label">Stock Status</label>
+      <select name="in_stock" class="form-control">
         <option value="true" {% if product.in_stock %}selected{% endif %}>In Stock</option>
         <option value="false" {% if not product.in_stock %}selected{% endif %}>Out of Stock</option>
       </select>
@@ -64,23 +73,51 @@
 
     <!-- Category -->
     <div class="mb-3">
-      <label for="category_name" class="form-label">Category</label>
-      <input type="text" name="category_name" id="category_name" value="{{ product.category.name if product.category else '' }}" class="form-control" required>
+      <label class="form-label">Category</label>
+      <input type="text" name="category_name"
+             value="{{ product.category.name if product.category else '' }}"
+             class="form-control" required>
     </div>
 
-    <!-- Image Upload -->
+    <!-- CURRENT IMAGE PREVIEW -->
+    {% if product.image_filename or product.bookshop_image_url %}
     <div class="mb-3">
-      <label for="image" class="form-label">Change Product Image (optional)</label>
-      <input type="file" name="image" id="image" class="form-control" accept="image/*">
-    </div>
+      <label class="form-label">Current Product Image</label>
 
-    {% if product.image_filename %}
-    <div class="mb-3">
-      <img src="{{ url_for('static', filename='uploads/' ~ product.image_filename) }}" width="150" class="img-thumbnail">
+      {% if product.bookshop_image_url %}
+        <div class="mb-2">
+          <small class="text-muted d-block">Bookshop (Live)</small>
+          <img src="{{ product.bookshop_image_url }}"
+               class="img-thumbnail"
+               width="160"
+               onerror="this.style.display='none'">
+        </div>
+      {% endif %}
+
+      {% if product.image_filename %}
+        <div class="mb-2">
+          <small class="text-muted d-block">Local (Admin)</small>
+          <img src="{{ url_for('static', filename='uploads/' ~ product.image_filename) }}"
+               class="img-thumbnail"
+               width="160">
+        </div>
+      {% endif %}
     </div>
     {% endif %}
 
-    <button type="submit" class="btn btn-primary">Update Product</button>
+    <!-- Image Upload -->
+    <div class="mb-3">
+      <label class="form-label">Change Product Image (optional)</label>
+      <input type="file" name="image" class="form-control" accept="image/*">
+      <div class="form-text text-warning">
+        Uploading a new image will replace the image on both RealmindX and Bookshop.
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <button type="submit" class="btn btn-primary">
+      Update Product
+    </button>
   </form>
 </div>
 {% endblock %}

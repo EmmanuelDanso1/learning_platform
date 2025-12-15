@@ -1,4 +1,5 @@
 import os
+import logging
 from flask_wtf import CSRFProtect
 from flask import Flask, current_app
 from flask_sqlalchemy import SQLAlchemy
@@ -34,6 +35,11 @@ def create_app():
     # SESSION CONFIGURATION: 10 minutes inactivity timeout
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
 
+    # logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
+    )
     # redis config
     # Load config
     app.config.from_object("learning_app.config.ProductionConfig")
