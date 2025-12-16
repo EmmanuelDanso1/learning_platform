@@ -1,7 +1,7 @@
 import os
 import requests
 from flask import current_app
-from extensions import db
+from learning_app.extensions import db
 from learning_app.realmind.models import ExternalSubscriber
 
 
