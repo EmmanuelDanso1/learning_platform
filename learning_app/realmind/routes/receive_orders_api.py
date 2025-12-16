@@ -5,7 +5,7 @@ import os
 import logging
 # including to csrf_exempt becuase its a server to server API call
 # i.e from bookshop to realmindxgh
-from flask_wtf.csrf import csrf_exempt
+from learning_app.extensions import csrf
 
 logger = logging.getLogger(__name__)
 
