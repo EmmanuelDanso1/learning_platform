@@ -3,14 +3,12 @@ from learning_app.realmind.models import ReceivedOrder, ReceivedOrderItem
 from learning_app.extensions import db
 import os
 import logging
-from learning_app.extensions import csrf
 
 logger = logging.getLogger(__name__)
 
 api_bp = Blueprint('api', __name__)
 
 @api_bp.route('/api/orders', methods=['POST'])
-@csrf.exempt
 def receive_order():
     """Receive orders from Bookshop and save to admin dashboard"""
     

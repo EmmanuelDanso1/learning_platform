@@ -117,7 +117,8 @@ def create_app():
     app.register_blueprint(user_bp, name='user')
     app.register_blueprint(api_bp, name='api')
 
-
+    # exempt api becuause its rendering server-server .i.e from bookshop to learning platform
+    csrf.exempt(api_bp)
     # Create tables (optional, only for dev)
     with app.app_context():
         db.create_all()
