@@ -10,6 +10,7 @@ class ReceivedOrder(db.Model):
     address = db.Column(db.String(255))
     total_amount = db.Column(db.Float)
     payment_method = db.Column(db.String(50))
+    status = db.Column(db.String(50), nullable=False, default='Received')
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_received = db.Column(db.DateTime, default=datetime.utcnow)
     items = db.relationship('ReceivedOrderItem', backref='order', cascade="all, delete-orphan")
