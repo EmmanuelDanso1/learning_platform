@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for,jsonify, flash, 
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 # using the imports from __init__.py file
-from learning_app.realmind.models import Admin, Application, JobPost, News, Gallery, Newsletter, Product, Category, PromotionFlier, InfoDocument, ReceivedOrder, ReceivedOrderItem
+from learning_app.realmind.models import Admin, Application, JobPost, News, Gallery, Newsletter, Product, Category, PromotionFlier, InfoDocument, ReceivedOrder, ReceivedOrderItem, ExternalSubscriber
 from learning_app.realmind.forms import JobPostForm
 from learning_app.extensions import db, mail
 from flask_mail import Message
@@ -16,6 +16,7 @@ from learning_app.realmind.models.user import User
 from learning_app.realmind.utils.email import send_order_status_email
 from learning_app.realmind.utils.util import UPLOAD_FOLDER, allowed_profile_pic,allowed_image_file, allowed_document, allowed_file
 import logging
+from learning_app.realmind.routes.newsletter_sync import sync_bookshop_subscribers
 
 # upload files to the E_commerce
 from urllib.parse import urlparse
@@ -1239,7 +1240,77 @@ def manage_fliers():
     return render_template('admin/manage_fliers.html', fliers=fliers, csrf_token=csrf_token)
 
 
-# Newsletter
+def sync_bookshop_subscribers():
+    """
+    Fetch verified subscribers from Bookshop API and sync them to Learning Platform DB
+    """
+    BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
+    API_TOKEN = os.getenv('API_TOKEN')
+    
+    if not BOOKSHOP_API or not API_TOKEN:
+        current_app.logger.error("Missing BOOKSHOP_API_BASE_URL or API_TOKEN")
+        return False
+    
+    try:
+        # Fetch subscribers from Bookshop API
+        res = requests.get(
+            f"{BOOKSHOP_API}/newsletter-subscribers",
+            headers={'Authorization': f'Bearer {API_TOKEN}'},
+            timeout=10
+        )
+        
+        if res.status_code != 200:
+            current_app.logger.error(
+                f"Failed to fetch subscribers: {res.status_code} - {res.text}"
+            )
+            return False
+        
+        data = res.json()
+        bookshop_emails = set(data.get('subscribers', []))
+        
+        current_app.logger.info(
+            f"Fetched {len(bookshop_emails)} subscribers from Bookshop"
+        )
+        
+        # Get existing subscribers in Learning Platform
+        existing_subscribers = ExternalSubscriber.query.filter_by(source='bookshop').all()
+        existing_emails = {s.email for s in existing_subscribers}
+        
+        # Add new subscribers
+        new_emails = bookshop_emails - existing_emails
+        for email in new_emails:
+            new_sub = ExternalSubscriber(
+                email=email,
+                source='bookshop'
+            )
+            db.session.add(new_sub)
+        
+        # Remove unsubscribed users (those no longer in Bookshop)
+        removed_emails = existing_emails - bookshop_emails
+        if removed_emails:
+            ExternalSubscriber.query.filter(
+                ExternalSubscriber.email.in_(removed_emails),
+                ExternalSubscriber.source == 'bookshop'
+            ).delete(synchronize_session=False)
+        
+        db.session.commit()
+        
+        current_app.logger.info(
+            f"Sync complete: {len(new_emails)} added, {len(removed_emails)} removed"
+        )
+        
+        return True
+        
+    except requests.RequestException as e:
+        current_app.logger.exception(f"Error fetching from Bookshop API: {e}")
+        return False
+    except Exception as e:
+        current_app.logger.exception(f"Error syncing subscribers: {e}")
+        db.session.rollback()
+        return False
+
+
+# IMPROVED NEWSLETTER SENDING FUNCTION
 @admin_bp.route('/admin/newsletter', methods=['GET', 'POST'])
 @login_required
 def create_newsletter():
@@ -1257,55 +1328,176 @@ def create_newsletter():
             flash("Title and content are required.", "danger")
             return redirect(url_for('admin.create_newsletter'))
 
-        # Save to DB
+        # Save newsletter to DB
         newsletter = Newsletter(title=title, content=content)
         db.session.add(newsletter)
         db.session.commit()
 
-        # Fetch subscribers from API
-        # Sync to e-commerce
-        BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
-        API_TOKEN = os.getenv('API_TOKEN')
-        try:
-            res = requests.get(
-                f"{BOOKSHOP_API}/newsletter-subscribers",
-                headers={'Authorization': f'Bearer {API_TOKEN}'}
-            )
-            subscribers = res.json().get('subscribers', [])
+        current_app.logger.info(
+            f"Admin {current_user.email} created newsletter: '{title}' (ID: {newsletter.id})"
+        )
 
-            for email in subscribers:
+        # Get subscribers from LOCAL database (already synced from Bookshop)
+        subscribers = ExternalSubscriber.query.filter_by(source='bookshop').all()
+
+        if not subscribers:
+            current_app.logger.warning("No subscribers found when attempting to send newsletter")
+            flash("No subscribers found. Try syncing first.", "warning")
+            return redirect(url_for('admin.list_newsletters'))
+
+        # Send emails with better error handling
+        success_count = 0
+        failed_emails = []
+
+        current_app.logger.info(
+            f"Starting to send newsletter '{title}' to {len(subscribers)} subscribers"
+        )
+
+        for subscriber in subscribers:
+            try:
                 msg = Message(
                     subject=title,
-                    recipients=[email],
+                    recipients=[subscriber.email],
                     html=content
                 )
                 mail.send(msg)
+                success_count += 1
+            except Exception as e:
+                current_app.logger.error(
+                    f"Failed to send to {subscriber.email}: {e}"
+                )
+                failed_emails.append(subscriber.email)
 
-            flash("Newsletter sent to subscribers.", "success")
-        except Exception as e:
-            print("Error sending newsletter:", e)
-            flash("Failed to send newsletter to subscribers.", "danger")
+        # Provide detailed feedback
+        if success_count > 0:
+            flash(
+                f"Newsletter sent to {success_count} subscriber(s).",
+                "success"
+            )
+            current_app.logger.info(
+                f"Newsletter '{title}' sent successfully to {success_count} subscribers"
+            )
+        
+        if failed_emails:
+            flash(
+                f"Failed to send to {len(failed_emails)} subscriber(s). Check logs.",
+                "warning"
+            )
+            current_app.logger.error(
+                f"Failed to send newsletter to {len(failed_emails)} subscribers: {failed_emails}"
+            )
 
         return redirect(url_for('admin.list_newsletters'))
 
-    # For GET request
-    return render_template('admin/create_newsletter.html', csrf_token=generate_csrf())
+    # For GET request - show subscriber count
+    subscriber_count = ExternalSubscriber.query.filter_by(source='bookshop').count()
+    
+    current_app.logger.info(
+        f"Admin {current_user.email} accessing create newsletter page"
+    )
+    
+    return render_template(
+        'admin/create_newsletter.html',
+        csrf_token=generate_csrf(),
+        subscriber_count=subscriber_count
+    )
 
-# list newsletter
+
+# IMPROVED SYNC ROUTE WITH LOGGING
+@admin_bp.route('/admin/sync-subscribers')
+@login_required
+def sync_subscribers():
+    current_app.logger.info(f"Admin {current_user.email} initiated subscriber sync")
+    success = sync_bookshop_subscribers()
+    
+    if success:
+        flash("Subscribers synced successfully.", "success")
+        current_app.logger.info("Subscriber sync completed successfully")
+    else:
+        flash("Failed to sync subscribers. Check logs for details.", "danger")
+        current_app.logger.error("Subscriber sync failed")
+    
+    return redirect(url_for('admin.create_newsletter'))
+
+
+# LIST NEWSLETTERS WITH LOGGING
 @admin_bp.route('/admin/newsletters')
 @login_required
 def list_newsletters():
+    current_app.logger.info(f"Admin {current_user.email} viewing newsletter list")
     newsletters = Newsletter.query.order_by(Newsletter.created_on.desc()).all()
     return render_template('admin/list_newsletters.html', newsletters=newsletters)
 
-# --- View Newsletter ---
+
+# VIEW ALL SUBSCRIBERS (NEW ROUTE)
+@admin_bp.route('/admin/subscribers')
+@login_required
+def view_subscribers():
+    current_app.logger.info(f"Admin {current_user.email} viewing subscriber list")
+    
+    # Get all subscribers
+    subscribers = ExternalSubscriber.query.order_by(
+        ExternalSubscriber.added_on.desc()
+    ).all()
+    
+    total_count = len(subscribers)
+    
+    current_app.logger.info(f"Displaying {total_count} subscribers to admin {current_user.email}")
+    
+    return render_template(
+        'admin/view_subscribers.html',
+        subscribers=subscribers,
+        total_count=total_count
+    )
+
+
+# EXPORT SUBSCRIBERS AS CSV 
+@admin_bp.route('/admin/subscribers/export')
+@login_required
+def export_subscribers():
+    import csv
+    from io import StringIO
+    from flask import make_response
+    
+    current_app.logger.info(f"Admin {current_user.email} exporting subscribers as CSV")
+    
+    subscribers = ExternalSubscriber.query.order_by(
+        ExternalSubscriber.added_on.desc()
+    ).all()
+    
+    # Create CSV in memory
+    si = StringIO()
+    writer = csv.writer(si)
+    writer.writerow(['Email', 'Source', 'Subscribed Date'])
+    
+    for sub in subscribers:
+        writer.writerow([
+            sub.email,
+            sub.source,
+            sub.added_on.strftime('%Y-%m-%d %H:%M:%S')
+        ])
+    
+    output = make_response(si.getvalue())
+    output.headers["Content-Disposition"] = "attachment; filename=newsletter_subscribers.csv"
+    output.headers["Content-type"] = "text/csv"
+    
+    current_app.logger.info(f"CSV export completed: {len(subscribers)} subscribers")
+    
+    return output
+
+
+# VIEW NEWSLETTER WITH LOGGING
 @admin_bp.route('/admin/newsletter/<int:id>')
 @login_required
 def view_newsletter(id):
     newsletter = Newsletter.query.get_or_404(id)
+    current_app.logger.info(
+        f"Admin {current_user.email} viewing newsletter: {newsletter.title} (ID: {id})"
+    )
     return render_template('admin/view_newsletter.html', newsletter=newsletter)
 
-# --- Edit Newsletter ---
+
+# EDIT NEWSLETTER WITH LOGGING
 @admin_bp.route('/admin/newsletter/<int:id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_newsletter(id):
@@ -1316,25 +1508,36 @@ def edit_newsletter(id):
         try:
             validate_csrf(token)
         except CSRFError:
+            current_app.logger.warning(
+                f"CSRF validation failed for admin {current_user.email} editing newsletter {id}"
+            )
             abort(400, description="CSRF token is missing or invalid.")
 
+        old_title = newsletter.title
         newsletter.title = request.form.get('title')
         newsletter.content = request.form.get('content')
 
         if not newsletter.title or not newsletter.content:
+            current_app.logger.warning(
+                f"Admin {current_user.email} attempted to save newsletter {id} with empty fields"
+            )
             flash("Title and content are required.", "danger")
             return redirect(url_for('admin.edit_newsletter', id=id))
 
         db.session.commit()
+        current_app.logger.info(
+            f"Admin {current_user.email} updated newsletter {id}: '{old_title}' → '{newsletter.title}'"
+        )
         flash("Newsletter updated successfully.", "success")
         return redirect(url_for('admin.view_newsletter', id=id))
 
+    current_app.logger.info(
+        f"Admin {current_user.email} accessing edit page for newsletter {id}"
+    )
     return render_template('admin/edit_newsletter.html', newsletter=newsletter, csrf_token=generate_csrf())
 
-# --- Delete Newsletter ---
-from flask_wtf.csrf import validate_csrf
-from wtforms.validators import ValidationError
 
+# DELETE NEWSLETTER WITH LOGGING
 @admin_bp.route('/admin/newsletter/<int:id>/delete', methods=['POST'])
 @login_required
 def delete_newsletter(id):
@@ -1343,14 +1546,22 @@ def delete_newsletter(id):
     try:
         validate_csrf(token)
     except ValidationError:
+        current_app.logger.warning(
+            f"CSRF validation failed for admin {current_user.email} deleting newsletter {id}"
+        )
         abort(400, description="CSRF token is missing or invalid.")
 
     newsletter = Newsletter.query.get_or_404(id)
+    newsletter_title = newsletter.title
+    
     db.session.delete(newsletter)
     db.session.commit()
+    
+    current_app.logger.info(
+        f"Admin {current_user.email} deleted newsletter {id}: '{newsletter_title}'"
+    )
     flash("Newsletter deleted successfully.", "success")
     return redirect(url_for('admin.list_newsletters'))
-
 
 # send order status mail
 @admin_bp.route('/update-received-order-status/<int:order_id>', methods=['POST'])
