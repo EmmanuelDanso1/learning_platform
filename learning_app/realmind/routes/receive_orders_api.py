@@ -3,12 +3,16 @@ from learning_app.realmind.models import ReceivedOrder, ReceivedOrderItem
 from learning_app.extensions import db
 import os
 import logging
+# including to csrf_exempt becuase its a server to server API call
+# i.e from bookshop to realmindxgh
+from flask_wtf.csrf import csrf_exempt
 
 logger = logging.getLogger(__name__)
 
 api_bp = Blueprint('api', __name__)
 
 @api_bp.route('/api/orders', methods=['POST'])
+@csrf_exempt
 def receive_order():
     """Receive orders from Bookshop and save to admin dashboard"""
     

@@ -1,6 +1,8 @@
 import os
 import logging
 from flask_wtf import CSRFProtect
+from flask_wtf.csrf import csrf_exempt
+
 from flask import Flask, current_app
 from flask_sqlalchemy import SQLAlchemy
 from learning_app.extensions import db,bcrypt,migrate,mail, login_manager
