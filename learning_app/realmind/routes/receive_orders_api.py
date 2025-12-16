@@ -64,7 +64,6 @@ def receive_order():
             full_name=data['full_name'],
             email=data['email'],
             address=data['address'],
-            phone=data.get('phone', ''),  # Include phone if provided
             total_amount=data['total_amount'],
             payment_method=data['payment_method']
         )
