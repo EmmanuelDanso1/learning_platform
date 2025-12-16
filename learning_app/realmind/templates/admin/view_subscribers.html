@@ -27,6 +27,7 @@
           <th>Email</th>
           <th>Source</th>
           <th>Subscribed On</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -38,10 +39,37 @@
             <span class="badge bg-primary">{{ subscriber.source }}</span>
           </td>
           <td>{{ subscriber.added_on.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>
+            <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ subscriber.id }}">
+              <i class="bi bi-trash"></i> Delete
+            </button>
+
+            <!-- Delete Modal -->
+            <div class="modal fade" id="deleteModal{{ subscriber.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ subscriber.id }}" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <form method="POST" action="{{ url_for('admin.delete_subscriber', id=subscriber.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="deleteModalLabel{{ subscriber.id }}">Confirm Delete</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      Are you sure you want to unsubscribe <strong>{{ subscriber.email }}</strong>?
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </td>
         </tr>
         {% else %}
         <tr>
-          <td colspan="4" class="text-center text-muted">
+          <td colspan="5" class="text-center text-muted">
             No subscribers yet. <a href="{{ url_for('admin.sync_subscribers') }}">Sync from Bookshop</a>
           </td>
         </tr>

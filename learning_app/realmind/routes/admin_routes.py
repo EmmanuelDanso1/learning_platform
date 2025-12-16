@@ -1563,6 +1563,33 @@ def delete_newsletter(id):
     flash("Newsletter deleted successfully.", "success")
     return redirect(url_for('admin.list_newsletters'))
 
+# DELETE SUBSCRIBER
+@admin_bp.route('/admin/subscriber/<int:id>/delete', methods=['POST'])
+@login_required
+def delete_subscriber(id):
+    token = request.form.get('csrf_token')
+
+    try:
+        validate_csrf(token)
+    except ValidationError:
+        current_app.logger.warning(
+            f"CSRF validation failed for admin {current_user.email} deleting subscriber {id}"
+        )
+        abort(400, description="CSRF token is missing or invalid.")
+
+    subscriber = ExternalSubscriber.query.get_or_404(id)
+    subscriber_email = subscriber.email
+    
+    db.session.delete(subscriber)
+    db.session.commit()
+    
+    current_app.logger.info(
+        f"Admin {current_user.email} deleted subscriber {id}: '{subscriber_email}'"
+    )
+    flash(f"Subscriber {subscriber_email} has been removed.", "success")
+    return redirect(url_for('admin.view_subscribers'))
+
+
 # send order status mail
 @admin_bp.route('/update-received-order-status/<int:order_id>', methods=['POST'])
 @login_required
