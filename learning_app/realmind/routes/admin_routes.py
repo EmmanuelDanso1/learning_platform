@@ -1357,6 +1357,7 @@ def create_newsletter():
             try:
                 msg = Message(
                     subject=title,
+                    sender=current_app.config['MAIL_USERNAME'],
                     recipients=[subscriber.email],
                     html=content
                 )
