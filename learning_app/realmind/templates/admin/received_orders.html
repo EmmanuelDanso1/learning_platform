@@ -100,12 +100,22 @@ document.querySelectorAll('.status-update-form').forEach(form => {
     e.preventDefault();
     const orderId = this.dataset.orderId;
     const formData = new FormData(this);
+    const status = formData.get('status');
 
-    fetch(`/update-received-order-status/${orderId}`, {
+    fetch(`/admin/update-received-order-status/${orderId}`, {
       method: 'POST',
-      body: formData
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token() }}'
+      },
+      body: JSON.stringify({ status: status })
     })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
     .then(data => {
       if (data.success) {
         const toastEl = document.getElementById('statusToast');
@@ -113,10 +123,8 @@ document.querySelectorAll('.status-update-form').forEach(form => {
         toast.show();
 
         if (data.status === 'Delivered') {
-          // Replace form with Delivered badge
           this.parentElement.innerHTML = `<span class="badge bg-success">Delivered</span>`;
         } else {
-          // Update dropdown value if needed
           const select = this.querySelector('select[name="status"]');
           if (select) select.value = data.status;
         }
@@ -125,7 +133,8 @@ document.querySelectorAll('.status-update-form').forEach(form => {
       }
     })
     .catch(err => {
-      alert('Error: ' + err);
+      console.error('Error:', err);
+      alert('Error updating status: ' + err.message);
     });
   });
 });

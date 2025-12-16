@@ -1592,51 +1592,66 @@ def delete_subscriber(id):
 
 
 # send order status mail
-@admin_bp.route('/update-received-order-status/<int:order_id>', methods=['POST'])
+@admin_bp.route('/admin/update-received-order-status/<int:order_id>', methods=['POST'])
 @login_required
 def update_received_order_status(order_id):
-    order = ReceivedOrder.query.get_or_404(order_id)
-    new_status = request.form.get('status')
-
-    if new_status not in ['Received', 'In Process', 'Delivered']:
-        return jsonify({'error': 'Invalid status'}), 400
-
-    # Update local DB
-    order.status = new_status
-    db.session.commit()
-
-    # Send email to user if delivered
-    if new_status == 'Delivered':
-        try:
-            send_order_status_email(
-                to=order.email,
-                full_name=order.full_name,
-                order_id=order.original_order_id,
-                status=new_status,
-                order_date=datetime.now().strftime('%d %B %Y %I:%M%p').lower()
-            )
-        except Exception as e:
-            current_app.logger.error(f"Failed to send delivery email: {e}")
-
-    # Send API update to e-commerce
-    # Sync to e-commerce
-    BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
-    API_TOKEN = os.getenv('API_TOKEN')
-    api_url = f"{BOOKSHOP_API}/orders/{order.original_order_id}/status"
-    token = os.getenv('API_TOKEN')
-    headers = {'Authorization': f'Bearer {token}'}
-    payload = {'status': new_status}
-
+    """Update status of received order from Bookshop"""
+    
     try:
-        response = requests.post(api_url, json=payload, headers=headers)
-        if response.status_code != 200:
-            current_app.logger.error(f"API update failed: {response.text}")
-            return jsonify({'error': 'API sync failed'}), 500
-    except Exception as e:
-        current_app.logger.error(f"API request error: {e}")
-        return jsonify({'error': 'API request error'}), 500
+        data = request.get_json()
+        if not data or 'status' not in data:
+            return jsonify({'error': 'Missing status', 'success': False}), 400
 
-    return jsonify({'success': True, 'status': new_status})
+        new_status = data['status']
+        if new_status not in ['Received', 'In Process', 'Delivered']:
+            return jsonify({'error': 'Invalid status', 'success': False}), 400
+
+        # Get order from admin dashboard
+        order = ReceivedOrder.query.get_or_404(order_id)
+        old_status = order.status
+        order.status = new_status
+        db.session.commit()
+        
+        current_app.logger.info(
+            f"[Admin] Order {order.original_order_id} status updated: "
+            f"{old_status} → {new_status} by {current_user.email}"
+        )
+
+        # Sync status to Bookshop
+        try:
+            api_base_url = os.getenv('ECOMMERCE_API_BASE_URL')  # bookshop URL
+            api_token = os.getenv('API_TOKEN')
+            
+            if api_base_url and api_token:
+                sync_response = requests.post(
+                    f'{api_base_url}/api/orders/{order.original_order_id}/status',
+                    json={'status': new_status},
+                    headers={
+                        'Authorization': f'Bearer {api_token}',
+                        'Content-Type': 'application/json'
+                    },
+                    timeout=5
+                )
+                
+                if sync_response.status_code == 200:
+                    current_app.logger.info(
+                        f"[Admin] Status synced to Bookshop for order {order.original_order_id}"
+                    )
+                else:
+                    current_app.logger.warning(
+                        f"[Admin] Failed to sync status to Bookshop: {sync_response.status_code}"
+                    )
+        except Exception as sync_err:
+            current_app.logger.error(
+                f"[Admin] Error syncing status to Bookshop: {sync_err}"
+            )
+
+        return jsonify({'success': True, 'status': new_status})
+
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.exception(f"[Admin] Error updating order status: {e}")
+        return jsonify({'error': 'Internal server error', 'success': False}), 500
 
 # View user profile
 @admin_bp.route("/view-user/<int:user_id>")

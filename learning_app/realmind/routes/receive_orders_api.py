@@ -86,7 +86,7 @@ def receive_order():
         db.session.commit()
         
         current_app.logger.info(
-            f"[Admin API] ✓ Order {order_id} saved successfully with {items_count} items"
+            f"[Admin API] Order {order_id} saved successfully with {items_count} items"
         )
 
         return jsonify({
