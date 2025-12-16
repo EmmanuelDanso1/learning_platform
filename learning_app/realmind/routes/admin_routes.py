@@ -778,31 +778,38 @@ from flask_wtf.csrf import generate_csrf
 @login_required
 def upload_info():
     if request.method == 'POST':
-        title = request.form['title'].strip()
-        source = request.form['source'].strip()
-        doc_file = request.files['file']
+        title = request.form.get('title', '').strip()
+        source = request.form.get('source', '').strip()
+        doc_file = request.files.get('file')
         image_file = request.files.get('image')
 
         if not title or not source or not doc_file:
             flash("Please fill out all required fields.", "warning")
+            current_app.logger.warning("Upload failed: missing required fields")
             return redirect(url_for('admin.upload_info'))
 
-        # Save locally
-        upload_dir = os.path.join(current_app.root_path, 'realmind/static/uploads')
+        upload_dir = os.path.join(current_app.root_path, 'realmind', 'static', 'uploads')
         os.makedirs(upload_dir, exist_ok=True)
 
+        # ---- Save document locally ----
         doc_filename = secure_filename(doc_file.filename)
         doc_path = os.path.join(upload_dir, doc_filename)
         doc_file.save(doc_path)
 
+        current_app.logger.info(f"Info file saved locally: {doc_path}")
+
+        # ---- Save image locally (optional) ----
         image_filename = None
         image_path = None
+
         if image_file and image_file.filename:
             image_filename = secure_filename(image_file.filename)
             image_path = os.path.join(upload_dir, image_filename)
             image_file.save(image_path)
 
-        # Save to DB
+            current_app.logger.info(f"Info image saved locally: {image_path}")
+
+        # ---- Save to DB ----
         new_doc = InfoDocument(
             title=title,
             source=source,
@@ -813,7 +820,14 @@ def upload_info():
         db.session.add(new_doc)
         db.session.commit()
 
-        # Sync to e-commerce
+        current_app.logger.info(
+            f"🗄 InfoDocument created (ID={new_doc.id}) by admin {current_user.id}"
+        )
+
+        # ---- Sync to bookshop.realmindxgh.com ----
+        BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
+        API_TOKEN = os.getenv("API_TOKEN")
+
         data = {
             'title': title,
             'source': source,
@@ -821,43 +835,62 @@ def upload_info():
         }
 
         files = {
-            'file': (doc_file.filename, open(doc_path, 'rb'), doc_file.mimetype)
+            'file': (doc_filename, open(doc_path, 'rb'), doc_file.mimetype)
         }
-        if image_file and image_filename:
-            files['image'] = (image_file.filename, open(image_path, 'rb'), image_file.mimetype)
 
-        headers = {
-            'Authorization': f'Bearer {os.getenv("API_TOKEN")}'
-        }
-        # Sync to e-commerce
-        BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
-        API_TOKEN = os.getenv('API_TOKEN')
+        if image_filename:
+            files['image'] = (
+                image_filename,
+                open(image_path, 'rb'),
+                image_file.mimetype
+            )
+
+        headers = {'Authorization': f'Bearer {API_TOKEN}'}
+
         try:
+            current_app.logger.info("Syncing info document to Bookshop API")
+
             res = requests.post(
-                f'{BOOKSHOP_API}/info',
+                f"{BOOKSHOP_API}/info",
                 data=data,
                 files=files,
-                headers=headers
+                headers=headers,
+                timeout=15
             )
+
+            current_app.logger.info(
+                f"Bookshop response: {res.status_code} - {res.text}"
+            )
+
             if res.status_code == 201:
                 ecommerce_id = res.json().get('id')
                 new_doc.ecommerce_id = ecommerce_id
                 db.session.commit()
-                flash("Info document uploaded and synced to e-commerce site.", "success")
+
+                current_app.logger.info(
+                    f"Info synced successfully (Bookshop ID={ecommerce_id})"
+                )
+                flash("Info document uploaded and synced successfully.", "success")
             else:
-                flash(f"Failed to sync: {res.status_code} - {res.text}", "danger")
+                flash("Failed to sync info document.", "danger")
+                current_app.logger.error("Info sync failed")
+
         except Exception as e:
-            print("Upload error:", e)
+            current_app.logger.exception("Exception during info sync")
             flash("An error occurred during upload.", "danger")
+
         finally:
+            # ---- Always close file handles ----
             files['file'][1].close()
             if 'image' in files:
                 files['image'][1].close()
 
         return redirect(url_for('admin.upload_info'))
 
-    # GET method
-    return render_template('admin/upload_info.html', csrf_token=generate_csrf())
+    return render_template(
+        'admin/upload_info.html',
+        csrf_token=generate_csrf()
+    )
 
 
 # edit and delete
@@ -867,13 +900,14 @@ def edit_info(id):
     info = InfoDocument.query.get_or_404(id)
 
     if request.method == 'POST':
-        # Validate CSRF token
-        csrf_token = request.form.get('csrf_token')
-        if not csrf_token or csrf_token != generate_csrf():
-            abort(400, description="CSRF token is missing or invalid.")
+        # ---- CSRF validation ----
+        try:
+            validate_csrf(request.form.get('csrf_token'))
+        except CSRFError:
+            abort(400, description="Invalid CSRF token")
 
-        info.title = request.form['title']
-        info.source = request.form['source']
+        info.title = request.form.get('title', '').strip()
+        info.source = request.form.get('source', '').strip()
 
         file = request.files.get('file')
         image = request.files.get('image')
@@ -884,119 +918,136 @@ def edit_info(id):
         file_path = None
         image_path = None
 
-        if file and file.filename and allowed_file(file.filename):
+        # ---- File update ----
+        if file and file.filename:
             filename = secure_filename(file.filename)
             file_path = os.path.join(upload_dir, filename)
             file.save(file_path)
+
+            current_app.logger.info(f"Info file updated locally: {file_path}")
             info.filename = filename
 
-        if image and image.filename and allowed_image_file(image.filename):
+        # ---- Image update ----
+        if image and image.filename:
             image_filename = secure_filename(image.filename)
             image_path = os.path.join(upload_dir, image_filename)
             image.save(image_path)
+
+            current_app.logger.info(f"🖼 Info image updated locally: {image_path}")
             info.image = image_filename
 
         db.session.commit()
-        flash("Info document updated successfully.", "success")
+        current_app.logger.info(f"InfoDocument updated (ID={info.id})")
 
-        # Sync with e-commerce platform
-        # Sync to e-commerce
+        # ---- Sync update to Bookshop ----
         BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
-        API_TOKEN = os.getenv('API_TOKEN')
-        try:
-            if info.ecommerce_id:
-                ecommerce_base_url = os.getenv('ECOMMERCE_API_BASE_URL')
-                api_token = os.getenv('API_TOKEN')
+        API_TOKEN = os.getenv("API_TOKEN")
 
-                payload = {
-                    'title': info.title,
-                    'source': info.source
-                }
-                files = {}
+        if info.ecommerce_id:
+            payload = {
+                'title': info.title,
+                'source': info.source
+            }
+
+            files = {}
+            try:
                 if file_path:
-                    files['file'] = (file.filename, open(file_path, 'rb'), file.mimetype)
+                    files['file'] = (info.filename, open(file_path, 'rb'))
                 if image_path:
-                    files['image'] = (image.filename, open(image_path, 'rb'), image.mimetype)
+                    files['image'] = (info.image, open(image_path, 'rb'))
 
-                response = requests.patch(
-                    f"{BOOKSHOP_API}/info/{info.ecommerce_id}",
-                    data=payload,
-                    files=files,
-                    headers={'Authorization': f'Bearer {api_token}'}
+                current_app.logger.info(
+                    f"Syncing Info update to Bookshop (ID={info.ecommerce_id})"
                 )
 
-                if response.status_code != 200:
-                    print("E-commerce update sync failed:", response.text)
-                else:
-                    print("E-commerce update sync successful.")
-        except Exception as e:
-            print("E-commerce sync error:", e)
-        finally:
-            if file_path:
-                files['file'][1].close()
-            if image_path:
-                files['image'][1].close()
+                res = requests.patch(
+                    f"{BOOKSHOP_API}/info/{info.ecommerce_id}",
+                    data=payload,
+                    files=files if files else None,
+                    headers={'Authorization': f'Bearer {API_TOKEN}'},
+                    timeout=15
+                )
 
+                current_app.logger.info(
+                    f"Bookshop update response: {res.status_code} - {res.text}"
+                )
+
+            except Exception:
+                current_app.logger.exception("Failed to sync Info update to Bookshop")
+
+            finally:
+                for f in files.values():
+                    f[1].close()
+
+        flash("Info document updated successfully.", "success")
         return redirect(url_for('admin.manage_info'))
 
-    return render_template('admin/edit_info.html', info=info, csrf_token=generate_csrf())
-
+    return render_template(
+        'admin/edit_info.html',
+        info=info,
+        csrf_token=generate_csrf()
+    )
 
 @admin_bp.route('/admin/info/<int:id>/delete', methods=['POST'])
 @login_required
 def delete_info(id):
-    # Proper CSRF validation
-    token = request.form.get('csrf_token')
+    # ---- CSRF validation ----
     try:
-        validate_csrf(token)
+        validate_csrf(request.form.get('csrf_token'))
     except CSRFError:
-        abort(400, description="CSRF token is missing or invalid.")
+        abort(400, description="Invalid CSRF token")
 
     info = InfoDocument.query.get_or_404(id)
 
-    # Delete files if they exist
+    upload_folder = current_app.config['UPLOAD_FOLDER']
+
+    # ---- Delete local files ----
     try:
-        upload_folder = current_app.config['UPLOAD_FOLDER']
         if info.filename:
             file_path = os.path.join(upload_folder, info.filename)
             if os.path.exists(file_path):
                 os.remove(file_path)
+                current_app.logger.info(f"Local file deleted: {file_path}")
+
         if info.image:
             image_path = os.path.join(upload_folder, info.image)
             if os.path.exists(image_path):
                 os.remove(image_path)
-    except Exception as e:
-        print("File deletion failed:", e)
+                current_app.logger.info(f"Local image deleted: {image_path}")
+
+    except Exception:
+        current_app.logger.exception("Failed to delete local info files")
+
+    # ---- Sync delete to Bookshop ----
+    BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
+    API_TOKEN = os.getenv("API_TOKEN")
+
+    if info.ecommerce_id:
+        try:
+            current_app.logger.info(
+                f"Deleting Info from Bookshop (ID={info.ecommerce_id})"
+            )
+
+            res = requests.delete(
+                f"{BOOKSHOP_API}/info/{info.ecommerce_id}",
+                headers={'Authorization': f'Bearer {API_TOKEN}'},
+                timeout=10
+            )
+
+            current_app.logger.info(
+                f" Bookshop delete response: {res.status_code} - {res.text}"
+            )
+
+        except Exception:
+            current_app.logger.exception("Failed to delete Info from Bookshop")
 
     db.session.delete(info)
     db.session.commit()
-    flash("Info document deleted.", "success")
-    # Sync to e-commerce
-    BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
-    # Sync deletion to e-commerce
-    try:
-        if info.ecommerce_id:
-            
-            api_token = os.getenv('API_TOKEN')
 
-            delete_url = f"{BOOKSHOP_API}/info/{info.ecommerce_id}"
-            headers = {'Authorization': f'Bearer {api_token}'}
-
-            response = requests.delete(delete_url, headers=headers)
-
-            if response.status_code != 200:
-                print(f"E-commerce delete sync failed: {response.status_code}")
-                print("Response content:", response.text)
-            else:
-                print("E-commerce delete sync successful.")
-        else:
-            print("No ecommerce_id set. Skipping delete sync.")
-    except Exception as e:
-        print("E-commerce sync error:", e)
+    current_app.logger.info(f"InfoDocument deleted locally (ID={id})")
+    flash("Info document deleted successfully.", "success")
 
     return redirect(url_for('admin.manage_info'))
-
-
 
 @admin_bp.route('/admin/info/manage')
 @login_required

@@ -1,88 +1,134 @@
 {% extends "admin/admin_base.html" %}
+{% block title %}Manage Info Documents{% endblock %}
 
 {% block content %}
 <div class="container py-5">
-    <h2 class="mb-4">Manage Info Documents</h2>
+    <h2 class="mb-4 text-center">Manage Info Documents</h2>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
-          <div class="alert alert-{{ category }}">{{ message }}</div>
+          <div class="alert alert-{{ category }} alert-dismissible fade show">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
         {% endfor %}
       {% endif %}
     {% endwith %}
 
-    <table class="table table-bordered table-hover">
-        <thead class="table-light">
-            <tr>
-                <th>Title</th>
-                <th>Source</th>
-                <th>File</th>
-                <th>Image</th>
-                <th>Uploaded</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Title</th>
+                    <th>Source</th>
+                    <th>File</th>
+                    <th>Image</th>
+                    <th>Uploaded</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
             {% if documents %}
                 {% for doc in documents %}
                 <tr>
                     <td>{{ doc.title }}</td>
+
                     <td>
-                      {% if doc.source.startswith('http') %}
-                        <a href="{{ doc.source }}" target="_blank">{{ doc.source }}</a>
-                      {% else %}
-                        {{ doc.source }}
-                      {% endif %}
+                        {% if doc.source.startswith('http') %}
+                            <a href="{{ doc.source }}" target="_blank">{{ doc.source }}</a>
+                        {% else %}
+                            {{ doc.source }}
+                        {% endif %}
                     </td>
+
                     <td>
-                        <a href="{{ url_for('static', filename='uploads/' ~ doc.filename) }}" target="_blank">View</a>
-                    </td>
-                    <td>
-                        {% if doc.image %}
-                            <img src="{{ url_for('static', filename='uploads/' ~ doc.image) }}" width="60">
+                        {% if doc.filename %}
+                            <a href="{{ url_for('static', filename='uploads/' ~ doc.filename) }}"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-primary">
+                                View
+                            </a>
                         {% else %}
                             —
                         {% endif %}
                     </td>
-                    <td>{{ doc.upload_date.strftime('%Y-%m-%d') }}</td>
+
                     <td>
-                        <a href="{{ url_for('admin.edit_info', id=doc.id) }}" class="btn btn-sm btn-primary">Edit</a>
-                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ doc.id }}">
+                        {% if doc.image %}
+                            <img src="{{ url_for('static', filename='uploads/' ~ doc.image) }}"
+                                 width="60"
+                                 class="rounded border">
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
+                    <td>{{ doc.upload_date.strftime('%Y-%m-%d') }}</td>
+
+                    <td>
+                        <a href="{{ url_for('admin.edit_info', id=doc.id) }}"
+                           class="btn btn-sm btn-warning">
+                            Edit
+                        </a>
+
+                        <button class="btn btn-sm btn-danger"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteModal{{ doc.id }}">
                             Delete
                         </button>
 
-                        <!-- Delete Confirmation Modal -->
-                        <div class="modal fade" id="deleteModal{{ doc.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ doc.id }}" aria-hidden="true">
-                          <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h5 class="modal-title" id="deleteModalLabel{{ doc.id }}">Confirm Delete</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                              </div>
-                              <div class="modal-body">
-                                Are you sure you want to delete "<strong>{{ doc.title }}</strong>"?
-                              </div>
-                              <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <form method="POST" action="{{ url_for('admin.delete_info', id=doc.id) }}" style="display:inline;">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                                    <button type="submit" class="btn btn-danger">Delete</button>
-                                </form>
-                              </div>
+                        <!-- Delete Modal -->
+                        <div class="modal fade"
+                             id="deleteModal{{ doc.id }}"
+                             tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Confirm Delete</h5>
+                                        <button type="button"
+                                                class="btn-close"
+                                                data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Delete <strong>{{ doc.title }}</strong>?
+                                        <p class="text-muted small mt-1">
+                                            This will also delete it from Bookshop.
+                                        </p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button"
+                                                class="btn btn-secondary"
+                                                data-bs-dismiss="modal">
+                                            Cancel
+                                        </button>
+                                        <form method="POST"
+                                              action="{{ url_for('admin.delete_info', id=doc.id) }}">
+                                            <input type="hidden"
+                                                   name="csrf_token"
+                                                   value="{{ csrf_token }}">
+                                            <button type="submit"
+                                                    class="btn btn-danger">
+                                                Yes, Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
-                          </div>
                         </div>
-                        <!-- End of Modal -->
+                        <!-- End Modal -->
                     </td>
                 </tr>
                 {% endfor %}
             {% else %}
                 <tr>
-                    <td colspan="6" class="text-center text-muted">No documents found.</td>
+                    <td colspan="6" class="text-center text-muted">
+                        No info documents uploaded yet.
+                    </td>
                 </tr>
             {% endif %}
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

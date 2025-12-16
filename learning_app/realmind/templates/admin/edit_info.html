@@ -1,35 +1,102 @@
 {% extends "admin/admin_base.html" %}
+{% block title %}Edit Info Document{% endblock %}
+
 {% block content %}
-<div class="container py-5">
-    <h2 class="mb-4">Edit Info Document</h2>
+<div class="container py-5" style="max-width: 720px;">
+    <h2 class="mb-4 text-center">Edit Info Document</h2>
 
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" class="bg-light p-4 rounded shadow-sm">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+        <!-- Title -->
         <div class="mb-3">
-            <label class="form-label">Title</label>
-            <input type="text" name="title" class="form-control" value="{{ info.title }}" required>
+            <label class="form-label fw-semibold">Title</label>
+            <input type="text"
+                   name="title"
+                   class="form-control"
+                   value="{{ info.title }}"
+                   required>
         </div>
 
+        <!-- Source -->
         <div class="mb-3">
-            <label class="form-label">Source</label>
-            <input type="text" name="source" class="form-control" value="{{ info.source }}" required>
+            <label class="form-label fw-semibold">Source</label>
+            <input type="text"
+                   name="source"
+                   class="form-control"
+                   value="{{ info.source }}"
+                   required>
         </div>
 
+        <!-- Replace Document -->
         <div class="mb-3">
-            <label class="form-label">Replace Document (Optional)</label>
-            <input type="file" name="file" class="form-control" accept=".pdf,.doc,.docx">
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Replace Image (Optional)</label>
-            <input type="file" name="image" class="form-control" accept="image/*">
-            {% if info.image %}
-                <p class="mt-2">Current: <img src="{{ url_for('static', filename='uploads/' ~ info.image) }}" width="80"></p>
+            <label class="form-label fw-semibold">Replace Document (Optional)</label>
+            <input type="file"
+                   name="file"
+                   class="form-control"
+                   accept=".pdf,.doc,.docx">
+            {% if info.filename %}
+                <small class="text-muted d-block mt-1">
+                    Current file:
+                    <a href="{{ url_for('static', filename='uploads/' ~ info.filename) }}"
+                       target="_blank">
+                        {{ info.filename }}
+                    </a>
+                </small>
             {% endif %}
         </div>
 
-        <button type="submit" class="btn btn-success">Save Changes</button>
-        <a href="{{ url_for('admin.manage_info') }}" class="btn btn-secondary">Cancel</a>
+        <!-- Replace Image -->
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Replace Image (Optional)</label>
+            <input type="file"
+                   name="image"
+                   class="form-control"
+                   accept="image/*"
+                   onchange="previewImage(event)">
+        </div>
+
+        {% if info.image %}
+        <div class="mb-3 text-center">
+            <p class="mb-1 text-muted">Current Image</p>
+            <img src="{{ url_for('static', filename='uploads/' ~ info.image) }}"
+                 id="currentImage"
+                 class="img-thumbnail"
+                 width="140">
+        </div>
+        {% endif %}
+
+        <!-- New Preview -->
+        <div class="mb-3 text-center">
+            <img id="imagePreview"
+                 class="img-thumbnail d-none"
+                 style="max-width: 160px;">
+        </div>
+
+        <!-- Actions -->
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-success w-100">
+                Save & Sync
+            </button>
+            <a href="{{ url_for('admin.manage_info') }}" class="btn btn-secondary w-100">
+                Cancel
+            </a>
+        </div>
     </form>
 </div>
+
+<script>
+function previewImage(event) {
+    const img = document.getElementById('imagePreview');
+    const file = event.target.files[0];
+
+    if (!file) {
+        img.classList.add('d-none');
+        return;
+    }
+
+    img.src = URL.createObjectURL(file);
+    img.classList.remove('d-none');
+}
+</script>
 {% endblock %}

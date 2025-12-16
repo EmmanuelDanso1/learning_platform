@@ -1,41 +1,105 @@
 {% extends "admin/admin_base.html" %}
 
+{% block title %}Upload Info Document{% endblock %}
+
 {% block content %}
-<div class="container py-5">
+<div class="container py-5" style="max-width: 720px;">
     <h2 class="mb-4 text-center">Upload Info Document</h2>
 
-    <form method="POST" enctype="multipart/form-data" class="bg-light p-4 rounded shadow">
+    <form method="POST"
+          enctype="multipart/form-data"
+          class="bg-light p-4 rounded shadow-sm">
+
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
 
         <!-- Title -->
         <div class="mb-3">
-            <label for="title" class="form-label fw-semibold">Document Title</label>
-            <input type="text" id="title" name="title" class="form-control" placeholder="e.g. 2024 Curriculum Update" required>
+            <label for="title" class="form-label fw-semibold">
+                Document Title <span class="text-danger">*</span>
+            </label>
+            <input type="text"
+                   id="title"
+                   name="title"
+                   class="form-control"
+                   placeholder="e.g. 2024 Curriculum Update"
+                   required>
         </div>
 
         <!-- Source -->
         <div class="mb-3">
-            <label for="source" class="form-label fw-semibold">Source (URL or Text)</label>
-            <input type="text" id="source" name="source" class="form-control" placeholder="e.g. https://ges.gov.gh or WAEC" required>
-            <div class="form-text">You may enter a URL or just a name like GES, WAEC, etc.</div>
+            <label for="source" class="form-label fw-semibold">
+                Source <span class="text-danger">*</span>
+            </label>
+            <input type="text"
+                   id="source"
+                   name="source"
+                   class="form-control"
+                   placeholder="e.g. GES, WAEC, https://ges.gov.gh"
+                   required>
+            <small class="text-muted">
+                URL or organization name (GES, WAEC, etc.)
+            </small>
         </div>
 
-        <!-- File Upload -->
+        <!-- Document File -->
         <div class="mb-3">
-            <label for="file" class="form-label fw-semibold">Select Document</label>
-            <input type="file" id="file" name="file" class="form-control" accept=".pdf,.doc,.docx" required>
-            <div class="form-text">Accepted formats: PDF, DOC, DOCX</div>
+            <label for="file" class="form-label fw-semibold">
+                Document File <span class="text-danger">*</span>
+            </label>
+            <input type="file"
+                   id="file"
+                   name="file"
+                   class="form-control"
+                   accept=".pdf,.doc,.docx"
+                   required>
+            <small class="text-muted">
+                Accepted formats: PDF, DOC, DOCX
+            </small>
         </div>
 
-        <!-- Optional Image -->
+        <!-- Thumbnail Image -->
         <div class="mb-3">
-            <label for="image" class="form-label fw-semibold">Thumbnail Image (Optional)</label>
-            <input type="file" id="image" name="image" class="form-control" accept="image/*">
-            <div class="form-text">Accepted formats: JPG, PNG, WEBP, etc.</div>
+            <label for="image" class="form-label fw-semibold">
+                Thumbnail Image (Optional)
+            </label>
+            <input type="file"
+                   id="image"
+                   name="image"
+                   class="form-control"
+                   accept="image/*"
+                   onchange="previewImage(event)">
+            <small class="text-muted">
+                JPG, PNG, WEBP recommended
+            </small>
         </div>
 
-        <!-- Submit Button -->
-        <button type="submit" class="btn btn-success w-100">Upload Info</button>
+        <!-- Image Preview -->
+        <div class="mb-3 text-center">
+            <img id="imagePreview"
+                 src=""
+                 class="img-thumbnail d-none"
+                 style="max-width: 180px;">
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn btn-success w-100">
+            Upload & Sync to Bookshop
+        </button>
     </form>
 </div>
+
+<script>
+function previewImage(event) {
+    const img = document.getElementById('imagePreview');
+    const file = event.target.files[0];
+
+    if (!file) {
+        img.classList.add('d-none');
+        return;
+    }
+
+    img.src = URL.createObjectURL(file);
+    img.classList.remove('d-none');
+}
+</script>
 {% endblock %}
