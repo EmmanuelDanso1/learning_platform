@@ -14,7 +14,10 @@ class Admin(UserMixin, db.Model):
     profile_pic = db.Column(db.String(255), nullable=True)
     job_posts = db.relationship('JobPost', backref='admin', lazy=True)
     news_posts = db.relationship('News', backref='admin', lazy=True)
-
+    # google auth
+    auth_provider = db.Column(db.String(20), default='local')  # 'local' or 'google'
+    google_id = db.Column(db.String(255), unique=True, nullable=True)
+    
     # Email verification fields
     is_verified = db.Column(db.Boolean, default=False)
     otp_code = db.Column(db.String(6), nullable=True)
