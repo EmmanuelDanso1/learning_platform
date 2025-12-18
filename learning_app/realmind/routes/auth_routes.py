@@ -245,9 +245,20 @@ def admin_login():
     form = LoginForm()
     if form.validate_on_submit():
         admin = Admin.query.filter_by(email=form.email.data).first()
-        if admin and check_password_hash(admin.password, form.password.data):
+        
+        if not admin:
+            flash("Invalid email or password.", "danger")
+            return redirect(url_for("auth.admin_login"))
+        
+        # If admin uses Google login only
+        if admin.auth_provider == "google" and not admin.password:
+            flash("This account is linked to Google Login. Please login using Google.", "warning")
+            return redirect(url_for("auth.admin_login"))
+        
+        if admin.password and check_password_hash(admin.password, form.password.data):
             login_user(admin)
             return redirect(url_for('admin.admin_dashboard'))
+            
         flash('Invalid credentials', 'danger')
     return render_template('admin_login.html', form=form)
 
