@@ -4,6 +4,29 @@
   <h2 class="text-center mb-4">Received Orders</h2>
 
   {% if orders %}
+    <!-- Search/Filter Section -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-8">
+            <input 
+              type="text" 
+              id="searchInput" 
+              class="form-control" 
+              placeholder="Search by Order ID, Customer Name, or Email..."
+              autocomplete="off"
+            >
+          </div>
+          <div class="col-md-4">
+            <button id="clearSearch" class="btn btn-secondary w-100">Clear Search</button>
+          </div>
+        </div>
+        <small class="text-muted d-block mt-2">
+          <span id="resultCount">{{ orders|length }}</span> order(s) found
+        </small>
+      </div>
+    </div>
+
     <table class="table table-bordered table-striped">
       <thead>
         <tr>
@@ -19,9 +42,12 @@
           <th>Action</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="ordersTableBody">
         {% for order in orders %}
-        <tr id="order-row-{{ order.id }}">
+        <tr id="order-row-{{ order.id }}" class="order-row" 
+            data-order-id="{{ order.original_order_id|lower }}" 
+            data-customer-name="{{ order.full_name|lower }}" 
+            data-email="{{ order.email|lower }}">
           <td>{{ order.original_order_id }}</td>
           <td>{{ order.full_name }}</td>
           <td>{{ order.email }}</td>
@@ -96,6 +122,48 @@
 </div>
 
 <script>
+// Search/Filter Functionality
+const searchInput = document.getElementById('searchInput');
+const clearSearchBtn = document.getElementById('clearSearch');
+const orderRows = document.querySelectorAll('.order-row');
+const resultCount = document.getElementById('resultCount');
+
+function filterOrders() {
+  const searchTerm = searchInput.value.toLowerCase().trim();
+  let visibleCount = 0;
+
+  orderRows.forEach(row => {
+    const orderId = row.dataset.orderId;
+    const customerName = row.dataset.customerName;
+    const email = row.dataset.email;
+
+    // Check if search term matches any of the fields
+    const matches = orderId.includes(searchTerm) || 
+                   customerName.includes(searchTerm) || 
+                   email.includes(searchTerm);
+
+    if (matches) {
+      row.style.display = '';
+      visibleCount++;
+    } else {
+      row.style.display = 'none';
+    }
+  });
+
+  resultCount.textContent = visibleCount;
+}
+
+// Search as user types
+searchInput.addEventListener('input', filterOrders);
+
+// Clear search button
+clearSearchBtn.addEventListener('click', function() {
+  searchInput.value = '';
+  filterOrders();
+  searchInput.focus();
+});
+
+// Status Update Form Handling
 document.querySelectorAll('.status-update-form').forEach(form => {
   form.addEventListener('submit', function(e) {
     e.preventDefault();
