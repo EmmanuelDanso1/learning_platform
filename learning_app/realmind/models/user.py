@@ -37,6 +37,9 @@ class User(UserMixin, db.Model):
     # NEW FIELD - track login provider
     auth_provider = db.Column(db.String(20), default="local")  # local | google
 
+    # Account status - NEW FIELD
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
+    
     def __repr__(self):
         return f"<User {self.fullname}>"
     

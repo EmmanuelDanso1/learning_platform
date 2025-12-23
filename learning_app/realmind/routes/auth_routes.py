@@ -222,6 +222,11 @@ def user_login():
             flash("Invalid email or password.", "danger")
             return redirect(url_for("auth.user_login"))
 
+        # Check if user is active
+        if not user.is_active:
+            flash('Your account has been deactivated. Please contact support.', 'danger')
+            return redirect(url_for('auth.user_login'))
+
         # Check if email is verified
         if not user.is_verified:
             flash("Please verify your email before logging in.", "warning")

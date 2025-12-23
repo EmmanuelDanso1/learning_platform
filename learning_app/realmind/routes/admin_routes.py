@@ -1762,3 +1762,20 @@ def delete_user(user_id):
 
     flash(f"User {user.fullname} has been deleted.", "success")
     return redirect(url_for('admin.list_users'))
+
+# Activate and deactivate users
+@admin_bp.route('/deactivate_user/<int:user_id>', methods=['POST'])
+def deactivate_user(user_id):
+    user = User.query.get_or_404(user_id)
+    user.is_active = False
+    db.session.commit()
+    flash(f'{user.fullname} has been deactivated.', 'success')
+    return redirect(url_for('admin.list_users'))
+
+@admin_bp.route('/activate_user/<int:user_id>', methods=['POST'])
+def activate_user(user_id):
+    user = User.query.get_or_404(user_id)
+    user.is_active = True
+    db.session.commit()
+    flash(f'{user.fullname} has been activated.', 'success')
+    return redirect(url_for('admin.list_users'))

@@ -24,22 +24,31 @@
                             <th><input type="checkbox" id="checkAll"></th>
                             <th>Name</th>
                             <th>Email</th>
-                            <th style="width: 180px;">Action</th>
+                            <th>Status</th>
+                            <th style="width: 250px;">Action</th>
                         </tr>
                     </thead>
 
                     <tbody>
                         {% for user in users %}
-                        <tr>
-                            <td><input type="checkbox" name="selected_users" value="{{ user.id }}"></td>
+                        <tr {% if user.is_active == False %}class="table-secondary"{% endif %}>
+                            <td><input type="checkbox" name="selected_users" value="{{ user.id }}" {% if user.is_active == False %}disabled{% endif %}></td>
                             <td>{{ user.fullname }}</td>
                             <td>{{ user.email }}</td>
+                            <td>
+                                {% if user.is_active == False %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                {% else %}
+                                    <span class="badge bg-success">Active</span>
+                                {% endif %}
+                            </td>
 
                             <td>
                               <div class="d-flex gap-2">
 
                                   <a class="btn btn-primary btn-sm"
-                                      href="{{ url_for('admin.send_message_single', user_id=user.id) }}">
+                                      href="{{ url_for('admin.send_message_single', user_id=user.id) }}"
+                                      {% if user.is_active == False %}disabled{% endif %}>
                                       Message
                                   </a>
 
@@ -48,40 +57,78 @@
                                       View
                                   </a>
 
-                                  <button type="button" class="btn btn-danger btn-sm"
+                                  {% if user.is_active == False %}
+                                  <button type="button" class="btn btn-success btn-sm"
                                       data-bs-toggle="modal"
-                                      data-bs-target="#deleteModal{{ user.id }}">
-                                      Delete
+                                      data-bs-target="#activateModal{{ user.id }}">
+                                      Activate
                                   </button>
+                                  {% else %}
+                                  <button type="button" class="btn btn-warning btn-sm"
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#deactivateModal{{ user.id }}">
+                                      Deactivate
+                                  </button>
+                                  {% endif %}
 
                               </div>
                           </td>
 
                         </tr>
 
-                        <!-- DELETE CONFIRMATION MODAL -->
-                        <div class="modal fade" id="deleteModal{{ user.id }}" tabindex="-1" aria-hidden="true">
+                        <!-- DEACTIVATE CONFIRMATION MODAL -->
+                        <div class="modal fade" id="deactivateModal{{ user.id }}" tabindex="-1" aria-hidden="true">
                           <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
 
                               <div class="modal-header">
-                                <h5 class="modal-title">Confirm Delete</h5>
+                                <h5 class="modal-title">Confirm Deactivation</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                               </div>
 
                               <div class="modal-body">
-                                <p class="fw-bold text-danger">
-                                    Are you sure you want to delete <strong>{{ user.fullname }}</strong>?
+                                <p class="fw-bold text-warning">
+                                    Are you sure you want to deactivate <strong>{{ user.fullname }}</strong>?
                                 </p>
-                                <p class="mb-0">This action cannot be undone.</p>
+                                <p class="mb-0">This user will not be able to log in until reactivated.</p>
                               </div>
 
                               <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
 
-                                <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}">
+                                <form method="POST" action="{{ url_for('admin.deactivate_user', user_id=user.id) }}">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                    <button type="submit" class="btn btn-warning">Deactivate</button>
+                                </form>
+                              </div>
+
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- ACTIVATE CONFIRMATION MODAL -->
+                        <div class="modal fade" id="activateModal{{ user.id }}" tabindex="-1" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+
+                              <div class="modal-header">
+                                <h5 class="modal-title">Confirm Activation</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+
+                              <div class="modal-body">
+                                <p class="fw-bold text-success">
+                                    Are you sure you want to activate <strong>{{ user.fullname }}</strong>?
+                                </p>
+                                <p class="mb-0">This user will be able to log in again.</p>
+                              </div>
+
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                                <form method="POST" action="{{ url_for('admin.activate_user', user_id=user.id) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-success">Activate</button>
                                 </form>
                               </div>
 
@@ -105,9 +152,9 @@
 </div>
 
 <script>
-// Select/Deselect all checkboxes
+// Select/Deselect all checkboxes (only active users)
 document.getElementById("checkAll").onclick = function() {
-    let boxes = document.querySelectorAll("input[name='selected_users']");
+    let boxes = document.querySelectorAll("input[name='selected_users']:not([disabled])");
     boxes.forEach(b => b.checked = this.checked);
 };
 
