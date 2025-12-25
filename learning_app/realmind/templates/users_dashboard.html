@@ -54,7 +54,7 @@
 {% if profile_complete %}
 <div class="container py-5">
     <h2 class="fw-bold text-uppercase text-center mb-4" style="color:#0C2E60;">
-        Latest Job Opportunities
+        AVAILABLE TEACHING JOBS TAILORED JUST FOR YOU
     </h2>
 
     {% if jobs|length == 0 %}
@@ -68,6 +68,20 @@
 
                         <h4 class="fw-bold">{{ job.title }}</h4>
                         <p class="text-muted">{{ job.location }}</p>
+                        <!-- Job meta -->
+                        <div class="mb-2">
+                            <span class="badge bg-secondary me-2">
+                                Level: {{ job.level }}
+                            </span>
+
+                            {% if job.subject %}
+                            <span class="badge bg-info text-dark">
+                                Subject: {{ job.subject }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        
+                        
 
                         <p class="mt-2">{{ job.description[:120] }}...</p>
 

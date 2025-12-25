@@ -26,7 +26,7 @@
                 {{ job.description[:100] }}{% if job.description|length > 100 %}...{% endif %}
             </p>
 
-            <form action="{{ url_for('user.apply_homepage', job_id=job.id) }}" method="post">
+            <form action="{{ url_for('user.apply', job_id=job.id) }}" method="post">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="btn btn-primary rounded-pill px-4 py-2">
                     Apply Now

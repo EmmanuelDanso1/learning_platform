@@ -160,7 +160,6 @@
           <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">TEACHING JOBS</a>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="{{ url_for('jobs.job_listings') }}">Job Posts</a></li>
-            <!-- <li><a class="dropdown-item" href="{{ url_for('user.users_dashboard') }}">Dashboard</a></li> -->
           </ul>
         </li>
       </ul>
@@ -193,7 +192,7 @@
           <li><a class="dropdown-item" href="{{ url_for('user.users_dashboard') }}">Dashboard</a></li>
           <li><a class="dropdown-item" href="{{ url_for('user.view_profile') }}">View Profile</a></li>
           <li><a class="dropdown-item" href="{{ url_for('user.edit_profile') }}">Edit Profile</a></li>
-          <li><a class="dropdown-item" href="{{ url_for('user.apply', job_id=job.id) }}">Apply for a Job</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('jobs.job_listings') }}">Apply for a job</a></li>
           <li><a class="dropdown-item" href="#">Application History</a></li>
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item text-danger fw-bold" href="{{ url_for('auth.logout') }}">Logout</a></li>
@@ -211,14 +210,14 @@
 </nav>
 
 
-{% if current_user.is_authenticated and request.endpoint and (request.endpoint.startswith('user.') or request.endpoint.startswith('jobs.apply')) %}
-<!-- Full-width yellow dashboard nav - ONLY shows on user dashboard pages -->
+{% if current_user.is_authenticated and request.endpoint and (request.endpoint.startswith('user.') or request.endpoint.startswith('jobs.')) %}
+<!-- Full-width yellow dashboard nav - ONLY shows on user dashboard and job pages -->
 <div class="user-dashboard-nav text-center">
   <div class="links-wrapper">
     <a href="{{ url_for('user.users_dashboard') }}" class="nav-link-divider">Dashboard</a>
     <a href="{{ url_for('user.view_profile') }}" class="nav-link-divider">View Profile</a>
     <a href="{{ url_for('user.edit_profile') }}" class="nav-link-divider">Edit Profile</a>
-    <a href="{{ url_for('user.apply', job_id=job.id) }}" class="nav-link-divider">Apply for a Job</a>
+    <a href="{{ url_for('jobs.job_listings') }}" class="nav-link-divider">Apply for a job</a>
     <a href="#" class="nav-link-divider">Application History</a>
     <a href="#" class="nav-link-divider">Messages</a>
     <a href="{{ url_for('auth.logout') }}" class="nav-link-divider">Logout</a>
