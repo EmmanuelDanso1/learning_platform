@@ -6,14 +6,33 @@
     {% for job in jobs %}
     <div class="card mb-3 shadow-sm">
         <div class="card-body">
-            <h2 class="card-title">{{ job.title }}</h2>
-            <p class="card-title">{{ job.description[:100] }}</p>
+
+            <h4 class="card-title">{{ job.title }}</h4>
+
+            <!-- Job meta -->
+            <div class="mb-2">
+                <span class="badge bg-secondary me-2">
+                    Level: {{ job.level }}
+                </span>
+
+                {% if job.subject %}
+                <span class="badge bg-info text-dark">
+                    Subject: {{ job.subject }}
+                </span>
+                {% endif %}
+            </div>
+
+            <p class="card-text">
+                {{ job.description[:100] }}{% if job.description|length > 100 %}...{% endif %}
+            </p>
+
             <form action="{{ url_for('user.apply_homepage', job_id=job.id) }}" method="post">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="btn btn-primary rounded-pill px-4 py-2">
                     Apply Now
                 </button>
             </form>
+
         </div>
     </div>
     {% else %}
@@ -21,6 +40,5 @@
         No job openings available at the moment.
     </div>
     {% endfor %}
-
 </div>
 {% endblock %}

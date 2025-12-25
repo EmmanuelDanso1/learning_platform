@@ -15,6 +15,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;600&family=Montserrat:wght@500;600;700&display=swap"
         rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+  
+  <style>
+    /* Center align text in yellow dashboard nav */
+    .user-dashboard-nav .nav-link-divider {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
 
@@ -183,7 +193,7 @@
           <li><a class="dropdown-item" href="{{ url_for('user.users_dashboard') }}">Dashboard</a></li>
           <li><a class="dropdown-item" href="{{ url_for('user.view_profile') }}">View Profile</a></li>
           <li><a class="dropdown-item" href="{{ url_for('user.edit_profile') }}">Edit Profile</a></li>
-          <li><a class="dropdown-item" href="{{ url_for('jobs.job_listings') }}">Apply for a Job</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('user.apply', job_id=job.id) }}">Apply for a Job</a></li>
           <li><a class="dropdown-item" href="#">Application History</a></li>
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item text-danger fw-bold" href="{{ url_for('auth.logout') }}">Logout</a></li>
@@ -201,14 +211,14 @@
 </nav>
 
 
-{% if current_user.is_authenticated %}
-<!-- Full-width yellow dashboard nav -->
+{% if current_user.is_authenticated and request.endpoint and (request.endpoint.startswith('user.') or request.endpoint.startswith('jobs.apply')) %}
+<!-- Full-width yellow dashboard nav - ONLY shows on user dashboard pages -->
 <div class="user-dashboard-nav text-center">
   <div class="links-wrapper">
     <a href="{{ url_for('user.users_dashboard') }}" class="nav-link-divider">Dashboard</a>
     <a href="{{ url_for('user.view_profile') }}" class="nav-link-divider">View Profile</a>
     <a href="{{ url_for('user.edit_profile') }}" class="nav-link-divider">Edit Profile</a>
-    <a href="{{ url_for('jobs.job_listings') }}" class="nav-link-divider">Apply for a Job</a>
+    <a href="{{ url_for('user.apply', job_id=job.id) }}" class="nav-link-divider">Apply for a Job</a>
     <a href="#" class="nav-link-divider">Application History</a>
     <a href="#" class="nav-link-divider">Messages</a>
     <a href="{{ url_for('auth.logout') }}" class="nav-link-divider">Logout</a>

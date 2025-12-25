@@ -6,6 +6,7 @@ class ReceivedOrder(db.Model):
     original_order_id = db.Column(db.String(50))
     user_id = db.Column(db.Integer)
     full_name = db.Column(db.String(120))
+    phone = db.Column(db.String(20))
     email = db.Column(db.String(120))
     address = db.Column(db.String(255))
     total_amount = db.Column(db.Float)

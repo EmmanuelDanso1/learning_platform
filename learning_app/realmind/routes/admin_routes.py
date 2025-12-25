@@ -229,6 +229,8 @@ def post_job():
             title=form.title.data,
             description=form.description.data,
             requirements=form.requirements.data,
+            level=form.level.data,          
+            subject=form.subject.data,
             admin_id=current_user.id
         )
         db.session.add(job)
@@ -286,6 +288,8 @@ def edit_job(job_id):
         job.title = form.title.data
         job.description = form.description.data
         job.requirements = form.requirements.data
+        job.level=form.level.data,          
+        job.subject=form.subject.data,
         db.session.commit()
         flash("Job updated successfully!", "success")
         return redirect(url_for('admin.manage_jobs'))
@@ -1592,10 +1596,91 @@ def delete_subscriber(id):
 
 
 # send order status mail
+def send_order_status_email(order, new_status):
+    """
+    Send HTML email notification to customer based on order status.
+    Each status gets a beautifully formatted HTML email with order details.
+    """
+    try:
+        # Define email subject for each status
+        email_subjects = {
+            'Received': f'Order Received - #{order.original_order_id}',
+            'Processing': f'Your Order Is Being Packaged! - #{order.original_order_id}',
+            'Shipped': f'Your Order Is On Its Way To You! - #{order.original_order_id}',
+            'Delivered': f'Your Order Has Been Delivered! - #{order.original_order_id}'
+        }
+        
+        # Check if status is valid
+        if new_status not in email_subjects:
+            current_app.logger.warning(f"Invalid status for email: {new_status}")
+            return False
+        
+        # Prepare order items data
+        items_list = []
+        for item in order.items:
+            items_list.append({
+                'product_name': item.product_name,
+                'product_id': item.id,  # or item.product_id if you have that field
+                'quantity': item.quantity,
+                'price': item.price
+            })
+        
+        # Calculate totals
+        subtotal = order.total_amount
+        discount = 0.00  # Update this if you have discount logic
+        total = order.total_amount
+        
+        # Get phone number (handle if it doesn't exist)
+        phone = getattr(order, 'phone', 'N/A')
+        
+        # Format order date
+        order_date = order.date_received.strftime('%B %d, %Y')
+        
+        # Render the HTML email template with all order data
+        html_body = render_template(
+            'emails/order_status_email.html',
+            order_id=order.original_order_id,
+            order_date=order_date,
+            full_name=order.full_name,
+            address=order.address,
+            phone=phone,
+            payment_method=order.payment_method,
+            items=items_list,
+            subtotal=subtotal,
+            discount=discount,
+            total=total,
+            status=new_status
+        )
+        
+        # Create email message
+        msg = Message(
+            subject=email_subjects[new_status],
+            sender=('RealMindX Education Ltd', 'noreply@realmindxgh.com'),
+            recipients=[order.email]
+        )
+        
+        # Set HTML body
+        msg.html = html_body
+        
+        # Send email
+        mail.send(msg)
+        
+        current_app.logger.info(
+            f"Email sent successfully to {order.email} for status: {new_status}"
+        )
+        return True
+        
+    except Exception as e:
+        current_app.logger.error(f"Error sending email: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+
 @admin_bp.route('/admin/update-received-order-status/<int:order_id>', methods=['POST'])
 @login_required
 def update_received_order_status(order_id):
-    """Update status of received order from Bookshop"""
+    """Update status of received order from Bookshop and send email notification"""
     
     try:
         data = request.get_json()
@@ -1603,8 +1688,14 @@ def update_received_order_status(order_id):
             return jsonify({'error': 'Missing status', 'success': False}), 400
 
         new_status = data['status']
-        if new_status not in ['Received', 'In Process', 'Delivered']:
-            return jsonify({'error': 'Invalid status', 'success': False}), 400
+        
+        # Updated valid statuses - changed 'In Process' to 'Processing' and added 'Shipped'
+        valid_statuses = ['Received', 'Processing', 'Shipped', 'Delivered']
+        if new_status not in valid_statuses:
+            return jsonify({
+                'error': f'Invalid status. Must be one of: {", ".join(valid_statuses)}',
+                'success': False
+            }), 400
 
         # Get order from admin dashboard
         order = ReceivedOrder.query.get_or_404(order_id)
@@ -1616,6 +1707,18 @@ def update_received_order_status(order_id):
             f"[Admin] Order {order.original_order_id} status updated: "
             f"{old_status} → {new_status} by {current_user.email}"
         )
+
+        # Send HTML email notification to customer
+        email_sent = send_order_status_email(order, new_status)
+        
+        if email_sent:
+            current_app.logger.info(
+                f"[Admin] Email notification sent to {order.email} for order {order.original_order_id}"
+            )
+        else:
+            current_app.logger.warning(
+                f"[Admin] Failed to send email notification for order {order.original_order_id}"
+            )
 
         # Sync status to Bookshop
         try:
@@ -1646,7 +1749,11 @@ def update_received_order_status(order_id):
                 f"[Admin] Error syncing status to Bookshop: {sync_err}"
             )
 
-        return jsonify({'success': True, 'status': new_status})
+        return jsonify({
+            'success': True, 
+            'status': new_status,
+            'email_sent': email_sent
+        })
 
     except Exception as e:
         db.session.rollback()
@@ -1779,3 +1886,83 @@ def activate_user(user_id):
     db.session.commit()
     flash(f'{user.fullname} has been activated.', 'success')
     return redirect(url_for('admin.list_users'))
+
+def send_order_status_email(order, new_status):
+    """
+    Send HTML email notification to customer based on order status.
+    Each status gets a beautifully formatted HTML email with order details.
+    """
+    try:
+        # Define email subject for each status
+        email_subjects = {
+            'Received': f'Order Received - #{order.original_order_id}',
+            'Processing': f'Your Order Is Being Packaged! - #{order.original_order_id}',
+            'Shipped': f'Your Order Is On Its Way To You! - #{order.original_order_id}',
+            'Delivered': f'Your Order Has Been Delivered! - #{order.original_order_id}'
+        }
+        
+        # Check if status is valid
+        if new_status not in email_subjects:
+            print(f"Invalid status: {new_status}")
+            return False
+        
+        # Prepare order items data
+        items_list = []
+        for item in order.items:
+            items_list.append({
+                'product_name': item.product_name,
+                'product_id': item.id,  # or item.product_id if you have that field
+                'quantity': item.quantity,
+                'price': item.price
+            })
+        
+        # Calculate totals
+        subtotal = order.total_amount
+        discount = 0.00  # Update this if you have discount logic
+        total = order.total_amount
+        
+        # Get phone number (handle if it doesn't exist)
+        phone = getattr(order, 'phone', 'N/A')
+        
+        # Format order date
+        order_date = order.date_received.strftime('%B %d, %Y')
+        
+        # Render the HTML email template with all order data
+        html_body = render_template(
+            'emails/order_status_email.html',
+            order_id=order.original_order_id,
+            order_date=order_date,
+            full_name=order.full_name,
+            address=order.address,
+            phone=phone,
+            payment_method=order.payment_method,
+            items=items_list,
+            subtotal=subtotal,
+            discount=discount,
+            total=total,
+            status=new_status
+        )
+        
+        # Create email message
+        msg = Message(
+            subject=email_subjects[new_status],
+            sender=('RealMindX Education Ltd', 'noreply@realmindxgh.com'),
+            recipients=[order.email]
+        )
+        
+        # Set HTML body
+        msg.html = html_body
+        
+        # Send email
+        mail.send(msg)
+        
+        print(f"Email sent successfully to {order.email} for status: {new_status}")
+        return True
+        
+    except Exception as e:
+        print(f"Error sending email: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+

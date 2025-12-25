@@ -13,3 +13,7 @@ class JobPost(db.Model):
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False)
     applications = db.relationship('Application', backref='job', cascade='all, delete-orphan', lazy=True)
+
+    # level and suject
+    level = db.Column(db.String(150), nullable=False)
+    subject = db.Column(db.String(150), nullable=False)

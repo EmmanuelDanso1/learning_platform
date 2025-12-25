@@ -15,6 +15,12 @@ html,body {
   scroll-padding-top: 100px;
 }
 
+.user-dashboard-nav .nav-link-divider {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
 
 /* Users Dashboard nav */
 .user-dashboard-nav {
@@ -24,7 +30,7 @@ html,body {
     padding: 12px 0;
     z-index: 998;
     position: relative;
-    top: 70px; /* shift under navbar if needed */
+    top: 70px;
 }
 
 .links-wrapper {

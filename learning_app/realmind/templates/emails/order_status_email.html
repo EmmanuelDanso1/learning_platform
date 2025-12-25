@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Your Order with RealMindX</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      color: #333;
+      background-color: #f2f2f2;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      background-color: #ffffff;
+      padding: 25px;
+      border-radius: 8px;
+      max-width: 700px;
+      margin: auto;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .logo img {
+      height: 60px;
+    }
+    .status-box {
+      background-color: #f0f8ff;
+      border-left: 5px solid #007bff;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 5px;
+    }
+    .status-box h2 {
+      color: #0C2E60;
+      margin-top: 0;
+      font-size: 22px;
+    }
+    .status-box p {
+      line-height: 1.7;
+      margin: 10px 0;
+    }
+    .actions {
+      text-align: center;
+      margin: 25px 0;
+    }
+    .actions a {
+      display: inline-block;
+      margin: 0 10px;
+      text-decoration: none;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .btn-shop {
+      background-color: #007bff;
+    }
+    .btn-track {
+      background-color: #28a745;
+    }
+    h2 {
+      color: #333;
+    }
+    .section-title {
+      font-weight: bold;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      color: #0C2E60;
+      font-size: 16px;
+    }
+    .order-details {
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+    }
+    .order-details p {
+      margin: 8px 0;
+    }
+    .order-details table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    .order-details th, .order-details td {
+      border-bottom: 1px solid #ddd;
+      padding: 10px 8px;
+      text-align: left;
+    }
+    .order-details th {
+      color: #0C2E60;
+      font-weight: bold;
+    }
+    .order-details tfoot {
+      font-weight: bold;
+    }
+    .order-details tfoot td {
+      padding-top: 12px;
+    }
+    .social-icons {
+      text-align: center;
+      margin: 25px 0;
+      padding: 15px;
+      background-color: #f9f9f9;
+      border-radius: 6px;
+    }
+    .social-icons p {
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    .social-icons a {
+      text-decoration: none;
+      margin: 0 8px;
+      font-weight: 500;
+    }
+    .footer {
+      font-size: 13px;
+      color: #777;
+      margin-top: 30px;
+      text-align: center;
+      border-top: 1px solid #ddd;
+      padding-top: 20px;
+    }
+    .footer p {
+      margin: 5px 0;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 4px;
+      color: white;
+      font-weight: bold;
+      font-size: 13px;
+    }
+     .status-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 4px;
+    color: white;
+    font-weight: bold;
+    font-size: 13px;
+  }
+
+  .status-received   { background-color: #ffc107; }
+  .status-processing { background-color: #17a2b8; }
+  .status-shipped    { background-color: #007bff; }
+  .status-delivered  { background-color: #28a745; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Logo -->
+    <div class="logo">
+      <img src="https://bookshop.realmindxgh.com/static/images/brain.jpg"
+          alt="RealMindX Logo"
+          style="height: 60px; width: auto;">
+    </div>
+
+    <!-- Status-Specific Message Box -->
+    <div class="status-box">
+      {% if status == 'Received' %}
+        <h2>Order Received!</h2>
+        <p>Dear {{ full_name }},</p>
+        <p>Thank you for your order! We have received your order <strong>#{{ order_id }}</strong> and it is now in our system.</p>
+        <p>We will begin processing your order shortly. You will receive another email when your order moves to the next stage.</p>
+        <p><strong>Thank you for shopping with RealMindX Education Ltd!</strong></p>
+
+      {% elif status == 'Processing' %}
+        <h2>Your Order Is Being Packaged!</h2>
+        <p>Dear {{ full_name }},</p>
+        <p><strong>Good News!</strong> Your order <strong>#{{ order_id }}</strong> has been confirmed and is now being prepared for shipment.</p>
+        <p>Thank you for shopping with RealMindX Education Ltd!</p>
+        <p>We will contact you shortly to confirm your order details, so please keep your phone accessible. If you do not receive a confirmation call within <strong>One (1) business day</strong>, please reach out to our customer service.</p>
+
+      {% elif status == 'Shipped' %}
+        <h2>Your Order Is On Its Way To You! 🚚</h2>
+        <p>Dear {{ full_name }},</p>
+        <p>Your order <strong>#{{ order_id }}</strong> is on its way 🚚</p>
+        <p>We've handed your package over to our delivery partner. Details of the delivery person will be sent to you via SMS shortly.</p>
+        <p><strong>Thank you for shopping with RealMindX Education Ltd!</strong></p>
+
+      {% elif status == 'Delivered' %}
+        <h2>Your Order Has Been Delivered!</h2>
+        <p>Dear {{ full_name }},</p>
+        <p>Your order <strong>#{{ order_id }}</strong> has been delivered. We hope you're enjoying your purchase!</p>
+        <p><strong>Thank you for shopping with RealMindX Education Ltd!</strong></p>
+        <p>If you have a moment, we'd love to hear your feedback. Your experience helps us improve and serve you better. You can contact us on any of our customer care channels.</p>
+        <p><strong>We look forward to serving you again!</strong></p>
+      {% endif %}
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="actions">
+      <a href="https://bookshop.realmindxgh.com" class="btn-shop">Shop Now</a>
+      <a href="https://bookshop.realmindxgh.com/track-order" class="btn-track">Track Order</a>
+    </div>
+
+    <!-- Order Details Section -->
+    <div class="order-details">
+      <p><strong>Your Order ID:</strong> {{ order_id }}</p>
+      <p><strong>Placed on:</strong> {{ order_date }}</p>
+      <p><strong>Current Status:</strong>
+
+          <span class="status-badge status-{{ status|lower|replace(' ', '-') }}">
+            {{ status }}
+        </span>
+
+
+
+      </p>
+
+      <div class="section-title">Billing Info</div>
+      <p><strong>Name:</strong> {{ full_name }}</p>
+      <p><strong>Address:</strong> {{ address }}</p>
+      <p><strong>Tel:</strong> {{ phone }}</p>
+      <p><strong>Payment Method:</strong> {{ payment_method }}</p>
+
+      <div class="section-title">Items</div>
+      <table>
+        <thead style="color: #0C2E60;">
+          <tr>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Price (GH₵)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+          <tr>
+            <td>
+              {{ item.product_name }}<br>
+              <small style="color: #666;">SKU: {{ item.product_id }}</small>
+            </td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ "%.2f"|format(item.price) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2"><strong>Subtotal</strong></td>
+            <td>GH₵ {{ "%.2f"|format(subtotal) }}</td>
+          </tr>
+          <tr>
+            <td colspan="2"><strong>Discount</strong></td>
+            <td>GH₵ {{ "%.2f"|format(discount) }}</td>
+          </tr>
+          <tr>
+            <td colspan="2"><strong>Order Total</strong></td>
+            <td><strong style="color: green;">GH₵ {{ "%.2f"|format(total) }}</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <p style="margin-top: 25px;">Sincerely,<br><strong>RealMindX Education Ltd</strong></p>
+
+    <!-- Social Media Links -->
+    <div class="social-icons">
+      <p><strong>Follow us @realmindxgh:</strong></p>
+      <a href="https://web.facebook.com/profile.php?id=61566941171883" target="_blank" style="color: #1877F2;">Facebook</a> |
+      <a href="https://x.com/RealMindXgh" target="_blank" style="color: #000000;">X</a> |
+      <a href="https://www.instagram.com/realmindxgh/" target="_blank" style="color: #E4405F;">Instagram</a> |
+      <a href="https://www.youtube.com/@realmindxgh" target="_blank" style="color: #FF0000;">YouTube</a> |
+      <a href="https://wa.link/d6x888" target="_blank" style="color: #25D366;">WhatsApp</a>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p><strong>Customer service period:</strong> Monday–Saturday, 7AM to 5PM</p>
+      <p><strong>Hotline:</strong> (+233) 558039190 / 551324729 / 554529493</p>
+      <p><strong>WhatsApp:</strong> +233 558039190</p>
+      <p><strong>Email:</strong> realmindxgh@gmail.com</p>
+      <p style="margin-top: 15px;"><em>Please note: This is an automated message. Replies will not be monitored.</em></p>
+    </div>
+  </div>
+</body>
+</html>

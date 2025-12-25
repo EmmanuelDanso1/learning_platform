@@ -18,6 +18,19 @@
             {{ form.requirements.label(class="form-label") }}
             {{ form.requirements(class="form-control") }}
         </div>
+        
+        <!-- NEW: Level Field -->
+        <div class="mb-3">
+            {{ form.level.label(class="form-label") }}
+            {{ form.level(class="form-control") }}
+        </div>
+        
+        <!-- NEW: Subject Field -->
+        <div class="mb-3">
+            {{ form.subject.label(class="form-label") }}
+            {{ form.subject(class="form-control") }}
+        </div>
+        
         <button type="submit" class="btn btn-primary">Post Job</button>
     </form>
 
@@ -28,6 +41,13 @@
     <div class="card mb-3 shadow-sm">
         <div class="card-body">
             <h5 class="card-title">{{ job.title }}</h5>
+            
+            <!-- NEW: Display Level and Subject -->
+            <div class="mb-2">
+                <span class="badge bg-primary me-2">{{ job.level }}</span>
+                <span class="badge bg-info">{{ job.subject }}</span>
+            </div>
+            
             <p class="card-text">{{ job.description }}</p>
             <p><strong>Requirements:</strong> {{ job.requirements }}</p>
 
