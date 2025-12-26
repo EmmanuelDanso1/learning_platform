@@ -63,6 +63,7 @@ def receive_order():
             user_id=data['user_id'],
             full_name=data['full_name'],
             email=data['email'],
+            phone=data['phone'],
             address=data['address'],
             total_amount=data['total_amount'],
             payment_method=data['payment_method']
