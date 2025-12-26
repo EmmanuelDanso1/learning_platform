@@ -1,0 +1,43 @@
+{% extends "index.html" %}
+{% block title %}Application History {% endblock %}
+
+{% block content %}
+<style>
+    .section-title {
+        text-align: center;
+        font-weight: bold;
+        color: #002b5c;
+        margin: 40px 0 20px;
+        font-size: 20px;
+    }
+
+    .no-applications {
+        text-align: center;
+        font-style: italic;
+        font-size: 17px;
+    }
+</style>
+<!-- Applications Section -->
+    <div class="section-title">JOB APPLICATION HISTORY</div>
+
+    {% if applications|length == 0 %}
+        <p class="no-applications">You have not applied for any jobs yet</p>
+    {% else %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Job Title</th>
+                    <th>Date Applied</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applications %}
+                    <tr>
+                        <td>{{ app.job.title }}</td>
+                        <td>{{ app.date_applied.strftime('%d %b %Y') }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

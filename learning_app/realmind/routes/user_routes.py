@@ -199,6 +199,12 @@ def view_profile():
     applications = current_user.applications 
     return render_template("view_profile.html", applications=applications)
 
+@user_bp.route("/dashboard/application-history")
+@login_required
+def application_history():
+    applications = current_user.applications 
+    return render_template("job_application_history.html", applications=applications)
+
 
 @user_bp.route('/upload_profile_pic', methods=['POST'])
 @login_required
@@ -401,3 +407,51 @@ def apply(job_id):
         return redirect(url_for("user.users_dashboard"))
 
     return render_template('apply.html', job=job)
+
+# contacts for authenticated users
+@user_bp.route('/dashboard/contact')
+def contacts():
+    return render_template("contacts.html", title="Contacts")
+
+
+@user_bp.route('/dashboard/submit', methods=['POST'])
+def submit_contact():
+    # Validate CSRF token
+    token = request.form.get('csrf_token')
+    try:
+        validate_csrf(token)
+    except ValidationError:
+        abort(400, description="CSRF token is missing or invalid.")
+
+    name = request.form['name']
+    email = request.form['email']
+    phone = request.form['phone']
+    subject = request.form['subject']
+    message_body = request.form['message']
+
+    msg = Message(
+        subject=f"Contact Form: {subject}",
+        sender=email,
+        recipients=[os.getenv('MAIL_USERNAME')]
+    )
+
+    msg.body = f"""
+    You have received a new message from your website contact form:
+
+    Name: {name}
+    Email: {email}
+    Phone: {phone}
+    Subject: {subject}
+    Message:
+    {message_body}
+    """
+
+    try:
+        mail.send(msg)
+        flash("Your message has been sent to Realmindx successfully!", "success")
+    except Exception as e:
+        print(f"Mail sending failed: {e}")
+        flash("An error occurred while sending your message. Please try again later.", "danger")
+
+    return redirect(url_for('user.contacts'))
+

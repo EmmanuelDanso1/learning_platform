@@ -185,33 +185,6 @@
         </div>
 
     </div>
-
-    <!-- Applications Section -->
-    <div class="section-title">JOB APPLICATION HISTORY</div>
-
-    {% if applications|length == 0 %}
-        <p class="no-applications">You have not applied for any jobs yet</p>
-    {% else %}
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Job Title</th>
-                    <th>Status</th>
-                    <th>Date Applied</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for app in applications %}
-                    <tr>
-                        <td>{{ app.job.title }}</td>
-                        <td>{{ app.status }}</td>
-                        <td>{{ app.date_applied.strftime('%d %b %Y') }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endif %}
-
 </div>
 
 {% endblock %}

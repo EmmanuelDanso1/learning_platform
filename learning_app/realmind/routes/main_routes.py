@@ -100,6 +100,7 @@ def submit_contact():
 
     name = request.form['name']
     email = request.form['email']
+    phone = request.form['phone']
     subject = request.form['subject']
     message_body = request.form['message']
 
@@ -114,6 +115,7 @@ def submit_contact():
 
     Name: {name}
     Email: {email}
+    Phone: {phone}
     Subject: {subject}
     Message:
     {message_body}

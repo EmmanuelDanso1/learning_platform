@@ -1,0 +1,73 @@
+{% extends "index.html" %}
+{% block content %}
+
+<form id="contactForm"
+      class="p-4 bg-light rounded shadow"
+      method="POST"
+      action="/dashboard/submit">
+
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <h2 class="text-center fw-bold text-uppercase">How may we assist you?</h2>
+    <p class="text-center mb-5">
+        Fill out the form below to let us know how we can assist you.
+    </p>
+
+    <!-- Full Name -->
+    <div class="mb-3">
+        <label for="name" class="form-label">Full Name</label>
+        <input type="text"
+               class="form-control"
+               id="name"
+               name="name"
+               required>
+    </div>
+
+    <!-- Email -->
+    <div class="mb-3">
+        <label for="email" class="form-label">Email Address</label>
+        <input type="email"
+               class="form-control"
+               id="email"
+               name="email"
+               required>
+    </div>
+
+    <!-- Phone Number -->
+    <div class="mb-3">
+        <label for="phone" class="form-label">Phone Number</label>
+        <input type="tel"
+               class="form-control"
+               id="phone"
+               name="phone"
+               required>
+    </div>
+
+    <!-- Subject -->
+    <div class="mb-3">
+        <label for="subject" class="form-label">Subject</label>
+        <input type="text"
+               class="form-control"
+               id="subject"
+               name="subject"
+               required>
+    </div>
+
+    <!-- Message -->
+    <div class="mb-3">
+        <label for="message" class="form-label">Message</label>
+        <textarea class="form-control"
+                  id="message"
+                  name="message"
+                  rows="4"
+                  required></textarea>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="btn bottom w-100">
+        Submit
+    </button>
+
+</form>
+
+{% endblock %}
