@@ -2,16 +2,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Arimo:wght@400;500&display=swap');
 
 /* ========== GLOBAL STYLES ========== */
-html,body {
+/* ========== GLOBAL STYLES ========== */
+html, body {
   position: relative;
   color: #0f0505;
   display: flex;
   flex-direction: column;
   margin: 0;
-  margin-top: 0.5rem;
   overflow-x: hidden;
   scroll-behavior: smooth;
-  /* this scrolls to the specific service */
   scroll-padding-top: 100px;
 }
 
@@ -155,8 +154,8 @@ p, a, span, li, button {
   background-color: #15376D; /* RealMindX navy blue */
   font-family: 'Montserrat', sans-serif;
   font-weight: 600;
-  /* padding: 0.5rem 1rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); */
+  height: 70px;
+  z-index: 1100;
 }
 
 /* Left logo section */
@@ -750,6 +749,16 @@ h2, h3, h4, h5, h6 {
   padding-top: 2rem;          /* reduced from 5rem */
   padding-bottom: 1.5rem;     /* reduced from 4rem */
 }
+/* ===== Footer alignment fix ===== */
+.footer-section {
+  text-align: left !important;
+}
+
+.footer-section .row,
+.footer-section .col-lg-3,
+.footer-section .col-md-6 {
+  text-align: left !important;
+}
 
 .footer-section .row {
   row-gap: 1rem !important;   /* reduce spacing between columns */
@@ -1278,3 +1287,41 @@ section p {
   }
   footer { text-align: center; }
 } */
+
+/* navbar responsiveness */
+@media (max-width: 991.98px) {
+  .custom-navbar .navbar-collapse {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 70px);
+    overflow-y: auto;
+    z-index: 1050;
+
+    background-color: #15376D !important;
+  }
+}
+
+
+
+/* ===== Fix gap between blue navbar and yellow dashboard nav ===== */
+.user-dashboard-nav {
+  position: sticky;
+  top: 70px; 
+  z-index: 1020;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Mobile navbar height adjustment */
+@media (max-width: 991.98px) {
+  .custom-navbar {
+    height: 56px;
+  }
+
+  .user-dashboard-nav {
+    top: 56px;
+  }
+}
+

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta-name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RealMindX | {% block title %}{% endblock %}</title>
 
   <link rel="icon" type="image/png" sizes="256x256" href="{{ url_for('static', filename='images/brain.png') }}">
@@ -24,24 +24,111 @@
       justify-content: center;
       text-align: center;
     }
+    
+    /* Keep logo within navbar bounds */
+    .navbar-brand .logo-img {
+      max-height: 50px;
+      width: auto;
+      object-fit: contain;
+    }
+    
+    /* Hide logo in collapsed menu */
+    .navbar-collapse .navbar-brand-mobile {
+      display: none !important;
+    }
+    
+    /* Hide the main navbar-brand when it's inside the collapse on mobile */
+    @media (max-width: 991.98px) {
+      .navbar-collapse .navbar-brand {
+        display: none !important;
+      }
+    }
+    
+    @media (max-width: 991.98px) {
+      /* Keep profile dropdown outside collapsed navbar */
+      .navbar-nav.ms-auto {
+        flex-direction: row;
+        margin-left: auto !important;
+        background: transparent !important;
+      }
+      
+      .navbar-nav.ms-auto .nav-item {
+        margin-left: 10px;
+      }
+      
+      /* Profile dropdown should not be affected by navbar collapse */
+      .navbar-nav.ms-auto .dropdown-menu {
+        position: absolute !important;
+        right: 0;
+        left: auto !important;
+      }
+    }
+    
+    /* Mobile navbar adjustments */
+    @media (max-width: 991.98px) {
+      /* For NON-authenticated users: logo on RIGHT */
+      .navbar:not(.authenticated-navbar) .navbar-brand {
+        margin-left: auto;
+        order: 2;
+      }
+      
+      .navbar:not(.authenticated-navbar) .navbar-toggler {
+        order: -1;
+      }
+      
+      /* For AUTHENTICATED users: logo in CENTER */
+      .navbar.authenticated-navbar .navbar-brand {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      
+      .navbar.authenticated-navbar .navbar-toggler {
+        order: -1;
+      }
+      
+      .navbar.authenticated-navbar .d-flex.ms-auto {
+        order: 1;
+      }
+      
+      /* Yellow dashboard nav mobile responsive */
+      .user-dashboard-nav {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+      }
+
+      
+      .user-dashboard-nav .links-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+      }
+      
+      .user-dashboard-nav .nav-link-divider {
+        font-size: 0.85rem;
+        padding: 6px 10px;
+        white-space: nowrap;
+      }
+    }
   </style>
 </head>
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg custom-navbar fixed-top">
+<nav class="navbar navbar-expand-lg custom-navbar fixed-top {% if current_user.is_authenticated %}authenticated-navbar{% endif %}">
   <div class="container-fluid px-3">
 
-    <!-- Logo -->
+    <!-- Mobile toggle (left) -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Logo (center on mobile, left on desktop) -->
     <a class="navbar-brand d-flex align-items-center"
        href="{{ url_for('main.home') if not current_user.is_authenticated else url_for('user.users_dashboard') }}">
       <img src="{{ url_for('static', filename='images/real.jpg') }}" alt="RealmindX Logo" class="logo-img">
     </a>
-
-    <!-- Mobile toggle -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
 
     <!-- If user NOT logged in -->
     {% if not current_user.is_authenticated %}
@@ -76,8 +163,6 @@
             <li><a class="dropdown-item" href="{{ url_for('main.services') }}#secretarial">Secretarial Services</a></li>
             <li><a class="dropdown-item" href="{{ url_for('main.services') }}#consulting">Educational Consulting</a></li>
             <li><a class="dropdown-item" href="{{ url_for('main.services') }}#extracurricular">ExtraCurricular Offers</a></li>
-
-
           </ul>
         </li>
 
@@ -149,7 +234,6 @@
           </ul>
         </li>
 
-
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.news') }}">NEWS</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.gallery') }}">GALLERY</a></li>
         <li class="nav-item"><a class="nav-link" href="https://bookshop.realmindxgh.com" target="_blank">BOOKSHOP</a></li>
@@ -162,16 +246,20 @@
             <li><a class="dropdown-item" href="{{ url_for('jobs.job_listings') }}">Job Posts</a></li>
           </ul>
         </li>
+
+        <!-- Mobile DONATE (inside collapsed menu) -->
+        <li class="nav-item d-lg-none text-center mt-2">
+          <a href="{{ url_for('donation.donate') }}" class="btn btn-warning btn-donate">DONATE</a>
+        </li>
       </ul>
     </div>
 
-    <!-- Profile + Donate -->
-    <ul class="navbar-nav ms-auto">
-
-      <!-- Profile -->
-      <li class="nav-item dropdown">
+    <!-- Profile + Donate (OUTSIDE collapse, always visible on right) -->
+    <div class="d-flex align-items-center ms-auto">
+      <!-- Profile dropdown -->
+      <div class="dropdown">
         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button"
-          data-bs-toggle="dropdown">
+          data-bs-toggle="dropdown" aria-expanded="false">
           
           {% if current_user.profile_pic %}
             <img src="{{ url_for('static',
@@ -188,7 +276,7 @@
           {% endif %}
         </a>
 
-        <ul class="dropdown-menu dropdown-menu-end shadow">
+        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
           <li><a class="dropdown-item" href="{{ url_for('user.users_dashboard') }}">Dashboard</a></li>
           <li><a class="dropdown-item" href="{{ url_for('user.view_profile') }}">View Profile</a></li>
           <li><a class="dropdown-item" href="{{ url_for('user.edit_profile') }}">Edit Profile</a></li>
@@ -197,13 +285,13 @@
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item text-danger fw-bold" href="{{ url_for('auth.logout') }}">Logout</a></li>
         </ul>
-      </li>
+      </div>
 
-      <!-- Donate -->
-      <li class="nav-item d-none d-lg-block ms-2">
+      <!-- Donate (desktop only) -->
+      <div class="d-none d-lg-block ms-2">
         <a href="{{ url_for('donation.donate') }}" class="btn btn-warning btn-donate">DONATE</a>
-      </li>
-    </ul>
+      </div>
+    </div>
 
     {% endif %}
   </div>
@@ -264,13 +352,13 @@
       }, logoutTime);
   }
 
-  // Reset timer on user activity
-  window.onload = resetInactivityTimer;
-  document.onmousemove = resetInactivityTimer;
-  document.onkeypress = resetInactivityTimer;
-  document.onclick = resetInactivityTimer;
-  document.onscroll = resetInactivityTimer;
+  window.addEventListener("load", resetInactivityTimer);
+  document.addEventListener("mousemove", resetInactivityTimer);
+  document.addEventListener("keypress", resetInactivityTimer);
+  document.addEventListener("click", resetInactivityTimer);
+  document.addEventListener("scroll", resetInactivityTimer);
 </script>
+
 
 </body>
 </html>

@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from itsdangerous import URLSafeTimedSerializer
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_mail import Message
 # using the content from __init__.py
@@ -267,13 +267,18 @@ def admin_login():
         flash('Invalid credentials', 'danger')
     return render_template('admin_login.html', form=form)
 
-@auth_bp.route('/logout', methods=['GET', 'POST'])
+@auth_bp.route('/logout')
 @login_required
 def logout():
+    was_admin = getattr(current_user, "is_admin", False)
+
     logout_user()
-    session.clear()
     flash('You have been logged out.', 'info')
-    return redirect(url_for('main.home'))  # adjust as needed
+
+    if was_admin:
+        return redirect(url_for('auth.admin_login'))
+    return redirect(url_for('auth.user_login'))
+
 
 @auth_bp.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
