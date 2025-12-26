@@ -1316,12 +1316,21 @@ section p {
 
 /* Mobile navbar height adjustment */
 @media (max-width: 991.98px) {
-  .custom-navbar {
-    height: 56px;
+
+  .navbar.authenticated-navbar .navbar-brand {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .navbar-toggler {
+    z-index: 1300;
   }
 
   .user-dashboard-nav {
-    top: 56px;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
   }
 }
+
 
