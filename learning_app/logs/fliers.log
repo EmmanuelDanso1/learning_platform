@@ -1,0 +1,7 @@
+[2025-12-27 13:07:33,303] INFO in app: Application startup initiated
+[2025-12-27 13:07:33,304] INFO in app: Redis client initialized
+[2025-12-27 13:07:33,324] INFO in app: Flask extensions initialized
+[2025-12-27 13:13:16,698] INFO in app: Application startup initiated
+[2025-12-27 13:13:16,699] INFO in app: Redis client initialized
+[2025-12-27 13:13:16,712] INFO in app: Flask extensions initialized
+[2025-12-27 13:13:16,824] INFO in app: Application startup complete

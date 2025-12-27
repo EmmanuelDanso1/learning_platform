@@ -11,6 +11,7 @@ from itsdangerous import URLSafeTimedSerializer
 from learning_app.realmind.routes.oauth_routes import oauth_bp, init_oauth
 from datetime import timedelta
 from learning_app.extensions import limiter
+from learning_app.realmind.utils.logging import setup_logging
 from redis import Redis
 # Load environment variables early
 load_dotenv()
@@ -30,21 +31,42 @@ redis_client = None
 # csrf token
 csrf = CSRFProtect()
 def create_app():
-    app = Flask(__name__, static_folder='realmind/static', template_folder='realmind/templates')
+    app = Flask(
+        __name__,
+        static_folder='realmind/static',
+        template_folder='realmind/templates'
+    )
 
-    # SESSION CONFIGURATION: 10 minutes inactivity timeout
+    # SESSION CONFIGURATION
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
 
-    # logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
-    )
-    # redis config
     # Load config
     app.config.from_object("learning_app.config.ProductionConfig")
+    app.config.from_object('learning_app.config.Config')
 
-    # Initialize Redis connection
+    # Secrets
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+
+    # Mail
+    app.config.update(
+        MAIL_SERVER='smtp.gmail.com',
+        MAIL_PORT=587,
+        MAIL_USE_TLS=True,
+        MAIL_USERNAME=os.getenv('MAIL_USERNAME'),
+        MAIL_PASSWORD=os.getenv('MAIL_PASSWORD'),
+    )
+
+    # Uploads
+    app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
+    app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+    # SETUP LOGGING HERE
+    setup_logging(app)
+    app.logger.info("Application startup initiated")
+
+    # Redis
     global redis_client
     redis_client = Redis(
         host=app.config["REDIS_HOST"],
@@ -52,35 +74,24 @@ def create_app():
         password=app.config["REDIS_PASSWORD"],
         decode_responses=True
     )
-    
-    # csrf token
+    app.logger.info("Redis client initialized")
+
+    # CSRF
     csrf.init_app(app)
-    # Base config
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
-    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-    app.config['MAIL_PORT'] = 587
-    app.config['MAIL_USE_TLS'] = True
-    app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
-    app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
-    app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
-    app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20MB max
-    app.config.from_object('learning_app.config.Config')
 
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-
-    # rate limiting
-    # Initialize limiter with app
+    # Rate limiting
     limiter.init_app(app)
 
-    # Initialize extensions
+    # Extensions
     db.init_app(app)
     bcrypt.init_app(app)
     mail.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
 
-    # Models (User, Admin, etc.)
+    app.logger.info("Flask extensions initialized")
+
+    # Models
     from learning_app.realmind.models.user import User
     from learning_app.realmind.models.admin import Admin
 
@@ -100,13 +111,10 @@ def create_app():
     from learning_app.realmind.routes.jobs_routes import job_bp
     from learning_app.realmind.routes.donation_routes import donation_bp
     from learning_app.realmind.routes.user_routes import user_bp
-    # recieve orders
     from learning_app.realmind.routes.receive_orders_api import api_bp
 
-    # Initialize OAuth
+    # OAuth
     init_oauth(app)
-
-    # Register OAuth blueprint
     app.register_blueprint(oauth_bp, url_prefix="/oauth")
 
     app.register_blueprint(main_bp, name='main')
@@ -117,10 +125,13 @@ def create_app():
     app.register_blueprint(user_bp, name='user')
     app.register_blueprint(api_bp, name='api')
 
-    # exempt api becuause its rendering server-server .i.e from bookshop to learning platform
+    # Exempt API from CSRF (server-to-server)
     csrf.exempt(api_bp)
-    # Create tables (optional, only for dev)
+
+    # Dev-only table creation
     with app.app_context():
         db.create_all()
 
+    app.logger.info("Application startup complete")
     return app
+

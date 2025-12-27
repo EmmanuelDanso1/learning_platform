@@ -14,7 +14,7 @@ from datetime import datetime
 import requests
 from learning_app.realmind.models.user import User
 from learning_app.realmind.utils.email import send_order_status_email
-from learning_app.realmind.utils.util import UPLOAD_FOLDER, allowed_profile_pic,allowed_image_file, allowed_document, allowed_file
+from learning_app.realmind.utils.util import UPLOAD_FOLDER, allowed_profile_pic,allowed_image_file, allowed_document, allowed_file, FLIERS_FOLDER
 import logging
 from learning_app.realmind.routes.newsletter_sync import sync_bookshop_subscribers
 
@@ -1096,41 +1096,57 @@ def post_flier():
         title = request.form.get('title', '').strip()
         image_file = request.files.get('image')
 
-        if image_file and allowed_image_file(image_file.filename):
-            filename = secure_filename(image_file.filename)
-            save_path = os.path.join(current_app.root_path, 'static', 'fliers', filename)
-            os.makedirs(os.path.dirname(save_path), exist_ok=True)
-            image_file.save(save_path)
-
-            new_flier = PromotionFlier(title=title, image_filename=filename)
-            db.session.add(new_flier)
-            db.session.commit()
-
-            API_TOKEN = os.getenv('API_TOKEN')
-            headers = {'Authorization': f'Bearer {API_TOKEN}'}
-            data = {'title': title}
-            files = {'image': open(save_path, 'rb')}
-            # Sync to e-commerce
-            BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
-            API_TOKEN = os.getenv('API_TOKEN')
-            try:
-                res = requests.post(
-                    f'{BOOKSHOP_API}/fliers',
-                    data=data,
-                    files=files,
-                    headers=headers
-                )
-                if res.status_code == 201:
-                    flash("Flier posted and sent to e-commerce!", "success")
-                else:
-                    flash("Flier posted locally, but failed to sync.", "warning")
-            except Exception as e:
-                print("Error posting flier to e-commerce:", e)
-                flash("Flier posted locally. Failed to send to e-commerce.", "danger")
-            finally:
-                files['image'].close()
-        else:
+        if not image_file or not allowed_image_file(image_file.filename):
+            current_app.logger.warning("Flier upload failed: invalid image")
             flash("Invalid or missing image file.", "danger")
+            return redirect(url_for('admin.post_flier'))
+
+        import uuid
+        ext = os.path.splitext(image_file.filename)[1]
+        filename = f"{uuid.uuid4().hex}{ext}"
+
+        os.makedirs(FLIERS_FOLDER, exist_ok=True)
+        save_path = os.path.join(FLIERS_FOLDER, filename)
+        image_file.save(save_path)
+
+        flier = PromotionFlier(title=title, image_filename=filename)
+        db.session.add(flier)
+        db.session.commit()
+
+        current_app.logger.info(f"Flier created locally (id={flier.id}, title='{title}')")
+
+        BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
+        API_TOKEN = os.getenv("API_TOKEN")
+        headers = {"Authorization": f"Bearer {API_TOKEN}"}
+
+        try:
+            with open(save_path, 'rb') as img:
+                res = requests.post(
+                    f"{BOOKSHOP_API}/fliers",
+                    data={"title": title},
+                    files={"image": img},
+                    headers=headers,
+                    timeout=10
+                )
+
+            if res.status_code == 201:
+                flier.external_id = res.json().get("id")
+                db.session.commit()
+                current_app.logger.info(
+                    f"Flier synced to bookshop (local_id={flier.id}, external_id={flier.external_id})"
+                )
+                flash("Flier posted and synced with e-commerce.", "success")
+            else:
+                current_app.logger.error(
+                    f"Flier sync failed (local_id={flier.id}, status={res.status_code})"
+                )
+                flash("Flier saved locally, sync failed.", "warning")
+
+        except Exception:
+            current_app.logger.exception(
+                f"Exception syncing flier (local_id={flier.id})"
+            )
+            flash("Flier saved locally. Sync failed.", "danger")
 
         return redirect(url_for('admin.post_flier'))
 
@@ -1150,7 +1166,8 @@ def update_flier(flier_id):
         try:
             validate_csrf(request.form.get('csrf_token'))
         except ValidationError:
-            abort(400, description="Invalid CSRF token.")
+            current_app.logger.warning(f"Invalid CSRF on update (flier_id={flier_id})")
+            abort(400, "Invalid CSRF token")
 
         new_title = request.form.get('title', '').strip()
         new_image = request.files.get('image')
@@ -1158,47 +1175,63 @@ def update_flier(flier_id):
         if new_title:
             flier.title = new_title
 
-        # Save new image if uploaded
+        image_path = None
         if new_image and allowed_image_file(new_image.filename):
-            filename = secure_filename(new_image.filename)
-            path = os.path.join(current_app.root_path, 'realmind' 'static', 'fliers', filename)
-            os.makedirs(os.path.dirname(path), exist_ok=True)
-            new_image.save(path)
+            old_path = os.path.join(FLIERS_FOLDER, flier.image_filename)
+            if os.path.exists(old_path):
+                os.remove(old_path)
+
+            import uuid
+            ext = os.path.splitext(new_image.filename)[1]
+            filename = f"{uuid.uuid4().hex}{ext}"
+            image_path = os.path.join(FLIERS_FOLDER, filename)
+            new_image.save(image_path)
             flier.image_filename = filename
 
         db.session.commit()
-        # Sync to e-commerce
-        BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
-        # Sync with e-commerce
-        try:
-            API_TOKEN = os.getenv('API_TOKEN')
-            headers = {'Authorization': f'Bearer {API_TOKEN}'}
-            data = {'title': flier.title}
-            files = {}
+        current_app.logger.info(f"Flier updated locally (id={flier.id})")
 
-            if new_image:
-                files['image'] = open(path, 'rb')
+        if flier.external_id:
+            BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
+            API_TOKEN = os.getenv("API_TOKEN")
+            headers = {"Authorization": f"Bearer {API_TOKEN}"}
 
-            res = requests.put(
-                f"{BOOKSHOP_API}/fliers/{flier.id}",
-                data=data,
-                files=files,
-                headers=headers
-            )
+            try:
+                if image_path:
+                    with open(image_path, 'rb') as img:
+                        res = requests.put(
+                            f"{BOOKSHOP_API}/fliers/{flier.external_id}",
+                            data={"title": flier.title},
+                            files={"image": img},
+                            headers=headers,
+                            timeout=10
+                        )
+                else:
+                    res = requests.put(
+                        f"{BOOKSHOP_API}/fliers/{flier.external_id}",
+                        data={"title": flier.title},
+                        headers=headers,
+                        timeout=10
+                    )
 
-            if files:
-                files['image'].close()
+                if res.status_code == 200:
+                    current_app.logger.info(
+                        f"Flier synced update (local_id={flier.id}, external_id={flier.external_id})"
+                    )
+                    flash("Flier updated and synced.", "success")
+                else:
+                    current_app.logger.error(
+                        f"Flier update sync failed (local_id={flier.id}, status={res.status_code})"
+                    )
+                    flash("Flier updated locally, sync failed.", "warning")
 
-            if res.status_code == 200:
-                flash("Flier updated and synced with e-commerce.", "success")
-            else:
-                flash("Flier updated locally, but failed to sync with e-commerce.", "warning")
+            except Exception:
+                current_app.logger.exception(
+                    f"Exception updating flier (local_id={flier.id})"
+                )
+                flash("Flier updated locally. Sync failed.", "danger")
 
-        except Exception as e:
-            print("Error updating flier on e-commerce:", e)
-            flash("Flier updated locally. Failed to sync.", "danger")
-
-        return redirect(url_for('admin.post_flier'))
+        return redirect(url_for('admin.manage_fliers'))
 
     return render_template('admin/update_flier.html', flier=flier, csrf_token=generate_csrf())
 
@@ -1208,33 +1241,50 @@ def delete_flier(flier_id):
     try:
         validate_csrf(request.form.get('csrf_token'))
     except ValidationError:
-        abort(400, description="Invalid CSRF token.")
+        current_app.logger.warning(f"Invalid CSRF on delete (flier_id={flier_id})")
+        abort(400, "Invalid CSRF token")
 
     flier = PromotionFlier.query.get_or_404(flier_id)
-    image_path = os.path.join(current_app.root_path, 'realmind', 'static', 'fliers', flier.image_filename)
+    image_path = os.path.join(FLIERS_FOLDER, flier.image_filename)
+    external_id = flier.external_id
 
     db.session.delete(flier)
     db.session.commit()
+    current_app.logger.info(f"Flier deleted locally (id={flier_id})")
 
     if os.path.exists(image_path):
         os.remove(image_path)
-    # Sync to e-commerce
-    BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
-    try:
-        API_TOKEN = os.getenv('API_TOKEN')
-        headers = {'Authorization': f'Bearer {API_TOKEN}'}
-        res = requests.delete(f"{BOOKSHOP_API}/fliers/{flier.id}", headers=headers)
 
-        if res.status_code == 200:
-            flash("Flier deleted from both platforms.", "success")
-        else:
-            flash("Flier deleted locally, but not on e-commerce.", "warning")
-    except Exception as e:
-        print("Error deleting flier from e-commerce:", e)
-        flash("Flier deleted locally. Failed to delete from e-commerce.", "danger")
+    if external_id:
+        BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
+        API_TOKEN = os.getenv("API_TOKEN")
+        headers = {"Authorization": f"Bearer {API_TOKEN}"}
+
+        try:
+            res = requests.delete(
+                f"{BOOKSHOP_API}/fliers/{external_id}",
+                headers=headers,
+                timeout=10
+            )
+
+            if res.status_code == 200:
+                current_app.logger.info(
+                    f"Flier deleted remotely (external_id={external_id})"
+                )
+                flash("Flier deleted from both platforms.", "success")
+            else:
+                current_app.logger.error(
+                    f"Remote delete failed (external_id={external_id}, status={res.status_code})"
+                )
+                flash("Flier deleted locally, remote delete failed.", "warning")
+
+        except Exception:
+            current_app.logger.exception(
+                f"Exception deleting flier (external_id={external_id})"
+            )
+            flash("Flier deleted locally. Sync failed.", "danger")
 
     return redirect(url_for('admin.manage_fliers'))
-
 
 @admin_bp.route('/admin/manage-fliers')
 @login_required
