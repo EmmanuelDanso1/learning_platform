@@ -1275,62 +1275,68 @@ section p {
   }
 }
 
+/* ================= MOBILE NAVBAR FIX ================= */
+/* ================================
+   MOBILE NAVBAR GRID FIX
+   ================================ */
 
-/* Footer adjustments on smaller screens */
-/* @media (max-width: 768px) {
-  footer .row > div { margin-bottom: 1.5rem; }
-  footer .text-center { margin-top: 1rem; }
-  footer .fa-brands, footer span {
-    display: inline-block;
-    margin-right: 10px;
-    margin-bottom: 5px;
+@media (max-width: 991px) {
+
+  /* Base mobile grid */
+  .navbar-mobile-grid {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
   }
-  footer { text-align: center; }
-} */
 
-/* navbar responsiveness */
-@media (max-width: 991.98px) {
-  .custom-navbar .navbar-collapse {
+  /* Hamburger LEFT */
+  .navbar-toggler {
+    grid-column: 1;
+    justify-self: start;
+    z-index: 1200;
+  }
+
+  /* Logo CENTER by default */
+  .navbar-brand {
+    grid-column: 2;
+    justify-self: center;
+    margin: 0;
+  }
+
+  .navbar-brand img {
+    max-height: 42px;
+  }
+
+  /* Profile RIGHT (only when authenticated) */
+  .authenticated-navbar .d-flex.ms-auto {
+    grid-column: 3;
+    justify-self: end;
+  }
+
+  /* ================================
+     HOME PAGE (NOT AUTHENTICATED)
+     Logo moves FAR RIGHT
+     ================================ */
+  nav:not(.authenticated-navbar) .navbar-brand {
+    grid-column: 3;
+    justify-self: end;
+  }
+
+  /* Collapse menu fullscreen */
+  .navbar-collapse {
     position: fixed;
     top: 70px;
     left: 0;
     width: 100%;
     height: calc(100vh - 70px);
-    overflow-y: auto;
+    background: #15376D;
     z-index: 1050;
+    overflow-y: auto;
+  }
 
-    background-color: #15376D !important;
+  /* Hide logo inside collapse */
+  .navbar-collapse .navbar-brand {
+    display: none;
   }
 }
-
-
-
-/* ===== Fix gap between blue navbar and yellow dashboard nav ===== */
-.user-dashboard-nav {
-  position: sticky;
-  top: 70px; 
-  z-index: 1020;
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-}
-
-/* Mobile navbar height adjustment */
-@media (max-width: 991.98px) {
-
-  .navbar.authenticated-navbar .navbar-brand {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  .navbar-toggler {
-    z-index: 1300;
-  }
-
-  .user-dashboard-nav {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-  }
-}
-
 

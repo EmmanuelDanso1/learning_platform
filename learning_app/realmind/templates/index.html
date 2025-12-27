@@ -38,86 +38,15 @@
     }
     
     /* Hide the main navbar-brand when it's inside the collapse on mobile */
-    @media (max-width: 991.98px) {
-      .navbar-collapse .navbar-brand {
-        display: none !important;
-      }
-    }
     
-    @media (max-width: 991.98px) {
-      /* Keep profile dropdown outside collapsed navbar */
-      .navbar-nav.ms-auto {
-        flex-direction: row;
-        margin-left: auto !important;
-        background: transparent !important;
-      }
-      
-      .navbar-nav.ms-auto .nav-item {
-        margin-left: 10px;
-      }
-      
-      /* Profile dropdown should not be affected by navbar collapse */
-      .navbar-nav.ms-auto .dropdown-menu {
-        position: absolute !important;
-        right: 0;
-        left: auto !important;
-      }
-    }
-    
-    /* Mobile navbar adjustments */
-    @media (max-width: 991.98px) {
-      /* For NON-authenticated users: logo on RIGHT */
-      .navbar:not(.authenticated-navbar) .navbar-brand {
-        margin-left: auto;
-        order: 2;
-      }
-      
-      .navbar:not(.authenticated-navbar) .navbar-toggler {
-        order: -1;
-      }
-      
-      /* For AUTHENTICATED users: logo in CENTER */
-      .navbar.authenticated-navbar .navbar-brand {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-      }
-      
-      .navbar.authenticated-navbar .navbar-toggler {
-        order: -1;
-      }
-      
-      .navbar.authenticated-navbar .d-flex.ms-auto {
-        order: 1;
-      }
-      
-      /* Yellow dashboard nav mobile responsive */
-      .user-dashboard-nav {
-        margin-top: 0 !important;
-        padding-top: 0 !important;
-      }
-
-      
-      .user-dashboard-nav .links-wrapper {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 8px;
-      }
-      
-      .user-dashboard-nav .nav-link-divider {
-        font-size: 0.85rem;
-        padding: 6px 10px;
-        white-space: nowrap;
-      }
-    }
+  
   </style>
 </head>
 <body>
 
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg custom-navbar fixed-top {% if current_user.is_authenticated %}authenticated-navbar{% endif %}">
-  <div class="container-fluid px-3">
+  <div class="container-fluid px-3 navbar-mobile-grid">
 
     <!-- Mobile toggle (left) -->
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
