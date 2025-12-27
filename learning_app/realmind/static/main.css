@@ -1275,55 +1275,47 @@ section p {
   }
 }
 
-/* ================= MOBILE NAVBAR FIX ================= */
-/* ================================
-   MOBILE NAVBAR GRID FIX
-   ================================ */
+/* =====================================
+   MOBILE + TABLET NAVBAR (≤ lg)
+   ===================================== */
+@media (max-width: 991.98px) {
 
-@media (max-width: 991px) {
-
-  /* Base mobile grid */
-  .navbar-mobile-grid {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
+  nav .navbar-mobile-grid {
+    display: grid !important;
+    grid-template-columns: minmax(44px, 1fr) auto minmax(44px, 1fr);
     align-items: center;
+    width: 100%;
   }
 
-  /* Hamburger LEFT */
-  .navbar-toggler {
-    grid-column: 1;
+  /* Hamburger — FAR LEFT */
+  nav .navbar-toggler {
     justify-self: start;
+    margin-left: 1rem;
     z-index: 1200;
   }
 
-  /* Logo CENTER by default */
-  .navbar-brand {
-    grid-column: 2;
+  /* Logo — TRUE CENTER */
+  nav .navbar-brand {
     justify-self: center;
     margin: 0;
   }
 
-  .navbar-brand img {
-    max-height: 42px;
-  }
-
-  /* Profile RIGHT (only when authenticated) */
-  .authenticated-navbar .d-flex.ms-auto {
+  /* Authenticated: profile FAR RIGHT */
+  nav.authenticated-navbar .d-flex.ms-auto {
     grid-column: 3;
     justify-self: end;
+    margin-right: 1rem;
   }
 
-  /* ================================
-     HOME PAGE (NOT AUTHENTICATED)
-     Logo moves FAR RIGHT
-     ================================ */
-  nav:not(.authenticated-navbar) .navbar-brand {
+  /* Unauthenticated: logo FAR RIGHT */
+  body.home-page nav:not(.authenticated-navbar) .navbar-brand {
     grid-column: 3;
     justify-self: end;
+    margin-right: 1rem;
   }
 
-  /* Collapse menu fullscreen */
-  .navbar-collapse {
+  /* Collapsed menu overlay */
+  nav .navbar-collapse {
     position: fixed;
     top: 70px;
     left: 0;
@@ -1333,10 +1325,4 @@ section p {
     z-index: 1050;
     overflow-y: auto;
   }
-
-  /* Hide logo inside collapse */
-  .navbar-collapse .navbar-brand {
-    display: none;
-  }
 }
-
