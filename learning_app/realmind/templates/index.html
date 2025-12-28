@@ -228,18 +228,23 @@
 
 
 {% if current_user.is_authenticated and request.endpoint and (request.endpoint.startswith('user.') or request.endpoint.startswith('jobs.')) %}
-<!-- Full-width yellow dashboard nav - ONLY shows on user dashboard and job pages -->
 <div class="user-dashboard-nav text-center">
   <div class="links-wrapper">
-    <a href="{{ url_for('user.users_dashboard') }}" class="nav-link-divider">Dashboard</a>
+    <!-- Dashboard hidden on mobile via CSS -->
+    <a href="{{ url_for('user.users_dashboard') }}"
+       class="nav-link-divider hide-mobile">
+      Dashboard
+    </a>
+
     <a href="{{ url_for('user.view_profile') }}" class="nav-link-divider">View Profile</a>
     <a href="{{ url_for('user.edit_profile') }}" class="nav-link-divider">Edit Profile</a>
     <a href="{{ url_for('jobs.job_listings') }}" class="nav-link-divider">Apply for a job</a>
     <a href="{{ url_for('user.application_history') }}" class="nav-link-divider">Application History</a>
     <a href="{{ url_for('user.contacts') }}" class="nav-link-divider">Support</a>
-    <a href="{{ url_for('auth.logout') }}" class="nav-link-divider">Logout</a>
+    <a href="{{ url_for('auth.logout') }}" class="nav-link-divider logout">Logout</a>
   </div>
 </div>
+
 {% endif %}
 
 
