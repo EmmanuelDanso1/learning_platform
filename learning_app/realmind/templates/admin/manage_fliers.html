@@ -19,9 +19,9 @@
         <div class="col-md-4">
           <div class="card mb-4 shadow-sm">
             {% if flier.image_filename %}
-              <img src="{{ url_for('static', filename='fliers/' + flier.image_filename) }}"
-                   class="card-img-top" alt="{{ flier.title or 'Flier' }}"
-                   style="height: 200px; object-fit: cover;">
+              <img src="{{ url_for('static', filename='fliers/' ~ flier.image_filename) }}"
+                  class="card-img-top" alt="{{ flier.title or 'Flier' }}"
+                  style="height: 200px; object-fit: cover;">
             {% endif %}
             <div class="card-body">
               <h5 class="card-title">{{ flier.title or 'Untitled Flier' }}</h5>
