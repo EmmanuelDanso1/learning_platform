@@ -34,12 +34,13 @@ class User(UserMixin, db.Model):
     cv = db.Column(db.String(255), nullable=True)
     certificate = db.Column(db.String(255), nullable=True)
 
-    # NEW FIELD - track login provider
+    # NEW FIELD - track login provider. OAUTH Provider
     auth_provider = db.Column(db.String(20), default="local")  # local | google
+    google_id = db.Column(db.String(255), unique=True, nullable=True)
 
     # Account status - NEW FIELD
     is_active = db.Column(db.Boolean, default=True, nullable=False)
-    
+
     def __repr__(self):
         return f"<User {self.fullname}>"
     
