@@ -267,17 +267,17 @@ def admin_login():
         flash('Invalid credentials', 'danger')
     return render_template('admin_login.html', form=form)
 
-@auth_bp.route('/logout')
-def logout():
-    role = session.pop('user_role', 'user')
-
+@auth_bp.route('/user/logout')
+def user_logout():
     logout_user()
-
     flash('You have been logged out.', 'info')
-
-    if role == 'admin':
-        return redirect(url_for('auth.admin_login'))
     return redirect(url_for('auth.user_login'))
+
+@auth_bp.route('/admin/logout')
+def admin_logout():
+    logout_user()
+    flash('You have been logged out.', 'info')
+    return redirect(url_for('auth.admin_login'))
 
 
 

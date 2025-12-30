@@ -212,7 +212,7 @@
           <li><a class="dropdown-item" href="{{ url_for('jobs.job_listings') }}">Apply for a job</a></li>
           <li><a class="dropdown-item" href="{{ url_for('user.application_history') }}">Application History</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item text-danger fw-bold" href="{{ url_for('auth.logout') }}">Logout</a></li>
+          <li><a class="dropdown-item text-danger fw-bold" href="{{ url_for('auth.user_logout') }}">Logout</a></li>
         </ul>
       </div>
 
@@ -241,7 +241,7 @@
     <a href="{{ url_for('jobs.job_listings') }}" class="nav-link-divider">Apply for a job</a>
     <a href="{{ url_for('user.application_history') }}" class="nav-link-divider">Application History</a>
     <a href="{{ url_for('user.contacts') }}" class="nav-link-divider">Support</a>
-    <a href="{{ url_for('auth.logout') }}" class="nav-link-divider logout">Logout</a>
+    <a href="{{ url_for('auth.user_logout') }}" class="nav-link-divider logout">Logout</a>
   </div>
 </div>
 
@@ -274,16 +274,25 @@
   <img src="{{ url_for('static', filename='images/whatsapp.png') }}" alt="WhatsApp" width="60">
 </a>
 <!-- user inactive for 10 minutes -->
+{% if current_user.is_authenticated %}
+<script
+  data-logout-url="{{ url_for('auth.admin_logout' if current_user.is_admin else 'auth.user_logout') }}"
+  id="inactivity-script">
+</script>
+
 <script>
+  const scriptTag = document.getElementById("inactivity-script");
+  const logoutUrl = scriptTag.dataset.logoutUrl;
+
   let inactivityTimer;
-  const logoutTime = 10 * 60 * 1000; // 10 minutes
+  const logoutTime = 10 * 60 * 1000;
 
   function resetInactivityTimer() {
-      clearTimeout(inactivityTimer);
-      inactivityTimer = setTimeout(() => {
-          alert("You have been logged out due to inactivity.");
-          window.location.href = "{{ url_for('auth.logout') }}";
-      }, logoutTime);
+    clearTimeout(inactivityTimer);
+    inactivityTimer = setTimeout(() => {
+      alert("You have been logged out due to inactivity.");
+      window.location.href = logoutUrl;
+    }, logoutTime);
   }
 
   window.addEventListener("load", resetInactivityTimer);
@@ -292,7 +301,6 @@
   document.addEventListener("click", resetInactivityTimer);
   document.addEventListener("scroll", resetInactivityTimer);
 </script>
-
-
+{% endif %}
 </body>
 </html>
