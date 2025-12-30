@@ -268,16 +268,17 @@ def admin_login():
     return render_template('admin_login.html', form=form)
 
 @auth_bp.route('/logout')
-@login_required
 def logout():
-    was_admin = getattr(current_user, "is_admin", False)
+    role = session.pop('user_role', 'user')
 
     logout_user()
+
     flash('You have been logged out.', 'info')
 
-    if was_admin:
+    if role == 'admin':
         return redirect(url_for('auth.admin_login'))
     return redirect(url_for('auth.user_login'))
+
 
 
 @auth_bp.route('/forgot-password', methods=['GET', 'POST'])
