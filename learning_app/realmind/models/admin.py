@@ -10,7 +10,7 @@ class Admin(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     fullname = db.Column(db.String(150), nullable=False) 
     email = db.Column(db.String(255), unique=True, nullable=False)
-    password = db.Column(db.String(255), nullable=False)
+    password = db.Column(db.String(255), nullable=True)
     profile_pic = db.Column(db.String(255), nullable=True)
     job_posts = db.relationship('JobPost', backref='admin', lazy=True)
     news_posts = db.relationship('News', backref='admin', lazy=True)
