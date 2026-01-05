@@ -34,6 +34,12 @@
         color: #00194F;
     }
 
+    .required-asterisk {
+        color: red;
+        font-weight: bold;
+        margin-left: 3px;
+    }
+
     .custom-input, .custom-select {
         width: 100%;
         padding: 12px;
@@ -68,7 +74,7 @@
             </div>
 
             <label class="upload-btn">
-                Upload Profile Picture
+                Upload Profile Picture (Optional)
                 <input type="file" id="profileInput" name="profile_pic" accept="image/*" hidden>
             </label>
         </div>
@@ -78,13 +84,13 @@
         <div class="row gy-4">
 
             <div class="col-md-4">
-                <label class="form-label">First Name</label>
-                <input type="text" name="firstname" value="{{ current_user.firstname or ''}}" class="custom-input">
+                <label class="form-label">First Name<span class="required-asterisk">*</span></label>
+                <input type="text" name="firstname" value="{{ current_user.firstname or ''}}" class="custom-input" required>
             </div>
 
             <div class="col-md-4">
-                <label class="form-label">Surname</label>
-                <input type="text" name="surname" value="{{ current_user.surname  or '' }}" class="custom-input">
+                <label class="form-label">Surname<span class="required-asterisk">*</span></label>
+                <input type="text" name="surname" value="{{ current_user.surname  or '' }}" class="custom-input" required>
             </div>
 
             <div class="col-md-4">
@@ -93,13 +99,13 @@
             </div>
 
             <div class="col-md-6">
-                <label class="form-label">E-mail Address</label>
-                <input type="email" name="email" value="{{ current_user.email  or ''}}" class="custom-input">
+                <label class="form-label">E-mail Address<span class="required-asterisk">*</span></label>
+                <input type="email" name="email" value="{{ current_user.email  or ''}}" class="custom-input" required>
             </div>
 
             <div class="col-md-6">
-                <label class="form-label">Phone Number</label>
-                <input type="text" name="phone" value="{{ current_user.phone  or ''}}" class="custom-input">
+                <label class="form-label">Phone Number<span class="required-asterisk">*</span></label>
+                <input type="text" name="phone" value="{{ current_user.phone  or ''}}" class="custom-input" required>
             </div>
 
 
@@ -107,14 +113,14 @@
             <!-- GHANA CARD / CV / CERTIFICATE (INLINE) -->
             <!-- ========================= -->
             <div class="col-md-4">
-                <label class="form-label">Ghana Card Number</label>
-                <input type="text" name="ghana_card_number" value="{{ current_user.ghana_card_number  or ''}}" placeholder="GHA-000000000-0" class="custom-input">
+                <label class="form-label">Ghana Card Number<span class="required-asterisk">*</span></label>
+                <input type="text" name="ghana_card_number" value="{{ current_user.ghana_card_number  or ''}}" placeholder="GHA-000000000-0" class="custom-input" required>
             </div>
 
             <div class="col-md-4">
-                <label class="form-label">Upload CV</label>
+                <label class="form-label">Upload CV<span class="required-asterisk">*</span></label>
                 <div class="upload-box">
-                    <input type="file" name="cv" accept=".pdf,.doc,.docx" class="form-control">
+                    <input type="file" name="cv" accept=".pdf,.doc,.docx" class="form-control" {% if not current_user.cv %}required{% endif %}>
                 </div>
 
                 {% if current_user.cv %}
@@ -125,9 +131,9 @@
             </div>
 
             <div class="col-md-4">
-                <label class="form-label">Upload Certificate</label>
+                <label class="form-label">Upload Certificate<span class="required-asterisk">*</span></label>
                 <div class="upload-box">
-                    <input type="file" name="certificate" accept=".pdf,.jpg,.jpeg,.png" class="form-control">
+                    <input type="file" name="certificate" accept=".pdf,.jpg,.jpeg,.png" class="form-control" {% if not current_user.certificate %}required{% endif %}>
                 </div>
 
                 {% if current_user.certificate %}
@@ -144,7 +150,7 @@
             <!-- PREFERRED SUBJECT & LEVEL -->
             <!-- ========================= -->
             <div class="col-md-6">
-                <label class="form-label">Preferred Subject</label>
+                <label class="form-label">Preferred Subject<span class="required-asterisk">*</span></label>
 
                 <div class="custom-select-container" style="border:1px solid #ced4da; padding:10px; border-radius:5px; max-height:200px; overflow-y:auto;">
                     {% set selected_subjects = (current_user.preferred_subject or '').split(',') %}
@@ -155,11 +161,15 @@
                             name="preferred_subject" 
                             value="{{ subject }}"
                             style="margin-right:8px;"
+                            class="subject-checkbox"
                             {% if subject in selected_subjects %}checked{% endif %}>
                         <span>{{ subject }}</span>
                     </div>
                     {% endfor %}
                 </div>
+
+                <!-- Hidden input to enforce at least one checkbox selection -->
+                <input type="hidden" id="subjectRequired" name="subject_validation" required>
 
                 <!-- Other Input -->
                 {% set other_subject = '' %}
@@ -178,7 +188,7 @@
             </div>
 
             <div class="col-md-6">
-                <label class="form-label">Preferred Level</label>
+                <label class="form-label">Preferred Level<span class="required-asterisk">*</span></label>
 
                 <div class="custom-select-container" style="border:1px solid #ced4da; padding:10px; border-radius:5px; max-height:250px; overflow-y:auto;">
                     
@@ -202,11 +212,15 @@
                             name="preferred_level"
                             value="{{ level }}"
                             style="margin-right:8px;"
+                            class="level-checkbox"
                             {% if level in saved_levels %}checked{% endif %}>
                         <span>{{ level }}</span>
                     </div>
                     {% endfor %}
                 </div>
+
+                <!-- Hidden input to enforce at least one checkbox selection -->
+                <input type="hidden" id="levelRequired" name="level_validation" required>
             </div>
 
         </div>
@@ -228,7 +242,7 @@ document.getElementById("profileInput").addEventListener("change", function(e) {
     }
 });
 
-/// Show/hide Other subject input when "Other" checkbox is checked
+// Show/hide Other subject input when "Other" checkbox is checked
 const subjectCheckboxes = document.querySelectorAll("input[name='preferred_subject']");
 const otherInput = document.getElementById("subjectOtherInput");
 
@@ -247,6 +261,66 @@ subjectCheckboxes.forEach(cb => cb.addEventListener("change", toggleOtherInput))
 
 // Run on page load
 window.addEventListener("DOMContentLoaded", toggleOtherInput);
+
+// Validate at least one subject is selected
+const subjectValidation = document.getElementById('subjectRequired');
+const levelValidation = document.getElementById('levelRequired');
+
+function validateSubjects() {
+    const anySubjectChecked = Array.from(subjectCheckboxes).some(cb => cb.checked);
+    if (anySubjectChecked) {
+        subjectValidation.setCustomValidity('');
+    } else {
+        subjectValidation.setCustomValidity('Please select at least one subject');
+    }
+}
+
+function validateLevels() {
+    const levelCheckboxes = document.querySelectorAll("input[name='preferred_level']");
+    const anyLevelChecked = Array.from(levelCheckboxes).some(cb => cb.checked);
+    if (anyLevelChecked) {
+        levelValidation.setCustomValidity('');
+    } else {
+        levelValidation.setCustomValidity('Please select at least one level');
+    }
+}
+
+// Validate on checkbox change
+subjectCheckboxes.forEach(cb => {
+    cb.addEventListener('change', validateSubjects);
+});
+
+document.querySelectorAll("input[name='preferred_level']").forEach(cb => {
+    cb.addEventListener('change', validateLevels);
+});
+
+// Initial validation on page load
+window.addEventListener('DOMContentLoaded', function() {
+    validateSubjects();
+    validateLevels();
+});
+
+// Validate before form submission
+document.querySelector('form').addEventListener('submit', function(e) {
+    validateSubjects();
+    validateLevels();
+    
+    const anySubjectChecked = Array.from(subjectCheckboxes).some(cb => cb.checked);
+    const levelCheckboxes = document.querySelectorAll("input[name='preferred_level']");
+    const anyLevelChecked = Array.from(levelCheckboxes).some(cb => cb.checked);
+    
+    if (!anySubjectChecked) {
+        e.preventDefault();
+        alert('Please select at least one preferred subject');
+        return false;
+    }
+    
+    if (!anyLevelChecked) {
+        e.preventDefault();
+        alert('Please select at least one preferred level');
+        return false;
+    }
+});
 </script>
 
 {% endblock %}

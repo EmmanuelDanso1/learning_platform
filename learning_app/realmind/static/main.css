@@ -1329,7 +1329,7 @@ section p {
 
 
 /* ==========================================
-   USER DASHBOARD NAV – MOBILE FIX (UPDATED)
+   USER DASHBOARD NAV – MOBILE FIX (COMPACT)
    ========================================== */
 @media (max-width: 768px) {
 
@@ -1346,8 +1346,9 @@ section p {
     position: relative;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-auto-rows: minmax(44px, auto);
+    grid-auto-rows: auto; /* Changed from minmax to auto */
     width: 100%;
+    gap: 0; /* Remove any grid gaps */
   }
 
   .user-dashboard-nav .links-wrapper::before {
@@ -1363,27 +1364,52 @@ section p {
   }
 
   .user-dashboard-nav .nav-link-divider {
-    padding: 8px 6px;
-    font-size: 14px;
-    line-height: 1.2;
-
-    border-bottom: 3px solid #fff;
+    padding: 12px 8px; /* Reduced padding for more compact look */
+    font-size: 16px; /* Slightly larger font */
+    font-weight: 600; /* Make text bolder */
+    line-height: 1.3;
+    
+    border-bottom: 3px solid #000; /* Changed from white to black */
     border-left: none !important;
     border-right: none !important;
-
+    
     position: relative;
     z-index: 1;
+    
+    /* Center text */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
   }
 
   .user-dashboard-nav .nav-link-divider * {
     margin: 0;
+    padding: 0;
   }
 
+  /* Hide first item if needed */
   .user-dashboard-nav .nav-link-divider:first-child {
     display: none;
   }
 
+  /* Remove bottom border from last two items */
   .user-dashboard-nav .nav-link-divider:nth-last-child(-n+2) {
     border-bottom: none;
+  }
+  
+  /* Add specific styling for better appearance */
+  .user-dashboard-nav .nav-link-divider a {
+    color: #000; /* Black text */
+    text-decoration: none;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .user-dashboard-nav .nav-link-divider:hover {
+    background-color: rgba(0, 0, 0, 0.05); /* Slight hover effect */
   }
 }
