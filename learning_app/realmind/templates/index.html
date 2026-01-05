@@ -274,33 +274,40 @@
   <img src="{{ url_for('static', filename='images/whatsapp.png') }}" alt="WhatsApp" width="60">
 </a>
 <!-- user inactive for 10 minutes -->
+<!-- Auto-logout after 10 minutes of inactivity -->
 {% if current_user.is_authenticated %}
 <script
-  data-logout-url="{{ url_for('auth.admin_logout' if current_user.is_admin else 'auth.user_logout') }}"
+  data-logout-url="{{ url_for('auth.admin_logout') if current_user.is_admin else url_for('auth.user_logout') }}"
+  data-is-admin="{{ 'true' if current_user.is_admin else 'false' }}"
   id="inactivity-script">
 </script>
 
 <script>
   const scriptTag = document.getElementById("inactivity-script");
   const logoutUrl = scriptTag.dataset.logoutUrl;
+  const isAdmin = scriptTag.dataset.isAdmin === 'true';
 
   let inactivityTimer;
-  const logoutTime = 10 * 60 * 1000;
+  const logoutTime = 10 * 60 * 1000; // 10 minutes
 
   function resetInactivityTimer() {
     clearTimeout(inactivityTimer);
     inactivityTimer = setTimeout(() => {
+      const userType = isAdmin ? "admin" : "user";
       alert("You have been logged out due to inactivity.");
+      console.log(`Logging out ${userType} to: ${logoutUrl}`);
       window.location.href = logoutUrl;
     }, logoutTime);
   }
 
+  // Initialize timer on page load
   window.addEventListener("load", resetInactivityTimer);
+  
+  // Reset timer on user activity
   document.addEventListener("mousemove", resetInactivityTimer);
   document.addEventListener("keypress", resetInactivityTimer);
   document.addEventListener("click", resetInactivityTimer);
   document.addEventListener("scroll", resetInactivityTimer);
+  document.addEventListener("touchstart", resetInactivityTimer); // For mobile devices
 </script>
 {% endif %}
-</body>
-</html>
