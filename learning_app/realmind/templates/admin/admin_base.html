@@ -167,5 +167,35 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- Admin Inactivity Logout Script -->
+{% if current_user.is_authenticated and current_user.is_admin %}
+<script>
+  // Admin inactivity logout after 10 minutes
+  let adminInactivityTimer;
+  const adminLogoutTime = 10 * 60 * 1000; // 10 minutes
+  const adminLogoutUrl = "{{ url_for('auth.admin_logout') }}";
+
+  function resetAdminInactivityTimer() {
+    clearTimeout(adminInactivityTimer);
+    adminInactivityTimer = setTimeout(() => {
+      alert("You have been logged out due to inactivity.");
+      console.log("Logging out admin to:", adminLogoutUrl);
+      window.location.href = adminLogoutUrl;
+    }, adminLogoutTime);
+  }
+
+  // Start timer immediately
+  resetAdminInactivityTimer();
+  
+  // Reset timer on ANY user activity
+  const adminEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+  
+  adminEvents.forEach(function(event) {
+    document.addEventListener(event, resetAdminInactivityTimer, true);
+  });
+</script>
+{% endif %}
+
+
 </body>
 </html>

@@ -100,22 +100,48 @@
     .order-details tfoot td {
       padding-top: 12px;
     }
-    .social-icons {
+    /* SOCIAL MEDIA */
+    .social-section {
       text-align: center;
-      margin: 25px 0;
-      padding: 15px;
-      background-color: #f9f9f9;
-      border-radius: 6px;
+      margin: 30px 0;
+      padding: 20px;
+      background-color: #f8f9fa;
+      border-radius: 5px;
     }
-    .social-icons p {
-      margin-bottom: 10px;
+
+    .social-title {
       font-weight: bold;
+      margin-bottom: 15px;
+      color: #0C2E60;
     }
+
+    .social-icons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
     .social-icons a {
       text-decoration: none;
-      margin: 0 8px;
-      font-weight: 500;
+      font-weight: bold;
+      padding: 8px 15px;
+      border-radius: 5px;
+      color: white;
+      font-size: 14px;
+      transition: opacity 0.3s;
     }
+
+    .social-icons a:hover {
+      opacity: 0.8;
+    }
+
+    .social-fb { background-color: #1877F2; }
+    .social-x { background-color: #000000; }
+    .social-ig { background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); }
+    .social-yt { background-color: #FF0000; }
+    .social-wa { background-color: #25D366; }
+
     .footer {
       font-size: 13px;
       color: #777;
@@ -148,6 +174,18 @@
   .status-processing { background-color: #17a2b8; }
   .status-shipped    { background-color: #007bff; }
   .status-delivered  { background-color: #28a745; }
+
+  /* MOBILE OPTIMIZATION */
+    @media (max-width: 600px) {
+      .social-icons {
+        gap: 10px;
+      }
+
+      .social-icons a {
+        font-size: 12px;
+        padding: 6px 10px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -258,15 +296,17 @@
 
     <p style="margin-top: 25px;">Sincerely,<br><strong>RealMindX Education Ltd</strong></p>
 
-    <!-- Social Media Links -->
-    <div class="social-icons">
-      <p><strong>Follow us @realmindxgh:</strong></p>
-      <a href="https://web.facebook.com/profile.php?id=61566941171883" target="_blank" style="color: #1877F2;">Facebook</a> |
-      <a href="https://x.com/RealMindXgh" target="_blank" style="color: #000000;">X</a> |
-      <a href="https://www.instagram.com/realmindxgh/" target="_blank" style="color: #E4405F;">Instagram</a> |
-      <a href="https://www.youtube.com/@realmindxgh" target="_blank" style="color: #FF0000;">YouTube</a> |
-      <a href="https://wa.link/d6x888" target="_blank" style="color: #25D366;">WhatsApp</a>
-    </div>
+    <!-- Social Media Section -->
+      <div class="social-section">
+        <div class="social-title">Connect With Us</div>
+        <div class="social-icons">
+          <a href="https://web.facebook.com/profile.php?id=61566941171883" class="social-fb">Facebook</a>
+          <a href="https://x.com/RealMindXgh" class="social-x">X</a>
+          <a href="https://www.instagram.com/realmindxgh/" class="social-ig">Instagram</a>
+          <a href="https://www.youtube.com/@realmindxgh" class="social-yt">YouTube</a>
+          <a href="https://wa.link/d6x888" class="social-wa">WhatsApp</a>
+        </div>
+      </div>
 
     <!-- Footer -->
     <div class="footer">
