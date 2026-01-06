@@ -273,7 +273,7 @@
    style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
   <img src="{{ url_for('static', filename='images/whatsapp.png') }}" alt="WhatsApp" width="60">
 </a>
-<!-- user inactive for 10 minutes -->
+
 <!-- Auto-logout after 10 minutes of inactivity -->
 {% if current_user.is_authenticated %}
 <script
@@ -300,14 +300,14 @@
     }, logoutTime);
   }
 
-  // Initialize timer on page load
-  window.addEventListener("load", resetInactivityTimer);
+  // Start timer immediately
+  resetInactivityTimer();
   
-  // Reset timer on user activity
-  document.addEventListener("mousemove", resetInactivityTimer);
-  document.addEventListener("keypress", resetInactivityTimer);
-  document.addEventListener("click", resetInactivityTimer);
-  document.addEventListener("scroll", resetInactivityTimer);
-  document.addEventListener("touchstart", resetInactivityTimer); // For mobile devices
+  // Reset timer on ANY user activity
+  const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+  
+  events.forEach(function(event) {
+    document.addEventListener(event, resetInactivityTimer, true);
+  });
 </script>
 {% endif %}
