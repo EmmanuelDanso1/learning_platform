@@ -6,7 +6,8 @@ class ExternalSubscriber(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     source = db.Column(db.String(50), nullable=False)
     subscribed_at = db.Column(db.DateTime, default=datetime.utcnow)
-    is_active = db.Column(db.Boolean, default=True) 
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Newsletter(db.Model):
     id = db.Column(db.Integer, primary_key=True)
