@@ -1560,7 +1560,7 @@ def unsubscribe(token):
 def sync_subscribers():
     """Sync subscribers from Bookshop API"""
     try:
-        api_base_url = os.getenv('API_BASE_URL')
+        api_base_url = os.getenv('BOOKSHOP_API_BASE_URL')
         api_token = os.getenv('API_TOKEN')
         
         if not api_base_url or not api_token:
@@ -1629,7 +1629,7 @@ def fix_subscribers():
     
     return redirect(url_for('admin.view_subscribers'))
 
-    
+
 # LIST NEWSLETTERS WITH LOGGING
 @admin_bp.route('/admin/newsletters')
 @login_required
