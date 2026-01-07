@@ -129,3 +129,26 @@ def submit_contact():
         flash("An error occurred while sending your message. Please try again later.", "danger")
 
     return redirect(url_for('main.contact'))
+
+@main_bp.route('/unsubscribe-feedback', methods=['POST'])
+def unsubscribe_feedback():
+    email = request.form.get('email')
+    reasons = request.form.getlist('reason')
+    comments = request.form.get('comments', '')
+    
+    # Log feedback
+    current_app.logger.info(
+        f"Unsubscribe feedback from {email}: Reasons={reasons}, Comments={comments}"
+    )
+    
+    # Optional: Save to database
+    # feedback = UnsubscribeFeedback(
+    #     email=email,
+    #     reasons=','.join(reasons),
+    #     comments=comments
+    # )
+    # db.session.add(feedback)
+    # db.session.commit()
+    
+    flash("Thank you for your feedback!", "success")
+    return redirect('https://realmindxgh.com')

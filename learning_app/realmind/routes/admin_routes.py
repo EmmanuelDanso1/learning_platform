@@ -14,7 +14,7 @@ from datetime import datetime
 import requests
 from learning_app.realmind.models.user import User
 from learning_app.realmind.utils.email import send_order_status_email
-from learning_app.realmind.utils.util import UPLOAD_FOLDER, allowed_profile_pic,allowed_image_file, allowed_document, allowed_file, FLIERS_FOLDER
+from learning_app.realmind.utils.util import UPLOAD_FOLDER, allowed_profile_pic,allowed_image_file, allowed_document, allowed_file, FLIERS_FOLDER,generate_unsubscribe_token, verify_unsubscribe_token 
 import logging
 from learning_app.realmind.routes.newsletter_sync import sync_bookshop_subscribers
 
@@ -1359,7 +1359,7 @@ def sync_bookshop_subscribers():
         db.session.rollback()
         return False
 
-
+# newsletter
 # IMPROVED NEWSLETTER SENDING FUNCTION
 @admin_bp.route('/admin/newsletter', methods=['GET', 'POST'])
 @login_required
@@ -1378,24 +1378,31 @@ def create_newsletter():
             flash("Title and content are required.", "danger")
             return redirect(url_for('admin.create_newsletter'))
 
+        # Handle image upload
         image_filename = None
         file = request.files.get('newsletter_image')
 
         if file and file.filename:
             if not allowed_file(file.filename):
-                flash("Invalid image format.", "danger")
+                flash("Invalid image format. Please use PNG, JPG, or GIF.", "danger")
                 return redirect(url_for('admin.create_newsletter'))
 
+            # Create unique filename
             ext = file.filename.rsplit('.', 1)[1].lower()
             image_filename = f"newsletter_{uuid.uuid4().hex}.{ext}"
 
+            
             upload_path = os.path.join(
                 current_app.root_path,
-                'learning_app/static/uploads/newsletters'
+                'realmind/static/uploads/newsletters'  # Fixed path
             )
             os.makedirs(upload_path, exist_ok=True)
+            
+            # Save the file
             file.save(os.path.join(upload_path, image_filename))
+            current_app.logger.info(f"Image saved: {image_filename}")
 
+        # Save newsletter to database
         newsletter = Newsletter(
             title=title,
             content=content,
@@ -1404,19 +1411,27 @@ def create_newsletter():
         db.session.add(newsletter)
         db.session.commit()
 
+        current_app.logger.info(
+            f"Newsletter created: {newsletter.title} (ID: {newsletter.id})"
+        )
+
+        # Get active subscribers
         subscribers = ExternalSubscriber.query.filter_by(
             source='bookshop',
             is_active=True
         ).all()
 
         if not subscribers:
-            flash("No active subscribers found.", "warning")
+            flash("Newsletter created but no active subscribers found.", "warning")
             return redirect(url_for('admin.list_newsletters'))
 
+        # Send emails
         success_count = 0
+        failed_count = 0
 
         for subscriber in subscribers:
             try:
+                # Generate unsubscribe token
                 unsubscribe_token = generate_unsubscribe_token(subscriber.email)
                 unsubscribe_url = url_for(
                     'admin.unsubscribe',
@@ -1424,43 +1439,59 @@ def create_newsletter():
                     _external=True
                 )
 
-                image_url = (
-                    url_for(
+                # Build image URL if exists
+                image_url = None
+                if image_filename:
+                    image_url = url_for(
                         'static',
                         filename=f'uploads/newsletters/{image_filename}',
                         _external=True
-                    ) if image_filename else None
-                )
+                    )
 
+                # Create email message
                 msg = Message(
                     subject=title,
                     sender=current_app.config['MAIL_USERNAME'],
                     recipients=[subscriber.email]
                 )
 
+                # Render email template
                 msg.html = render_template(
                     'emails/newsletter.html',
                     title=title,
                     content=content,
                     image_url=image_url,
-                    unsubscribe_url=unsubscribe_url
+                    unsubscribe_url=unsubscribe_url,
+                    subscriber_email=subscriber.email
                 )
 
+                # Send email
                 mail.send(msg)
                 success_count += 1
+                current_app.logger.info(f"Newsletter sent to: {subscriber.email}")
 
             except Exception as e:
+                failed_count += 1
                 current_app.logger.error(
-                    f"Failed to send to {subscriber.email}: {e}"
+                    f"Failed to send newsletter to {subscriber.email}: {str(e)}"
                 )
 
-        flash(
-            f"Newsletter sent to {success_count} subscriber(s).",
-            "success"
-        )
+        # Flash appropriate message
+        if success_count > 0:
+            flash(
+                f"Newsletter sent successfully to {success_count} subscriber(s).",
+                "success"
+            )
+        
+        if failed_count > 0:
+            flash(
+                f"Failed to send to {failed_count} subscriber(s). Check logs.",
+                "warning"
+            )
 
         return redirect(url_for('admin.list_newsletters'))
 
+    # GET request - show form
     subscriber_count = ExternalSubscriber.query.filter_by(
         source='bookshop',
         is_active=True
@@ -1490,11 +1521,10 @@ def unsubscribe(token):
         
         current_app.logger.info(f"User {email} unsubscribed from newsletter")
         
-        return render_template('unsubscribe_success.html', email=email)
+        return render_template('unsubscribe_success.html', email=email, csrf_token=generate_csrf())
     else:
         flash("Email not found in our system.", "warning")
         return redirect(url_for('main.home'))
-
 
 
 # IMPROVED SYNC ROUTE WITH LOGGING
@@ -1520,7 +1550,15 @@ def sync_subscribers():
 def list_newsletters():
     current_app.logger.info(f"Admin {current_user.email} viewing newsletter list")
     newsletters = Newsletter.query.order_by(Newsletter.created_at.desc()).all()
-    return render_template('admin/list_newsletters.html', newsletters=newsletters)
+    
+    # Log for debugging
+    current_app.logger.info(f"Found {len(newsletters)} newsletters")
+    
+    return render_template(
+        'admin/view_newsletters.html',
+        newsletters=newsletters,
+        csrf_token=generate_csrf()
+    )
 
 
 # VIEW ALL SUBSCRIBERS (NEW ROUTE)
@@ -1592,10 +1630,10 @@ def view_newsletter(id):
 
 
 # EDIT NEWSLETTER WITH LOGGING
-@admin_bp.route('/admin/newsletter/<int:id>/edit', methods=['GET', 'POST'])
+@admin_bp.route('/admin/newsletter/<int:newsletter_id>/edit', methods=['GET', 'POST'])
 @login_required
-def edit_newsletter(id):
-    newsletter = Newsletter.query.get_or_404(id)
+def edit_newsletter(newsletter_id):
+    newsletter = Newsletter.query.get_or_404(newsletter_id)
 
     if request.method == 'POST':
         token = request.form.get('csrf_token')
@@ -1609,58 +1647,68 @@ def edit_newsletter(id):
 
         if not newsletter.title or not newsletter.content:
             flash("Title and content are required.", "danger")
-            return redirect(url_for('admin.edit_newsletter', id=id))
+            return redirect(url_for('admin.edit_newsletter', newsletter_id=newsletter_id))
 
         # IMAGE UPDATE
         file = request.files.get('newsletter_image')
         if file and file.filename:
             if not allowed_file(file.filename):
-                flash("Invalid image format.", "danger")
-                return redirect(url_for('admin.edit_newsletter', id=id))
+                flash("Invalid image format. Please use PNG, JPG, or GIF.", "danger")
+                return redirect(url_for('admin.edit_newsletter', newsletter_id=newsletter_id))
 
             # Delete old image if exists
             if newsletter.image_filename:
                 old_path = os.path.join(
                     current_app.root_path,
-                    'static/uploads/newsletters',
+                    'realmind/static/uploads/newsletters',
                     newsletter.image_filename
                 )
                 if os.path.exists(old_path):
-                    os.remove(old_path)
+                    try:
+                        os.remove(old_path)
+                        current_app.logger.info(f"Deleted old image: {newsletter.image_filename}")
+                    except Exception as e:
+                        current_app.logger.error(f"Failed to delete old image: {e}")
 
+            # Save new image
             ext = file.filename.rsplit('.', 1)[1].lower()
             new_filename = f"newsletter_{uuid.uuid4().hex}.{ext}"
 
             upload_path = os.path.join(
                 current_app.root_path,
-                'realmind/static/uploads/newsletters'
+                'realmind/static/uploads/newsletters'  
             )
             os.makedirs(upload_path, exist_ok=True)
             file.save(os.path.join(upload_path, new_filename))
 
             newsletter.image_filename = new_filename
+            current_app.logger.info(f"New image saved: {new_filename}")
 
         db.session.commit()
+        
+        current_app.logger.info(
+            f"Newsletter '{newsletter.title}' updated by {current_user.email}"
+        )
+        
         flash("Newsletter updated successfully.", "success")
-        return redirect(url_for('admin.view_newsletter', id=id))
+        return redirect(url_for('admin.list_newsletters'))
 
     return render_template(
         'admin/edit_newsletter.html',
         newsletter=newsletter,
         csrf_token=generate_csrf()
     )
-
-@admin_bp.route('/admin/newsletter/<int:id>/delete', methods=['POST'])
+@admin_bp.route('/admin/newsletter/<int:newsletter_id>/delete', methods=['POST'])
 @login_required
-def delete_newsletter(id):
+def delete_newsletter(newsletter_id):
     token = request.form.get('csrf_token')
 
     try:
         validate_csrf(token)
-    except ValidationError:
+    except CSRFError:
         abort(400, description="Invalid CSRF token")
 
-    newsletter = Newsletter.query.get_or_404(id)
+    newsletter = Newsletter.query.get_or_404(newsletter_id)
     title = newsletter.title
 
     # DELETE IMAGE FILE
@@ -1671,14 +1719,19 @@ def delete_newsletter(id):
             newsletter.image_filename
         )
         if os.path.exists(image_path):
-            os.remove(image_path)
+            try:
+                os.remove(image_path)
+                current_app.logger.info(f"Deleted image: {newsletter.image_filename}")
+            except Exception as e:
+                current_app.logger.error(f"Failed to delete image: {e}")
 
     db.session.delete(newsletter)
     db.session.commit()
 
-    flash("Newsletter deleted successfully.", "success")
-    return redirect(url_for('admin.list_newsletters'))
+    current_app.logger.info(f"Newsletter '{title}' deleted by {current_user.email}")
 
+    flash(f"Newsletter '{title}' deleted successfully.", "success")
+    return redirect(url_for('admin.list_newsletters'))
 
 # DELETE SUBSCRIBER
 @admin_bp.route('/admin/subscriber/<int:id>/delete', methods=['POST'])
