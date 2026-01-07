@@ -35,7 +35,7 @@
           <td>
             <span class="badge bg-primary">{{ subscriber.source }}</span>
           </td>
-          <td>{{ subscriber.added_on.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>{{ subscriber.created_at.strftime('%Y-%m-%d %H:%M') if n.created_at else '—' }}</td>
           <td>
             <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ subscriber.id }}">
               <i class="bi bi-trash"></i> Delete
