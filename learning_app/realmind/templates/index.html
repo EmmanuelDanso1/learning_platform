@@ -55,7 +55,7 @@
 
     <!-- Logo (center on mobile, left on desktop) -->
     <a class="navbar-brand d-flex align-items-center"
-       href="{{ url_for('main.home') if not current_user.is_authenticated else url_for('user.users_dashboard') }}">
+       href="{{ url_for('main.home') }}">
       <img src="{{ url_for('static', filename='images/real.jpg') }}" alt="RealmindX Logo" class="logo-img">
     </a>
 
@@ -91,7 +91,7 @@
             <li><a class="dropdown-item" href="{{ url_for('main.services') }}#special-education">Special Education</a></li>
             <li><a class="dropdown-item" href="{{ url_for('main.services') }}#secretarial">Secretarial Services</a></li>
             <li><a class="dropdown-item" href="{{ url_for('main.services') }}#consulting">Educational Consulting</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('main.services') }}#extracurricular">ExtraCurricular Offers</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('main.services') }}#extracurricular">Extracurricular Offers</a></li>
           </ul>
         </li>
 
@@ -159,7 +159,7 @@
             <li><a class="dropdown-item" href="{{ url_for('main.services') }}#special-education">Special Education</a></li>
             <li><a class="dropdown-item" href="{{ url_for('main.services') }}#secretarial">Secretarial Services</a></li>
             <li><a class="dropdown-item" href="{{ url_for('main.services') }}#consulting">Educational Consulting</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('main.services') }}#extracurricular">ExtraCurricular Offers</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('main.services') }}#extracurricular">Extracurricular Offers</a></li>
           </ul>
         </li>
 

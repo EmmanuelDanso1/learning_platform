@@ -1382,8 +1382,27 @@ def create_newsletter():
             flash("Title and content are required.", "danger")
             return redirect(url_for('admin.create_newsletter'))
 
+        # Handle image upload
+        image_filename = None
+        if 'newsletter_image' in request.files:
+            file = request.files['newsletter_image']
+            if file and file.filename:
+                filename = secure_filename(file.filename)
+                # Create unique filename
+                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                image_filename = f"newsletter_{timestamp}_{filename}"
+                
+                # Save to uploads folder
+                upload_path = os.path.join(current_app.root_path, 'static/uploads/newsletters')
+                os.makedirs(upload_path, exist_ok=True)
+                file.save(os.path.join(upload_path, image_filename))
+
         # Save newsletter to DB
-        newsletter = Newsletter(title=title, content=content)
+        newsletter = Newsletter(
+            title=title, 
+            content=content,
+            image_filename=image_filename
+        )
         db.session.add(newsletter)
         db.session.commit()
 
@@ -1391,15 +1410,15 @@ def create_newsletter():
             f"Admin {current_user.email} created newsletter: '{title}' (ID: {newsletter.id})"
         )
 
-        # Get subscribers from LOCAL database (already synced from Bookshop)
-        subscribers = ExternalSubscriber.query.filter_by(source='bookshop').all()
+        # Get subscribers
+        subscribers = ExternalSubscriber.query.filter_by(source='bookshop', is_active=True).all()
 
         if not subscribers:
-            current_app.logger.warning("No subscribers found when attempting to send newsletter")
-            flash("No subscribers found. Try syncing first.", "warning")
+            current_app.logger.warning("No active subscribers found")
+            flash("No active subscribers found.", "warning")
             return redirect(url_for('admin.list_newsletters'))
 
-        # Send emails with better error handling
+        # Send emails
         success_count = 0
         failed_emails = []
 
@@ -1409,21 +1428,49 @@ def create_newsletter():
 
         for subscriber in subscribers:
             try:
+                # Generate unsubscribe token
+                unsubscribe_token = generate_unsubscribe_token(subscriber.email)
+                unsubscribe_url = url_for(
+                    'admin.unsubscribe', 
+                    token=unsubscribe_token, 
+                    _external=True
+                )
+
+                # Build image URL if exists
+                image_url = None
+                if image_filename:
+                    image_url = url_for(
+                        'static', 
+                        filename=f'uploads/newsletters/{image_filename}', 
+                        _external=True
+                    )
+
+                # Send email with template
                 msg = Message(
                     subject=title,
                     sender=current_app.config['MAIL_USERNAME'],
-                    recipients=[subscriber.email],
-                    html=content
+                    recipients=[subscriber.email]
                 )
+                
+                msg.html = render_template(
+                    'emails/newsletter.html',
+                    title=title,
+                    content=content,
+                    image_url=image_url,
+                    unsubscribe_url=unsubscribe_url,
+                    subscriber_email=subscriber.email
+                )
+                
                 mail.send(msg)
                 success_count += 1
+                
             except Exception as e:
                 current_app.logger.error(
                     f"Failed to send to {subscriber.email}: {e}"
                 )
                 failed_emails.append(subscriber.email)
 
-        # Provide detailed feedback
+        # Provide feedback
         if success_count > 0:
             flash(
                 f"Newsletter sent to {success_count} subscriber(s).",
@@ -1438,24 +1485,45 @@ def create_newsletter():
                 f"Failed to send to {len(failed_emails)} subscriber(s). Check logs.",
                 "warning"
             )
-            current_app.logger.error(
-                f"Failed to send newsletter to {len(failed_emails)} subscribers: {failed_emails}"
-            )
 
         return redirect(url_for('admin.list_newsletters'))
 
-    # For GET request - show subscriber count
-    subscriber_count = ExternalSubscriber.query.filter_by(source='bookshop').count()
-    
-    current_app.logger.info(
-        f"Admin {current_user.email} accessing create newsletter page"
-    )
+    # GET request
+    subscriber_count = ExternalSubscriber.query.filter_by(
+        source='bookshop', 
+        is_active=True
+    ).count()
     
     return render_template(
         'admin/create_newsletter.html',
         csrf_token=generate_csrf(),
         subscriber_count=subscriber_count
     )
+
+
+# UNSUBSCRIBE ROUTE
+@admin_bp.route('/unsubscribe/<token>')
+def unsubscribe(token):
+    email = verify_unsubscribe_token(token)
+    
+    if not email:
+        flash("Invalid or expired unsubscribe link.", "danger")
+        return redirect(url_for('main.home'))
+    
+    # Deactivate subscriber
+    subscriber = ExternalSubscriber.query.filter_by(email=email).first()
+    
+    if subscriber:
+        subscriber.is_active = False
+        db.session.commit()
+        
+        current_app.logger.info(f"User {email} unsubscribed from newsletter")
+        
+        return render_template('unsubscribe_success.html', email=email)
+    else:
+        flash("Email not found in our system.", "warning")
+        return redirect(url_for('main.home'))
+
 
 
 # IMPROVED SYNC ROUTE WITH LOGGING

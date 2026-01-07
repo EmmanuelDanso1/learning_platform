@@ -307,11 +307,9 @@ def apply(job_id):
 
         # Validation
         if not cv or not allowed_document(cv.filename):
-            flash("CV must be a PDF, DOC, or DOCX.", "danger")
             return redirect(request.url)
 
         if not certificate or not allowed_document(certificate.filename):
-            flash("Certificate must be a PDF, DOC, or DOCX.", "danger")
             return redirect(request.url)
 
         # --- Correct Upload Path ---
