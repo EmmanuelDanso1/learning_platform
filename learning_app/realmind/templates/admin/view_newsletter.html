@@ -1,0 +1,141 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}{{ newsletter.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-4">
+  <!-- Header with Actions -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <a href="{{ url_for('admin.list_newsletters') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Newsletters
+      </a>
+    </div>
+    <div>
+      <a href="{{ url_for('admin.edit_newsletter', newsletter_id=newsletter.id) }}" class="btn btn-warning">
+        <i class="fas fa-edit"></i> Edit Newsletter
+      </a>
+      <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+        <i class="fas fa-trash"></i> Delete
+      </button>
+    </div>
+  </div>
+
+  <!-- Newsletter Content -->
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white">
+      <h3 class="mb-0">{{ newsletter.title }}</h3>
+      <small>
+        <i class="fas fa-calendar"></i> Created on 
+        {{ newsletter.created_at.strftime('%d %B %Y at %I:%M %p') if newsletter.created_at else 'Unknown' }}
+      </small>
+    </div>
+
+    <div class="card-body">
+      <!-- Newsletter Image -->
+      {% if newsletter.image_filename %}
+      <div class="text-center mb-4">
+        <img src="{{ url_for('static', filename='uploads/newsletters/' ~ newsletter.image_filename) }}" 
+             alt="{{ newsletter.title }}"
+             class="img-fluid rounded shadow-sm"
+             style="max-height: 500px; max-width: 100%;">
+      </div>
+      {% endif %}
+
+      <!-- Newsletter Content -->
+      <div class="newsletter-content p-3">
+        {{ newsletter.content|safe }}
+      </div>
+    </div>
+
+    <div class="card-footer text-muted">
+      <div class="row">
+        <div class="col-md-6">
+          <small>
+            <i class="fas fa-clock"></i> Created: {{ newsletter.created_at.strftime('%d %B %Y, %I:%M %p') if newsletter.created_at else 'Unknown' }}
+          </small>
+        </div>
+        <div class="col-md-6 text-end">
+          <small>
+            <i class="fas fa-hashtag"></i> Newsletter ID: {{ newsletter.id }}
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-exclamation-triangle"></i> Confirm Delete
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete this newsletter?</p>
+        <p class="fw-bold text-danger">{{ newsletter.title }}</p>
+        <p class="text-muted small mb-0">This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form method="POST" action="{{ url_for('admin.delete_newsletter', newsletter_id=newsletter.id) }}" class="d-inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-danger">
+            <i class="fas fa-trash"></i> Delete Newsletter
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.newsletter-content {
+  line-height: 1.8;
+  font-size: 16px;
+}
+
+.newsletter-content h2 {
+  color: #0C2E60;
+  margin-top: 30px;
+  margin-bottom: 15px;
+  font-size: 28px;
+}
+
+.newsletter-content h3 {
+  color: #1a4d8f;
+  margin-top: 25px;
+  margin-bottom: 10px;
+  font-size: 22px;
+}
+
+.newsletter-content p {
+  margin-bottom: 15px;
+}
+
+.newsletter-content ul, 
+.newsletter-content ol {
+  margin: 15px 0;
+  padding-left: 30px;
+}
+
+.newsletter-content li {
+  margin-bottom: 8px;
+}
+
+.newsletter-content a {
+  color: #0d6efd;
+  text-decoration: underline;
+}
+
+.newsletter-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 15px 0;
+}
+</style>
+{% endblock %}

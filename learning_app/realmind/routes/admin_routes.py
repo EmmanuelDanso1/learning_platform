@@ -1391,16 +1391,31 @@ def create_newsletter():
             ext = file.filename.rsplit('.', 1)[1].lower()
             image_filename = f"newsletter_{uuid.uuid4().hex}.{ext}"
 
-            
+            # CORRECT PATH: learning_platform/learning_app/realmind/static/uploads/newsletters
+            # current_app.root_path gives you: /path/to/learning_platform/learning_app
             upload_path = os.path.join(
-                current_app.root_path,
-                'realmind/static/uploads/newsletters'  # Fixed path
+                current_app.root_path,  # /path/to/learning_app
+                'realmind', 'static', 'uploads', 'newsletters'
             )
+            
+            # Create directory if doesn't exist
             os.makedirs(upload_path, exist_ok=True)
             
+            # Full file path
+            full_path = os.path.join(upload_path, image_filename)
+            
             # Save the file
-            file.save(os.path.join(upload_path, image_filename))
-            current_app.logger.info(f"Image saved: {image_filename}")
+            file.save(full_path)
+            
+            # Debug logging
+            current_app.logger.info(f"=== IMAGE UPLOAD DEBUG ===")
+            current_app.logger.info(f"Root path: {current_app.root_path}")
+            current_app.logger.info(f"Upload path: {upload_path}")
+            current_app.logger.info(f"Full file path: {full_path}")
+            current_app.logger.info(f"Image filename: {image_filename}")
+            current_app.logger.info(f"File exists: {os.path.exists(full_path)}")
+            current_app.logger.info(f"File size: {os.path.getsize(full_path)} bytes")
+            current_app.logger.info(f"========================")
 
         # Save newsletter to database
         newsletter = Newsletter(
@@ -1442,11 +1457,13 @@ def create_newsletter():
                 # Build image URL if exists
                 image_url = None
                 if image_filename:
+                    # Flask will serve from realmind/static/
                     image_url = url_for(
                         'static',
                         filename=f'uploads/newsletters/{image_filename}',
                         _external=True
                     )
+                    current_app.logger.info(f"Image URL for email: {image_url}")
 
                 # Create email message
                 msg = Message(
@@ -1502,6 +1519,7 @@ def create_newsletter():
         csrf_token=generate_csrf(),
         subscriber_count=subscriber_count
     )
+
 
 # UNSUBSCRIBE ROUTE
 @admin_bp.route('/unsubscribe/<token>')
@@ -1618,14 +1636,19 @@ def export_subscribers():
 
 
 # VIEW NEWSLETTER WITH LOGGING
-@admin_bp.route('/admin/newsletter/<int:id>')
+@admin_bp.route('/admin/newsletter/<int:newsletter_id>/view')
 @login_required
-def view_newsletter(id):
-    newsletter = Newsletter.query.get_or_404(id)
+def view_newsletter(newsletter_id):
+    newsletter = Newsletter.query.get_or_404(newsletter_id)
+    
     current_app.logger.info(
-        f"Admin {current_user.email} viewing newsletter: {newsletter.title} (ID: {id})"
+        f"Admin {current_user.email} viewing newsletter: {newsletter.title} (ID: {newsletter_id})"
     )
-    return render_template('admin/view_newsletter.html', newsletter=newsletter)
+    
+    return render_template(
+        'admin/view_newsletter.html',
+        newsletter=newsletter
+    )
 
 
 # EDIT NEWSLETTER WITH LOGGING
@@ -1659,7 +1682,7 @@ def edit_newsletter(newsletter_id):
             if newsletter.image_filename:
                 old_path = os.path.join(
                     current_app.root_path,
-                    'realmind/static/uploads/newsletters',
+                    'realmind', 'static', 'uploads', 'newsletters',
                     newsletter.image_filename
                 )
                 if os.path.exists(old_path):
@@ -1675,13 +1698,15 @@ def edit_newsletter(newsletter_id):
 
             upload_path = os.path.join(
                 current_app.root_path,
-                'realmind/static/uploads/newsletters'  
+                'realmind', 'static', 'uploads', 'newsletters'
             )
             os.makedirs(upload_path, exist_ok=True)
-            file.save(os.path.join(upload_path, new_filename))
+            
+            full_path = os.path.join(upload_path, new_filename)
+            file.save(full_path)
 
             newsletter.image_filename = new_filename
-            current_app.logger.info(f"New image saved: {new_filename}")
+            current_app.logger.info(f"New image saved: {new_filename} at {full_path}")
 
         db.session.commit()
         
@@ -1697,6 +1722,7 @@ def edit_newsletter(newsletter_id):
         newsletter=newsletter,
         csrf_token=generate_csrf()
     )
+
 @admin_bp.route('/admin/newsletter/<int:newsletter_id>/delete', methods=['POST'])
 @login_required
 def delete_newsletter(newsletter_id):
@@ -1714,7 +1740,7 @@ def delete_newsletter(newsletter_id):
     if newsletter.image_filename:
         image_path = os.path.join(
             current_app.root_path,
-            'realmind/static/uploads/newsletters',
+            'realmind', 'static', 'uploads', 'newsletters',
             newsletter.image_filename
         )
         if os.path.exists(image_path):
@@ -1731,6 +1757,7 @@ def delete_newsletter(newsletter_id):
 
     flash(f"Newsletter '{title}' deleted successfully.", "success")
     return redirect(url_for('admin.list_newsletters'))
+
 
 # DELETE SUBSCRIBER
 @admin_bp.route('/admin/subscriber/<int:id>/delete', methods=['POST'])
