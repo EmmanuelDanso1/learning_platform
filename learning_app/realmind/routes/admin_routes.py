@@ -1558,19 +1558,78 @@ def unsubscribe(token):
 @admin_bp.route('/admin/sync-subscribers')
 @login_required
 def sync_subscribers():
-    current_app.logger.info(f"Admin {current_user.email} initiated subscriber sync")
-    success = sync_bookshop_subscribers()
+    """Sync subscribers from Bookshop API"""
+    try:
+        api_base_url = os.getenv('API_BASE_URL')
+        api_token = os.getenv('API_TOKEN')
+        
+        if not api_base_url or not api_token:
+            flash("API configuration missing", "danger")
+            return redirect(url_for('admin.view_subscribers'))
+        
+        headers = {
+            'Authorization': f'Bearer {api_token}',
+            'Content-Type': 'application/json'
+        }
+        
+        response = requests.get(
+            f'{api_base_url}/subscribers',
+            headers=headers,
+            timeout=10
+        )
+        response.raise_for_status()
+        
+        subscribers_data = response.json()
+        synced_count = 0
+        
+        for sub_data in subscribers_data:
+            email = sub_data.get('email')
+            if not email:
+                continue
+            
+            # Check if subscriber exists
+            subscriber = ExternalSubscriber.query.filter_by(email=email).first()
+            
+            if not subscriber:
+                # Create new subscriber with is_active=True
+                subscriber = ExternalSubscriber(
+                    email=email,
+                    source='bookshop',
+                    is_active=True  # ← IMPORTANT: Set to active
+                )
+                db.session.add(subscriber)
+                synced_count += 1
+            else:
+                # Update existing subscriber to be active
+                subscriber.is_active = True
+                synced_count += 1
+        
+        db.session.commit()
+        
+        flash(f"Successfully synced {synced_count} subscribers", "success")
+        current_app.logger.info(f"Synced {synced_count} subscribers from bookshop")
+        
+    except Exception as e:
+        current_app.logger.error(f"Failed to sync subscribers: {e}")
+        flash(f"Failed to sync: {str(e)}", "danger")
     
-    if success:
-        flash("Subscribers synced successfully.", "success")
-        current_app.logger.info("Subscriber sync completed successfully")
-    else:
-        flash("Failed to sync subscribers. Check logs for details.", "danger")
-        current_app.logger.error("Subscriber sync failed")
+    return redirect(url_for('admin.view_subscribers'))
+
+@admin_bp.route('/admin/fix-subscribers')
+@login_required
+def fix_subscribers():
+    """Temporary route to activate all subscribers"""
+    try:
+        count = ExternalSubscriber.query.filter_by(source='bookshop').update({'is_active': True})
+        db.session.commit()
+        flash(f"Activated {count} subscribers", "success")
+    except Exception as e:
+        current_app.logger.error(f"Failed to activate subscribers: {e}")
+        flash(f"Error: {e}", "danger")
     
-    return redirect(url_for('admin.create_newsletter'))
+    return redirect(url_for('admin.view_subscribers'))
 
-
+    
 # LIST NEWSLETTERS WITH LOGGING
 @admin_bp.route('/admin/newsletters')
 @login_required
