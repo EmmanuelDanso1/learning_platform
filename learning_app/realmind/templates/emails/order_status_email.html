@@ -2,30 +2,40 @@
 <html>
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Your Order with RealMindX</title>
   <style>
+    /* Base Styles */
     body {
       font-family: Arial, sans-serif;
       color: #333;
       background-color: #f2f2f2;
-      padding: 20px;
+      padding: 0;
       margin: 0;
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
     }
+    
     .container {
       background-color: #ffffff;
       padding: 25px;
       border-radius: 8px;
-      max-width: 700px;
-      margin: auto;
+      max-width: 600px;
+      margin: 20px auto;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
+    
     .logo {
       text-align: center;
       margin-bottom: 20px;
     }
+    
     .logo img {
       height: 60px;
+      max-width: 100%;
+      width: auto;
     }
+    
     .status-box {
       background-color: #f0f8ff;
       border-left: 5px solid #007bff;
@@ -33,37 +43,41 @@
       margin: 20px 0;
       border-radius: 5px;
     }
+    
     .status-box h2 {
       color: #0C2E60;
       margin-top: 0;
       font-size: 22px;
     }
+    
     .status-box p {
       line-height: 1.7;
       margin: 10px 0;
     }
+    
     .actions {
       text-align: center;
       margin: 25px 0;
     }
+    
     .actions a {
       display: inline-block;
-      margin: 0 10px;
+      margin: 5px;
       text-decoration: none;
       color: white;
       padding: 12px 24px;
       border-radius: 5px;
       font-weight: bold;
     }
+    
     .btn-shop {
       background-color: #007bff;
     }
+    
     .btn-track {
       background-color: #28a745;
     }
-    h2 {
-      color: #333;
-    }
+    
     .section-title {
       font-weight: bold;
       margin-top: 20px;
@@ -71,36 +85,59 @@
       color: #0C2E60;
       font-size: 16px;
     }
+    
     .order-details {
       background-color: #f9f9f9;
       padding: 20px;
       border-radius: 6px;
       margin-bottom: 20px;
     }
+    
     .order-details p {
       margin: 8px 0;
+      word-wrap: break-word;
     }
+    
     .order-details table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
     }
-    .order-details th, .order-details td {
+    
+    .order-details th, 
+    .order-details td {
       border-bottom: 1px solid #ddd;
       padding: 10px 8px;
       text-align: left;
     }
+    
     .order-details th {
       color: #0C2E60;
       font-weight: bold;
     }
+    
     .order-details tfoot {
       font-weight: bold;
     }
+    
     .order-details tfoot td {
       padding-top: 12px;
     }
-    /* SOCIAL MEDIA */
+    
+    .status-badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 4px;
+      color: white;
+      font-weight: bold;
+      font-size: 13px;
+    }
+    
+    .status-received   { background-color: #ffc107; }
+    .status-processing { background-color: #17a2b8; }
+    .status-shipped    { background-color: #007bff; }
+    .status-delivered  { background-color: #28a745; }
+    
     .social-section {
       text-align: center;
       margin: 30px 0;
@@ -108,20 +145,20 @@
       background-color: #f8f9fa;
       border-radius: 5px;
     }
-
+    
     .social-title {
       font-weight: bold;
       margin-bottom: 15px;
       color: #0C2E60;
     }
-
+    
     .social-icons {
       display: flex;
       justify-content: center;
-      gap: 15px;
+      gap: 10px;
       flex-wrap: wrap;
     }
-
+    
     .social-icons a {
       text-decoration: none;
       font-weight: bold;
@@ -131,17 +168,17 @@
       font-size: 14px;
       transition: opacity 0.3s;
     }
-
+    
     .social-icons a:hover {
       opacity: 0.8;
     }
-
+    
     .social-fb { background-color: #1877F2; }
     .social-x { background-color: #000000; }
     .social-ig { background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); }
     .social-yt { background-color: #FF0000; }
     .social-wa { background-color: #25D366; }
-
+    
     .footer {
       font-size: 13px;
       color: #777;
@@ -150,51 +187,113 @@
       border-top: 1px solid #ddd;
       padding-top: 20px;
     }
+    
     .footer p {
       margin: 5px 0;
     }
-    .status-badge {
-      display: inline-block;
-      padding: 5px 12px;
-      border-radius: 4px;
-      color: white;
-      font-weight: bold;
-      font-size: 13px;
-    }
-     .status-badge {
-    display: inline-block;
-    padding: 5px 12px;
-    border-radius: 4px;
-    color: white;
-    font-weight: bold;
-    font-size: 13px;
-  }
-
-  .status-received   { background-color: #ffc107; }
-  .status-processing { background-color: #17a2b8; }
-  .status-shipped    { background-color: #007bff; }
-  .status-delivered  { background-color: #28a745; }
-
-  /* MOBILE OPTIMIZATION */
-    @media (max-width: 600px) {
-      .social-icons {
-        gap: 10px;
+    
+    /* MOBILE RESPONSIVE STYLES */
+    @media only screen and (max-width: 600px) {
+      body {
+        padding: 0 !important;
       }
-
+      
+      .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 15px !important;
+        border-radius: 0 !important;
+      }
+      
+      .status-box {
+        padding: 15px !important;
+        margin: 15px 0 !important;
+      }
+      
+      .status-box h2 {
+        font-size: 18px !important;
+      }
+      
+      .status-box p {
+        font-size: 14px !important;
+      }
+      
+      .actions {
+        margin: 20px 0 !important;
+      }
+      
+      .actions a {
+        display: block !important;
+        width: 100% !important;
+        margin: 10px 0 !important;
+        padding: 12px !important;
+        box-sizing: border-box;
+      }
+      
+      .order-details {
+        padding: 15px !important;
+        overflow-x: auto;
+      }
+      
+      .order-details table {
+        font-size: 13px !important;
+      }
+      
+      .order-details th,
+      .order-details td {
+        padding: 8px 5px !important;
+      }
+      
+      .section-title {
+        font-size: 15px !important;
+      }
+      
+      .social-icons {
+        gap: 8px !important;
+      }
+      
       .social-icons a {
-        font-size: 12px;
-        padding: 6px 10px;
+        font-size: 12px !important;
+        padding: 6px 10px !important;
+      }
+      
+      .footer {
+        font-size: 12px !important;
+        padding: 15px 10px !important;
+      }
+      
+      .logo img {
+        height: 50px !important;
+      }
+    }
+    
+    /* Even smaller devices */
+    @media only screen and (max-width: 400px) {
+      .status-box h2 {
+        font-size: 16px !important;
+      }
+      
+      .order-details table {
+        font-size: 12px !important;
+      }
+      
+      .social-icons a {
+        font-size: 11px !important;
+        padding: 5px 8px !important;
       }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Logo -->
+    <!-- Logo - USE ABSOLUTE URL -->
     <div class="logo">
-      <img src="https://bookshop.realmindxgh.com/static/images/brain.jpg"
-          alt="RealMindX Logo"
-          style="height: 60px; width: auto;">
+      <!-- Use absolute URL from your server -->
+      <img src="https://bookshop.realmindxgh.com/static/images/brain.png"
+           alt="RealMindX Logo"
+           style="height: 60px; width: auto; max-width: 100%;">
+      
     </div>
 
     <!-- Status-Specific Message Box -->
@@ -214,7 +313,7 @@
         <p>We will contact you shortly to confirm your order details, so please keep your phone accessible. If you do not receive a confirmation call within <strong>One (1) business day</strong>, please reach out to our customer service.</p>
 
       {% elif status == 'Shipped' %}
-        <h2>Your Order Is On Its Way To You! 🚚</h2>
+        <h2>Your Order Is On Its Way! 🚚</h2>
         <p>Dear {{ full_name }},</p>
         <p>Your order <strong>#{{ order_id }}</strong> is on its way 🚚</p>
         <p>We've handed your package over to our delivery partner. Details of the delivery person will be sent to you via SMS shortly.</p>
@@ -241,13 +340,9 @@
       <p><strong>Your Order ID:</strong> {{ order_id }}</p>
       <p><strong>Placed on:</strong> {{ order_date }}</p>
       <p><strong>Current Status:</strong>
-
-          <span class="status-badge status-{{ status|lower|replace(' ', '-') }}">
-            {{ status }}
+        <span class="status-badge status-{{ status|lower|replace(' ', '-') }}">
+          {{ status }}
         </span>
-
-
-
       </p>
 
       <div class="section-title">Billing Info</div>
@@ -297,16 +392,16 @@
     <p style="margin-top: 25px;">Sincerely,<br><strong>RealMindX Education Ltd</strong></p>
 
     <!-- Social Media Section -->
-      <div class="social-section">
-        <div class="social-title">Connect With Us</div>
-        <div class="social-icons">
-          <a href="https://web.facebook.com/profile.php?id=61566941171883" class="social-fb">Facebook</a>
-          <a href="https://x.com/RealMindXgh" class="social-x">X</a>
-          <a href="https://www.instagram.com/realmindxgh/" class="social-ig">Instagram</a>
-          <a href="https://www.youtube.com/@realmindxgh" class="social-yt">YouTube</a>
-          <a href="https://wa.link/d6x888" class="social-wa">WhatsApp</a>
-        </div>
+    <div class="social-section">
+      <div class="social-title">Connect With Us</div>
+      <div class="social-icons">
+        <a href="https://web.facebook.com/profile.php?id=61566941171883" class="social-fb">Facebook</a>
+        <a href="https://x.com/RealMindXgh" class="social-x">X</a>
+        <a href="https://www.instagram.com/realmindxgh/" class="social-ig">Instagram</a>
+        <a href="https://www.youtube.com/@realmindxgh" class="social-yt">YouTube</a>
+        <a href="https://wa.link/d6x888" class="social-wa">WhatsApp</a>
       </div>
+    </div>
 
     <!-- Footer -->
     <div class="footer">
