@@ -34,7 +34,7 @@ def create_app():
     app = Flask(
         __name__,
         static_folder='realmind/static',
-        template_folder='realmind/templates'
+        template_folder='realmind/templates',static_url_path='/static'
     )
 
     # SESSION CONFIGURATION

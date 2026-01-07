@@ -18,6 +18,9 @@ from learning_app.realmind.utils.util import UPLOAD_FOLDER, allowed_profile_pic,
 import logging
 from learning_app.realmind.routes.newsletter_sync import sync_bookshop_subscribers
 
+# Get absolute base directory
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # upload files to the E_commerce
 from urllib.parse import urlparse
 
@@ -1383,6 +1386,8 @@ def create_newsletter():
         file = request.files.get('newsletter_image')
 
         if file and file.filename:
+            current_app.logger.info(f"Processing file: {file.filename}")
+            
             if not allowed_file(file.filename):
                 flash("Invalid image format. Please use PNG, JPG, or GIF.", "danger")
                 return redirect(url_for('admin.create_newsletter'))
@@ -1391,31 +1396,40 @@ def create_newsletter():
             ext = file.filename.rsplit('.', 1)[1].lower()
             image_filename = f"newsletter_{uuid.uuid4().hex}.{ext}"
 
-            # CORRECT PATH: learning_platform/learning_app/realmind/static/uploads/newsletters
-            # current_app.root_path gives you: /path/to/learning_platform/learning_app
-            upload_path = os.path.join(
-                current_app.root_path,  # /path/to/learning_app
-                'realmind', 'static', 'uploads', 'newsletters'
-            )
+            # ABSOLUTE PATH
+            upload_path = os.path.join(BASE_DIR, 'realmind', 'static', 'uploads', 'newsletters')
             
             # Create directory if doesn't exist
-            os.makedirs(upload_path, exist_ok=True)
+            try:
+                os.makedirs(upload_path, exist_ok=True)
+                current_app.logger.info(f"Upload directory: {upload_path}")
+            except Exception as e:
+                current_app.logger.error(f"Failed to create directory: {e}")
+                flash("Failed to create upload directory", "danger")
+                return redirect(url_for('admin.create_newsletter'))
             
             # Full file path
             full_path = os.path.join(upload_path, image_filename)
             
             # Save the file
-            file.save(full_path)
-            
-            # Debug logging
-            current_app.logger.info(f"=== IMAGE UPLOAD DEBUG ===")
-            current_app.logger.info(f"Root path: {current_app.root_path}")
-            current_app.logger.info(f"Upload path: {upload_path}")
-            current_app.logger.info(f"Full file path: {full_path}")
-            current_app.logger.info(f"Image filename: {image_filename}")
-            current_app.logger.info(f"File exists: {os.path.exists(full_path)}")
-            current_app.logger.info(f"File size: {os.path.getsize(full_path)} bytes")
-            current_app.logger.info(f"========================")
+            try:
+                file.save(full_path)
+                
+                # Debug logging
+                current_app.logger.info(f"=== IMAGE UPLOAD DEBUG ===")
+                current_app.logger.info(f"BASE_DIR: {BASE_DIR}")
+                current_app.logger.info(f"Upload path: {upload_path}")
+                current_app.logger.info(f"Full file path: {full_path}")
+                current_app.logger.info(f"Image filename: {image_filename}")
+                current_app.logger.info(f"File exists: {os.path.exists(full_path)}")
+                if os.path.exists(full_path):
+                    current_app.logger.info(f"File size: {os.path.getsize(full_path)} bytes")
+                current_app.logger.info(f"========================")
+                
+            except Exception as e:
+                current_app.logger.error(f"Failed to save file: {e}")
+                flash("Failed to save image", "danger")
+                image_filename = None
 
         # Save newsletter to database
         newsletter = Newsletter(
@@ -1426,15 +1440,15 @@ def create_newsletter():
         db.session.add(newsletter)
         db.session.commit()
 
-        current_app.logger.info(
-            f"Newsletter created: {newsletter.title} (ID: {newsletter.id})"
-        )
+        current_app.logger.info(f"Newsletter created: {newsletter.title} (ID: {newsletter.id})")
 
         # Get active subscribers
         subscribers = ExternalSubscriber.query.filter_by(
             source='bookshop',
             is_active=True
         ).all()
+
+        current_app.logger.info(f"Found {len(subscribers)} active subscribers")
 
         if not subscribers:
             flash("Newsletter created but no active subscribers found.", "warning")
@@ -1443,9 +1457,12 @@ def create_newsletter():
         # Send emails
         success_count = 0
         failed_count = 0
+        failed_emails = []
 
         for subscriber in subscribers:
             try:
+                current_app.logger.info(f"Sending to: {subscriber.email}")
+                
                 # Generate unsubscribe token
                 unsubscribe_token = generate_unsubscribe_token(subscriber.email)
                 unsubscribe_url = url_for(
@@ -1457,13 +1474,12 @@ def create_newsletter():
                 # Build image URL if exists
                 image_url = None
                 if image_filename:
-                    # Flask will serve from realmind/static/
                     image_url = url_for(
                         'static',
                         filename=f'uploads/newsletters/{image_filename}',
                         _external=True
                     )
-                    current_app.logger.info(f"Image URL for email: {image_url}")
+                    current_app.logger.info(f"Image URL: {image_url}")
 
                 # Create email message
                 msg = Message(
@@ -1485,30 +1501,24 @@ def create_newsletter():
                 # Send email
                 mail.send(msg)
                 success_count += 1
-                current_app.logger.info(f"Newsletter sent to: {subscriber.email}")
+                current_app.logger.info(f"✓ Sent to: {subscriber.email}")
 
             except Exception as e:
                 failed_count += 1
-                current_app.logger.error(
-                    f"Failed to send newsletter to {subscriber.email}: {str(e)}"
-                )
+                failed_emails.append(subscriber.email)
+                current_app.logger.error(f"✗ Failed to send to {subscriber.email}: {str(e)}")
+                current_app.logger.exception(e)
 
-        # Flash appropriate message
+        # Flash results
         if success_count > 0:
-            flash(
-                f"Newsletter sent successfully to {success_count} subscriber(s).",
-                "success"
-            )
+            flash(f"Newsletter sent successfully to {success_count} subscriber(s).", "success")
         
         if failed_count > 0:
-            flash(
-                f"Failed to send to {failed_count} subscriber(s). Check logs.",
-                "warning"
-            )
+            flash(f"Failed to send to {failed_count} subscriber(s). Check logs for details.", "warning")
 
         return redirect(url_for('admin.list_newsletters'))
 
-    # GET request - show form
+    # GET request
     subscriber_count = ExternalSubscriber.query.filter_by(
         source='bookshop',
         is_active=True
@@ -1519,7 +1529,6 @@ def create_newsletter():
         csrf_token=generate_csrf(),
         subscriber_count=subscriber_count
     )
-
 
 # UNSUBSCRIBE ROUTE
 @admin_bp.route('/unsubscribe/<token>')
@@ -1681,8 +1690,7 @@ def edit_newsletter(newsletter_id):
             # Delete old image if exists
             if newsletter.image_filename:
                 old_path = os.path.join(
-                    current_app.root_path,
-                    'realmind', 'static', 'uploads', 'newsletters',
+                    BASE_DIR, 'realmind', 'static', 'uploads', 'newsletters',
                     newsletter.image_filename
                 )
                 if os.path.exists(old_path):
@@ -1696,10 +1704,7 @@ def edit_newsletter(newsletter_id):
             ext = file.filename.rsplit('.', 1)[1].lower()
             new_filename = f"newsletter_{uuid.uuid4().hex}.{ext}"
 
-            upload_path = os.path.join(
-                current_app.root_path,
-                'realmind', 'static', 'uploads', 'newsletters'
-            )
+            upload_path = os.path.join(BASE_DIR, 'realmind', 'static', 'uploads', 'newsletters')
             os.makedirs(upload_path, exist_ok=True)
             
             full_path = os.path.join(upload_path, new_filename)
@@ -1710,9 +1715,7 @@ def edit_newsletter(newsletter_id):
 
         db.session.commit()
         
-        current_app.logger.info(
-            f"Newsletter '{newsletter.title}' updated by {current_user.email}"
-        )
+        current_app.logger.info(f"Newsletter '{newsletter.title}' updated by {current_user.email}")
         
         flash("Newsletter updated successfully.", "success")
         return redirect(url_for('admin.list_newsletters'))
@@ -1739,8 +1742,7 @@ def delete_newsletter(newsletter_id):
     # DELETE IMAGE FILE
     if newsletter.image_filename:
         image_path = os.path.join(
-            current_app.root_path,
-            'realmind', 'static', 'uploads', 'newsletters',
+            BASE_DIR, 'realmind', 'static', 'uploads', 'newsletters',
             newsletter.image_filename
         )
         if os.path.exists(image_path):
@@ -1758,8 +1760,37 @@ def delete_newsletter(newsletter_id):
     flash(f"Newsletter '{title}' deleted successfully.", "success")
     return redirect(url_for('admin.list_newsletters'))
 
+# logging paths
+@admin_bp.route('/admin/debug-paths')
+@login_required
+def debug_paths():
+    """Debug route to check all paths"""
+    import json
+    
+    debug_info = {
+        'BASE_DIR': BASE_DIR,
+        'Upload Path': os.path.join(BASE_DIR, 'realmind', 'static', 'uploads', 'newsletters'),
+        'Path Exists': os.path.exists(os.path.join(BASE_DIR, 'realmind', 'static', 'uploads', 'newsletters')),
+        'Files': [],
+        'Mail Config': {
+            'SERVER': current_app.config.get('MAIL_SERVER'),
+            'PORT': current_app.config.get('MAIL_PORT'),
+            'USERNAME': current_app.config.get('MAIL_USERNAME'),
+            'USE_TLS': current_app.config.get('MAIL_USE_TLS'),
+        }
+    }
+    
+    upload_path = os.path.join(BASE_DIR, 'realmind', 'static', 'uploads', 'newsletters')
+    if os.path.exists(upload_path):
+        debug_info['Files'] = os.listdir(upload_path)
+    
+    subscribers = ExternalSubscriber.query.filter_by(source='bookshop', is_active=True).all()
+    debug_info['Subscriber Count'] = len(subscribers)
+    debug_info['Sample Subscribers'] = [s.email for s in subscribers[:3]]
+    
+    return f"<pre>{json.dumps(debug_info, indent=2)}</pre>"
 
-# DELETE SUBSCRIBER
+# DELETE SUBSCRIBE
 @admin_bp.route('/admin/subscriber/<int:id>/delete', methods=['POST'])
 @login_required
 def delete_subscriber(id):
