@@ -377,10 +377,6 @@ def edit_news(news_id):
 
     return render_template('admin_post_news.html', news_item=news_item, editing=True, csrf_token=generate_csrf())
 
-
-# --- Delete News ---
-import os
-
 @admin_bp.route('/admin/delete-news/<int:news_id>', methods=['POST'])
 @login_required
 def delete_news(news_id):
@@ -1391,7 +1387,7 @@ def create_newsletter():
                 return redirect(url_for('admin.create_newsletter'))
 
             ext = file.filename.rsplit('.', 1)[1].lower()
-            image_filename = f"newsletter_{uuid4().hex}.{ext}"
+            image_filename = f"newsletter_{uuid.uuid4().hex}.{ext}"
 
             upload_path = os.path.join(
                 current_app.root_path,
@@ -1633,7 +1629,7 @@ def edit_newsletter(id):
                     os.remove(old_path)
 
             ext = file.filename.rsplit('.', 1)[1].lower()
-            new_filename = f"newsletter_{uuid4().hex}.{ext}"
+            new_filename = f"newsletter_{uuid.uuid4().hex}.{ext}"
 
             upload_path = os.path.join(
                 current_app.root_path,
