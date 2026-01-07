@@ -1548,7 +1548,7 @@ def sync_subscribers():
 @login_required
 def list_newsletters():
     current_app.logger.info(f"Admin {current_user.email} viewing newsletter list")
-    newsletters = Newsletter.query.order_by(Newsletter.created_on.desc()).all()
+    newsletters = Newsletter.query.order_by(Newsletter.created_at.desc()).all()
     return render_template('admin/list_newsletters.html', newsletters=newsletters)
 
 
