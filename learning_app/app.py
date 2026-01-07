@@ -36,7 +36,8 @@ def create_app():
         static_folder='realmind/static',
         template_folder='realmind/templates',static_url_path='/static'
     )
-
+    app.logger.info(f"Static folder: {app.static_folder}")
+    app.logger.info(f"Static folder absolute: {os.path.abspath(app.static_folder)}")
     # SESSION CONFIGURATION
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
 

@@ -2,43 +2,293 @@
 {% block title %}Create Newsletter{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Create & Send Newsletter</h2>
-    <a href="{{ url_for('admin.view_subscribers') }}" class="btn btn-info">
-      View Subscribers ({{ subscriber_count }})
-    </a>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">📧 Create Newsletter</h4>
+        </div>
+        <div class="card-body">
+          
+          <!-- Subscriber Count Info -->
+          <div class="alert alert-info">
+            <i class="fas fa-users"></i> 
+            <strong>Active Subscribers:</strong> {{ subscriber_count }}
+          </div>
+
+          <!-- Newsletter Form -->
+          <form method="POST" enctype="multipart/form-data" id="newsletterForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+            <!-- Title -->
+            <div class="mb-4">
+              <label for="title" class="form-label fw-bold">
+                Newsletter Title <span class="text-danger">*</span>
+              </label>
+              <input type="text" 
+                     class="form-control form-control-lg" 
+                     id="title" 
+                     name="title" 
+                     placeholder="Enter newsletter title..."
+                     required>
+              <small class="text-muted">This will appear as the email subject</small>
+            </div>
+
+            <!-- Image Upload - FIXED NAME -->
+            <div class="mb-4">
+              <label for="newsletter_image" class="form-label fw-bold">
+                <i class="fas fa-image"></i> Newsletter Image (Optional)
+              </label>
+              <input type="file" 
+                     class="form-control" 
+                     id="newsletter_image" 
+                     name="newsletter_image"
+                     accept="image/*"
+                     onchange="previewImage(event)">
+              <small class="text-muted">Recommended size: 600x400px (max 2MB)</small>
+              
+              <!-- Image Preview -->
+              <div id="imagePreview" class="mt-3" style="display: none;">
+                <p class="fw-bold">Preview:</p>
+                <img id="preview" src="" alt="Preview" style="max-width: 100%; max-height: 300px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              </div>
+            </div>
+
+            <!-- Content with Rich Text Editor -->
+            <div class="mb-4">
+              <label for="content" class="form-label fw-bold">
+                Newsletter Content <span class="text-danger">*</span>
+              </label>
+              
+              <!-- Toolbar -->
+              <div class="btn-toolbar mb-2" role="toolbar">
+                <div class="btn-group me-2" role="group">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="formatText('bold')">
+                    <i class="fas fa-bold"></i>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="formatText('italic')">
+                    <i class="fas fa-italic"></i>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="formatText('underline')">
+                    <i class="fas fa-underline"></i>
+                  </button>
+                </div>
+                <div class="btn-group me-2" role="group">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="insertHeading(2)">
+                    H2
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="insertHeading(3)">
+                    H3
+                  </button>
+                </div>
+                <div class="btn-group me-2" role="group">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="insertList('ul')">
+                    <i class="fas fa-list-ul"></i>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="insertList('ol')">
+                    <i class="fas fa-list-ol"></i>
+                  </button>
+                </div>
+                <div class="btn-group" role="group">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="insertLink()">
+                    <i class="fas fa-link"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Editor -->
+              <div id="editor" 
+                   contenteditable="true" 
+                   class="form-control" 
+                   style="min-height: 400px; max-height: 600px; overflow-y: auto;"
+                   placeholder="Write your newsletter content here...">
+              </div>
+              
+              <!-- Hidden textarea to store HTML -->
+              <textarea id="content" name="content" style="display: none;" required></textarea>
+              
+              <small class="text-muted">You can format text, add headings, lists, and links</small>
+            </div>
+
+            <!-- Preview Button -->
+            <div class="mb-4">
+              <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#previewModal">
+                <i class="fas fa-eye"></i> Preview Newsletter
+              </button>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-success btn-lg">
+                <i class="fas fa-paper-plane"></i> Send Newsletter
+              </button>
+              <a href="{{ url_for('admin.list_newsletters') }}" class="btn btn-secondary btn-lg">
+                <i class="fas fa-times"></i> Cancel
+              </a>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
   </div>
-
-  <!-- IMPORTANT: multipart/form-data -->
-  <form method="POST" enctype="multipart/form-data">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-
-    <!-- Title -->
-    <div class="mb-3">
-      <label class="form-label">Title</label>
-      <input type="text" name="title" class="form-control" required>
-    </div>
-
-    <!-- Image Upload -->
-    <div class="mb-3">
-      <label class="form-label">Newsletter Image</label>
-      <input 
-        type="file" 
-        name="image" 
-        class="form-control"
-        accept="image/*">
-    </div>
-
-    <!-- Content -->
-    <div class="mb-3">
-      <label class="form-label">Content</label>
-      <textarea name="content" class="form-control" rows="8" required></textarea>
-    </div>
-
-    <button type="submit" class="btn btn-primary">
-      <i class="fas fa-paper-plane"></i> Send Newsletter
-    </button>
-  </form>
 </div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Newsletter Preview</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="previewContent" style="max-height: 70vh; overflow-y: auto;">
+        <!-- Preview will be inserted here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Image Preview
+function previewImage(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('preview').src = e.target.result;
+      document.getElementById('imagePreview').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+// Rich Text Editor Functions
+const editor = document.getElementById('editor');
+
+function formatText(command) {
+  document.execCommand(command, false, null);
+  editor.focus();
+}
+
+function insertHeading(level) {
+  document.execCommand('formatBlock', false, `<h${level}>`);
+  editor.focus();
+}
+
+function insertList(type) {
+  if (type === 'ul') {
+    document.execCommand('insertUnorderedList', false, null);
+  } else {
+    document.execCommand('insertOrderedList', false, null);
+  }
+  editor.focus();
+}
+
+function insertLink() {
+  const url = prompt('Enter URL:');
+  if (url) {
+    document.execCommand('createLink', false, url);
+  }
+  editor.focus();
+}
+
+// Update hidden textarea before form submission
+document.getElementById('newsletterForm').addEventListener('submit', function(e) {
+  document.getElementById('content').value = editor.innerHTML;
+  
+  // Validation
+  if (!editor.textContent.trim()) {
+    e.preventDefault();
+    alert('Please add newsletter content');
+    return false;
+  }
+});
+
+// Preview functionality
+document.querySelector('[data-bs-target="#previewModal"]').addEventListener('click', function() {
+  const title = document.getElementById('title').value || 'Newsletter Title';
+  const content = editor.innerHTML || '<p>No content yet...</p>';
+  const imagePreview = document.getElementById('preview').src;
+  
+  let previewHTML = `
+    <div style="background-color: #0C2E60; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+      <h2>${title}</h2>
+    </div>
+  `;
+  
+  if (imagePreview) {
+    previewHTML += `
+      <div style="text-align: center; margin: 20px 0;">
+        <img src="${imagePreview}" style="max-width: 100%; border-radius: 8px;">
+      </div>
+    `;
+  }
+  
+  previewHTML += `
+    <div style="padding: 20px; line-height: 1.8;">
+      ${content}
+    </div>
+  `;
+  
+  document.getElementById('previewContent').innerHTML = previewHTML;
+});
+
+// Placeholder functionality
+editor.addEventListener('focus', function() {
+  if (this.textContent.trim() === '') {
+    this.textContent = '';
+  }
+});
+
+editor.addEventListener('blur', function() {
+  if (this.textContent.trim() === '') {
+    this.innerHTML = '';
+  }
+});
+</script>
+
+<style>
+#editor:empty:before {
+  content: attr(placeholder);
+  color: #999;
+  cursor: text;
+}
+
+#editor:focus {
+  outline: none;
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+#editor p {
+  margin-bottom: 15px;
+}
+
+#editor h2 {
+  color: #0C2E60;
+  margin-top: 30px;
+  margin-bottom: 15px;
+}
+
+#editor h3 {
+  color: #1a4d8f;
+  margin-top: 25px;
+  margin-bottom: 10px;
+}
+
+#editor ul, #editor ol {
+  margin: 15px 0;
+  padding-left: 30px;
+}
+
+#editor a {
+  color: #0d6efd;
+  text-decoration: underline;
+}
+</style>
 {% endblock %}
