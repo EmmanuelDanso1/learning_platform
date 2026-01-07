@@ -1560,7 +1560,6 @@ def list_newsletters():
         csrf_token=generate_csrf()
     )
 
-
 # VIEW ALL SUBSCRIBERS (NEW ROUTE)
 @admin_bp.route('/admin/subscribers')
 @login_required
