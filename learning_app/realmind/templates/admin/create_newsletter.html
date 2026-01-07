@@ -1,5 +1,6 @@
 {% extends "admin/admin_base.html" %}
 {% block title %}Create Newsletter{% endblock %}
+
 {% block content %}
 <div class="container my-5">
   <div class="d-flex justify-content-between align-items-center mb-4">
@@ -8,18 +9,36 @@
       View Subscribers ({{ subscriber_count }})
     </a>
   </div>
-  
-  <form method="POST">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+  <!-- IMPORTANT: multipart/form-data -->
+  <form method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <!-- Title -->
     <div class="mb-3">
       <label class="form-label">Title</label>
       <input type="text" name="title" class="form-control" required>
     </div>
+
+    <!-- Image Upload -->
+    <div class="mb-3">
+      <label class="form-label">Newsletter Image</label>
+      <input 
+        type="file" 
+        name="image" 
+        class="form-control"
+        accept="image/*">
+    </div>
+
+    <!-- Content -->
     <div class="mb-3">
       <label class="form-label">Content</label>
       <textarea name="content" class="form-control" rows="8" required></textarea>
     </div>
-    <button type="submit" class="btn btn-primary">Send Newsletter</button>
+
+    <button type="submit" class="btn btn-primary">
+      <i class="fas fa-paper-plane"></i> Send Newsletter
+    </button>
   </form>
 </div>
 {% endblock %}

@@ -1373,7 +1373,7 @@ def create_newsletter():
         try:
             validate_csrf(token)
         except CSRFError:
-            abort(400, description="CSRF token is missing or invalid.")
+            abort(400, description="Invalid CSRF token")
 
         title = request.form.get('title')
         content = request.form.get('content')
@@ -1382,124 +1382,99 @@ def create_newsletter():
             flash("Title and content are required.", "danger")
             return redirect(url_for('admin.create_newsletter'))
 
-        # Handle image upload
         image_filename = None
-        if 'newsletter_image' in request.files:
-            file = request.files['newsletter_image']
-            if file and file.filename:
-                filename = secure_filename(file.filename)
-                # Create unique filename
-                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-                image_filename = f"newsletter_{timestamp}_{filename}"
-                
-                # Save to uploads folder
-                upload_path = os.path.join(current_app.root_path, 'static/uploads/newsletters')
-                os.makedirs(upload_path, exist_ok=True)
-                file.save(os.path.join(upload_path, image_filename))
+        file = request.files.get('newsletter_image')
 
-        # Save newsletter to DB
+        if file and file.filename:
+            if not allowed_file(file.filename):
+                flash("Invalid image format.", "danger")
+                return redirect(url_for('admin.create_newsletter'))
+
+            ext = file.filename.rsplit('.', 1)[1].lower()
+            image_filename = f"newsletter_{uuid4().hex}.{ext}"
+
+            upload_path = os.path.join(
+                current_app.root_path,
+                'learning_app/static/uploads/newsletters'
+            )
+            os.makedirs(upload_path, exist_ok=True)
+            file.save(os.path.join(upload_path, image_filename))
+
         newsletter = Newsletter(
-            title=title, 
+            title=title,
             content=content,
             image_filename=image_filename
         )
         db.session.add(newsletter)
         db.session.commit()
 
-        current_app.logger.info(
-            f"Admin {current_user.email} created newsletter: '{title}' (ID: {newsletter.id})"
-        )
-
-        # Get subscribers
-        subscribers = ExternalSubscriber.query.filter_by(source='bookshop', is_active=True).all()
+        subscribers = ExternalSubscriber.query.filter_by(
+            source='bookshop',
+            is_active=True
+        ).all()
 
         if not subscribers:
-            current_app.logger.warning("No active subscribers found")
             flash("No active subscribers found.", "warning")
             return redirect(url_for('admin.list_newsletters'))
 
-        # Send emails
         success_count = 0
-        failed_emails = []
-
-        current_app.logger.info(
-            f"Starting to send newsletter '{title}' to {len(subscribers)} subscribers"
-        )
 
         for subscriber in subscribers:
             try:
-                # Generate unsubscribe token
                 unsubscribe_token = generate_unsubscribe_token(subscriber.email)
                 unsubscribe_url = url_for(
-                    'admin.unsubscribe', 
-                    token=unsubscribe_token, 
+                    'admin.unsubscribe',
+                    token=unsubscribe_token,
                     _external=True
                 )
 
-                # Build image URL if exists
-                image_url = None
-                if image_filename:
-                    image_url = url_for(
-                        'static', 
-                        filename=f'uploads/newsletters/{image_filename}', 
+                image_url = (
+                    url_for(
+                        'static',
+                        filename=f'uploads/newsletters/{image_filename}',
                         _external=True
-                    )
+                    ) if image_filename else None
+                )
 
-                # Send email with template
                 msg = Message(
                     subject=title,
                     sender=current_app.config['MAIL_USERNAME'],
                     recipients=[subscriber.email]
                 )
-                
+
                 msg.html = render_template(
                     'emails/newsletter.html',
                     title=title,
                     content=content,
                     image_url=image_url,
-                    unsubscribe_url=unsubscribe_url,
-                    subscriber_email=subscriber.email
+                    unsubscribe_url=unsubscribe_url
                 )
-                
+
                 mail.send(msg)
                 success_count += 1
-                
+
             except Exception as e:
                 current_app.logger.error(
                     f"Failed to send to {subscriber.email}: {e}"
                 )
-                failed_emails.append(subscriber.email)
 
-        # Provide feedback
-        if success_count > 0:
-            flash(
-                f"Newsletter sent to {success_count} subscriber(s).",
-                "success"
-            )
-            current_app.logger.info(
-                f"Newsletter '{title}' sent successfully to {success_count} subscribers"
-            )
-        
-        if failed_emails:
-            flash(
-                f"Failed to send to {len(failed_emails)} subscriber(s). Check logs.",
-                "warning"
-            )
+        flash(
+            f"Newsletter sent to {success_count} subscriber(s).",
+            "success"
+        )
 
         return redirect(url_for('admin.list_newsletters'))
 
-    # GET request
     subscriber_count = ExternalSubscriber.query.filter_by(
-        source='bookshop', 
+        source='bookshop',
         is_active=True
     ).count()
-    
+
     return render_template(
         'admin/create_newsletter.html',
         csrf_token=generate_csrf(),
         subscriber_count=subscriber_count
     )
-
 
 # UNSUBSCRIBE ROUTE
 @admin_bp.route('/unsubscribe/<token>')
@@ -1560,7 +1535,7 @@ def view_subscribers():
     
     # Get all subscribers
     subscribers = ExternalSubscriber.query.order_by(
-        ExternalSubscriber.added_on.desc()
+        ExternalSubscriber.created_at.desc()
     ).all()
     
     total_count = len(subscribers)
@@ -1585,7 +1560,7 @@ def export_subscribers():
     current_app.logger.info(f"Admin {current_user.email} exporting subscribers as CSV")
     
     subscribers = ExternalSubscriber.query.order_by(
-        ExternalSubscriber.added_on.desc()
+        ExternalSubscriber.created_at.desc()
     ).all()
     
     # Create CSV in memory
@@ -1631,36 +1606,54 @@ def edit_newsletter(id):
         try:
             validate_csrf(token)
         except CSRFError:
-            current_app.logger.warning(
-                f"CSRF validation failed for admin {current_user.email} editing newsletter {id}"
-            )
-            abort(400, description="CSRF token is missing or invalid.")
+            abort(400, description="Invalid CSRF token")
 
-        old_title = newsletter.title
         newsletter.title = request.form.get('title')
         newsletter.content = request.form.get('content')
 
         if not newsletter.title or not newsletter.content:
-            current_app.logger.warning(
-                f"Admin {current_user.email} attempted to save newsletter {id} with empty fields"
-            )
             flash("Title and content are required.", "danger")
             return redirect(url_for('admin.edit_newsletter', id=id))
 
+        # IMAGE UPDATE
+        file = request.files.get('newsletter_image')
+        if file and file.filename:
+            if not allowed_file(file.filename):
+                flash("Invalid image format.", "danger")
+                return redirect(url_for('admin.edit_newsletter', id=id))
+
+            # Delete old image if exists
+            if newsletter.image_filename:
+                old_path = os.path.join(
+                    current_app.root_path,
+                    'static/uploads/newsletters',
+                    newsletter.image_filename
+                )
+                if os.path.exists(old_path):
+                    os.remove(old_path)
+
+            ext = file.filename.rsplit('.', 1)[1].lower()
+            new_filename = f"newsletter_{uuid4().hex}.{ext}"
+
+            upload_path = os.path.join(
+                current_app.root_path,
+                'realmind/static/uploads/newsletters'
+            )
+            os.makedirs(upload_path, exist_ok=True)
+            file.save(os.path.join(upload_path, new_filename))
+
+            newsletter.image_filename = new_filename
+
         db.session.commit()
-        current_app.logger.info(
-            f"Admin {current_user.email} updated newsletter {id}: '{old_title}' → '{newsletter.title}'"
-        )
         flash("Newsletter updated successfully.", "success")
         return redirect(url_for('admin.view_newsletter', id=id))
 
-    current_app.logger.info(
-        f"Admin {current_user.email} accessing edit page for newsletter {id}"
+    return render_template(
+        'admin/edit_newsletter.html',
+        newsletter=newsletter,
+        csrf_token=generate_csrf()
     )
-    return render_template('admin/edit_newsletter.html', newsletter=newsletter, csrf_token=generate_csrf())
 
-
-# DELETE NEWSLETTER WITH LOGGING
 @admin_bp.route('/admin/newsletter/<int:id>/delete', methods=['POST'])
 @login_required
 def delete_newsletter(id):
@@ -1669,22 +1662,27 @@ def delete_newsletter(id):
     try:
         validate_csrf(token)
     except ValidationError:
-        current_app.logger.warning(
-            f"CSRF validation failed for admin {current_user.email} deleting newsletter {id}"
-        )
-        abort(400, description="CSRF token is missing or invalid.")
+        abort(400, description="Invalid CSRF token")
 
     newsletter = Newsletter.query.get_or_404(id)
-    newsletter_title = newsletter.title
-    
+    title = newsletter.title
+
+    # DELETE IMAGE FILE
+    if newsletter.image_filename:
+        image_path = os.path.join(
+            current_app.root_path,
+            'realmind/static/uploads/newsletters',
+            newsletter.image_filename
+        )
+        if os.path.exists(image_path):
+            os.remove(image_path)
+
     db.session.delete(newsletter)
     db.session.commit()
-    
-    current_app.logger.info(
-        f"Admin {current_user.email} deleted newsletter {id}: '{newsletter_title}'"
-    )
+
     flash("Newsletter deleted successfully.", "success")
     return redirect(url_for('admin.list_newsletters'))
+
 
 # DELETE SUBSCRIBER
 @admin_bp.route('/admin/subscriber/<int:id>/delete', methods=['POST'])
