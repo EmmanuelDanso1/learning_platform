@@ -2,6 +2,7 @@ import os
 import uuid
 from werkzeug.utils import secure_filename
 from itsdangerous import URLSafeTimedSerializer
+from flask import current_app
 
 # File upload settings
 UPLOAD_FOLDER = "/var/www/learning_platform/learning_app/realmind/static/uploads/gallery"
