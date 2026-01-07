@@ -1615,6 +1615,35 @@ def sync_subscribers():
     
     return redirect(url_for('admin.view_subscribers'))
 
+@admin_bp.route('/admin/activate-all-subscribers')
+@login_required
+def activate_all_subscribers():
+    """Quick fix: Activate all existing subscribers"""
+    try:
+        # Count before
+        total = ExternalSubscriber.query.filter_by(source='bookshop').count()
+        
+        # Update all to active
+        updated = ExternalSubscriber.query.filter_by(source='bookshop').update({'is_active': True})
+        db.session.commit()
+        
+        # Verify
+        active_count = ExternalSubscriber.query.filter_by(source='bookshop', is_active=True).count()
+        
+        flash(f"Activated {updated} subscribers (Total: {active_count})", "success")
+        current_app.logger.info(f"Activated {updated} subscribers")
+        
+        # List emails for confirmation
+        subscribers = ExternalSubscriber.query.filter_by(is_active=True).all()
+        for s in subscribers:
+            current_app.logger.info(f"  Active: {s.email}")
+        
+    except Exception as e:
+        current_app.logger.error(f"Failed to activate subscribers: {e}")
+        flash(f"Error: {str(e)}", "danger")
+    
+    return redirect(url_for('admin.view_subscribers'))
+
 @admin_bp.route('/admin/fix-subscribers')
 @login_required
 def fix_subscribers():
