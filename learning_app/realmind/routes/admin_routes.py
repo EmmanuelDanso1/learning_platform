@@ -1383,6 +1383,7 @@ def create_newsletter():
 
         # Handle image upload
         image_filename = None
+        full_path = None 
         file = request.files.get('newsletter_image')
 
         if file and file.filename:
@@ -1408,7 +1409,7 @@ def create_newsletter():
                 flash("Failed to create upload directory", "danger")
                 return redirect(url_for('admin.create_newsletter'))
             
-            # Full file path
+            # Full file path - MOVED OUTSIDE try block
             full_path = os.path.join(upload_path, image_filename)
             
             # Save the file
@@ -1430,6 +1431,7 @@ def create_newsletter():
                 current_app.logger.error(f"Failed to save file: {e}")
                 flash("Failed to save image", "danger")
                 image_filename = None
+                full_path = None  # ← Reset this too
 
         # Save newsletter to database
         newsletter = Newsletter(
@@ -1479,19 +1481,6 @@ def create_newsletter():
                         filename=f'uploads/newsletters/{image_filename}',
                         _external=True
                     )
-                    current_app.logger.info(f"=== IMAGE URL DEBUG ===")
-                    current_app.logger.info(f"Generated URL: {image_url}")
-                    current_app.logger.info(f"App static folder: {current_app.static_folder}")
-                    current_app.logger.info(f"App root path: {current_app.root_path}")
-                    current_app.logger.info(f"Image saved at: {full_image_path}")
-                    current_app.logger.info(f"File exists: {os.path.exists(full_image_path)}")
-                    
-                    # Check if the path Flask expects matches where we saved
-                    expected_path = os.path.join(current_app.root_path, current_app.static_folder, 'uploads', 'newsletters', image_filename)
-                    current_app.logger.info(f"Flask expects file at: {expected_path}")
-                    current_app.logger.info(f"Flask path exists: {os.path.exists(expected_path)}")
-                    current_app.logger.info(f"======================")
-                    current_app.logger.info(f"Image URL: {image_url}")
 
                 # Create email message
                 msg = Message(
