@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, abort
+from flask import Blueprint, render_template, request, flash, redirect, url_for, abort, current_app
 from learning_app.realmind.models import News, Gallery
 from flask_mail import Message
 from flask_wtf.csrf import generate_csrf,validate_csrf, CSRFError
