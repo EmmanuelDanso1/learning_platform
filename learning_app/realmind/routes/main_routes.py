@@ -139,11 +139,27 @@ def unsubscribe_feedback():
         except CSRFError:
             abort(400, description="Invalid CSRF token")
         
-        email = request.form.get('email')
+        email = request.form.get('email', 'Unknown')
+        reasons = request.form.getlist('reason')  # This gets list of checked boxes
         comments = request.form.get('comments', '')
         
+        current_app.logger.info(f"Processing feedback from: {email}")
+        current_app.logger.info(f"Reasons: {reasons}")
+        current_app.logger.info(f"Comments: {comments}")
+        
         # Build feedback message
-        reason_text = ', '.join(reasons) if reasons else 'No reason selected'
+        if reasons:
+            # Convert reason values to readable text
+            reason_map = {
+                'too_frequent': 'Emails are too frequent',
+                'not_relevant': 'Content is not relevant',
+                'never_signed': 'Never signed up for this',
+                'other': 'Other reason'
+            }
+            reason_list = [reason_map.get(r, r) for r in reasons]
+            reason_text = '<br>• ' + '<br>• '.join(reason_list)
+        else:
+            reason_text = '<em>No reason selected</em>'
         
         # Create email to send to RealMindX
         msg = Message(
@@ -222,12 +238,14 @@ def unsubscribe_feedback():
         
         # Send email
         mail.send(msg)
-        current_app.logger.info(f"Feedback sent from {email}")
+        current_app.logger.info(f"Feedback email sent successfully from {email}")
         
         flash('Thank you for your feedback!', 'success')
         
     except Exception as e:
         current_app.logger.error(f"Failed to send feedback: {str(e)}")
-        flash('Thank you! Your feedback has been recorded.', 'info') 
+        current_app.logger.exception(e)  # Log full traceback
+        flash('Thank you! Your feedback has been recorded.', 'info')  # Still show success to user
     
+    # Redirect to homepage
     return redirect('https://bookshop.realmindxgh.com')
