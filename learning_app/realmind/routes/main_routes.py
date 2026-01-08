@@ -140,7 +140,6 @@ def unsubscribe_feedback():
             abort(400, description="Invalid CSRF token")
         
         email = request.form.get('email')
-        reasons = request.form.getlist('reason')  # Get all checked reasons
         comments = request.form.get('comments', '')
         
         # Build feedback message
