@@ -607,7 +607,9 @@ def edit_product(product_id):
         if image_file and allowed_file(image_file.filename):
             filename = secure_filename(image_file.filename)
             upload_path = os.path.join(
-                current_app.root_path, 'realmind', 'static', 'uploads', filename
+                current_app.current_app.static_folder,
+                'uploads',
+                'newsletters', filename
             )
             os.makedirs(os.path.dirname(upload_path), exist_ok=True)
             image_file.save(upload_path)
@@ -1388,6 +1390,9 @@ def create_newsletter():
 
         if file and file.filename:
             current_app.logger.info(f"Processing file: {file.filename}")
+
+            current_app.logger.info(f"STATIC FOLDER => {current_app.static_folder}")
+
             
             if not allowed_file(file.filename):
                 flash("Invalid image format. Please use PNG, JPG, or GIF.", "danger")
@@ -1398,7 +1403,9 @@ def create_newsletter():
             image_filename = f"newsletter_{uuid.uuid4().hex}.{ext}"
 
             # ABSOLUTE PATH
-            upload_path = os.path.join(BASE_DIR, 'realmind', 'static', 'uploads', 'newsletters')
+            upload_path = os.path.join(current_app.static_folder,
+            'uploads',
+            'newsletters')
             
             # Create directory if doesn't exist
             try:
@@ -1775,7 +1782,9 @@ def edit_newsletter(newsletter_id):
             # Delete old image if exists
             if newsletter.image_filename:
                 old_path = os.path.join(
-                    BASE_DIR, 'realmind', 'static', 'uploads', 'newsletters',
+                    current_app.static_folder,
+                    'uploads',
+                    'newsletters',
                     newsletter.image_filename
                 )
                 if os.path.exists(old_path):
@@ -1789,7 +1798,9 @@ def edit_newsletter(newsletter_id):
             ext = file.filename.rsplit('.', 1)[1].lower()
             new_filename = f"newsletter_{uuid.uuid4().hex}.{ext}"
 
-            upload_path = os.path.join(BASE_DIR, 'realmind', 'static', 'uploads', 'newsletters')
+            upload_path = os.path.join(current_app.static_folder,
+            'uploads',
+            'newsletters')
             os.makedirs(upload_path, exist_ok=True)
             
             full_path = os.path.join(upload_path, new_filename)
@@ -1865,7 +1876,9 @@ def debug_paths():
         }
     }
     
-    upload_path = os.path.join(BASE_DIR, 'realmind', 'static', 'uploads', 'newsletters')
+    upload_path = os.path.join(current_app.static_folder,
+    'uploads',
+    'newsletters')
     if os.path.exists(upload_path):
         debug_info['Files'] = os.listdir(upload_path)
     
