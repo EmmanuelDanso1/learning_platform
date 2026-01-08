@@ -164,137 +164,162 @@
 </div>
 
 <script>
-// Image Preview
-function previewImage(event) {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      document.getElementById('preview').src = e.target.result;
-      document.getElementById('imagePreview').style.display = 'block';
-    };
-    reader.readAsDataURL(file);
-  }
-}
-
-// Rich Text Editor Functions
-const editor = document.getElementById('editor');
-
-function formatText(command) {
-  document.execCommand(command, false, null);
-  editor.focus();
-}
-
-function insertHeading(level) {
-  document.execCommand('formatBlock', false, `<h${level}>`);
-  editor.focus();
-}
-
-function insertList(type) {
-  if (type === 'ul') {
-    document.execCommand('insertUnorderedList', false, null);
-  } else {
-    document.execCommand('insertOrderedList', false, null);
-  }
-  editor.focus();
-}
-
-function insertLink() {
-  const url = prompt('Enter URL:');
-  if (url) {
-    document.execCommand('createLink', false, url);
-  }
-  editor.focus();
-}
-
-// ⭐ THIS IS THE CRITICAL FIX ⭐
-document.getElementById('newsletterForm').addEventListener('submit', function(e) {
-  e.preventDefault(); // Stop default submission
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🔧 Newsletter page loaded');
   
-  console.log('✅ Form submission started...');
+  // Get elements
+  const editor = document.getElementById('editor');
+  const form = document.getElementById('newsletterForm');
   
-  // Get content from editor
-  const editorContent = editor.innerHTML.trim();
-  const textContent = editor.textContent.trim();
+  console.log('📝 Editor found:', !!editor);
+  console.log('📋 Form found:', !!form);
   
-  console.log('📝 Editor HTML:', editorContent);
-  console.log('📝 Editor text:', textContent);
-  
-  // Validation
-  const title = document.getElementById('title').value.trim();
-  
-  if (!title) {
-    alert('Please enter a newsletter title');
-    return false;
+  if (!form) {
+    console.error('❌ Form not found!');
+    return;
   }
   
-  if (!textContent || textContent === '') {
-    alert('Please add newsletter content');
+  // Image Preview
+  window.previewImage = function(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('preview').src = e.target.result;
+        document.getElementById('imagePreview').style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Rich Text Editor Functions
+  window.formatText = function(command) {
+    document.execCommand(command, false, null);
     editor.focus();
-    return false;
-  }
-  
-  // Update hidden textarea with editor content
-  document.getElementById('content').value = editorContent;
-  
-  console.log('✅ Hidden textarea updated');
-  
-  // Show loading overlay
-  document.getElementById('loadingOverlay').style.display = 'flex';
-  
-  // Disable submit button to prevent double submission
-  const sendBtn = document.getElementById('sendBtn');
-  sendBtn.disabled = true;
-  sendBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Sending...';
-  
-  // Submit the form
-  console.log('🚀 Submitting form now...');
-  this.submit();
-});
+  };
 
-// Preview functionality
-const previewBtn = document.querySelector('[data-bs-target="#previewModal"]');
-if (previewBtn) {
-  previewBtn.addEventListener('click', function() {
-    const title = document.getElementById('title').value || 'Newsletter Title';
-    const content = editor.innerHTML || '<p>No content yet...</p>';
-    const imagePreview = document.getElementById('preview').src;
+  window.insertHeading = function(level) {
+    document.execCommand('formatBlock', false, `<h${level}>`);
+    editor.focus();
+  };
+
+  window.insertList = function(type) {
+    if (type === 'ul') {
+      document.execCommand('insertUnorderedList', false, null);
+    } else {
+      document.execCommand('insertOrderedList', false, null);
+    }
+    editor.focus();
+  };
+
+  window.insertLink = function() {
+    const url = prompt('Enter URL:');
+    if (url) {
+      document.execCommand('createLink', false, url);
+    }
+    editor.focus();
+  };
+
+  // FORM SUBMISSION HANDLER
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
     
-    let previewHTML = `
-      <div style="background-color: #0C2E60; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
-        <h2>${title}</h2>
-      </div>
-    `;
+    console.log('✅ Form submission intercepted!');
     
-    if (imagePreview) {
-      previewHTML += `
-        <div style="text-align: center; margin: 20px 0;">
-          <img src="${imagePreview}" style="max-width: 100%; border-radius: 8px;">
-        </div>
-      `;
+    // Get content from editor
+    const editorContent = editor.innerHTML.trim();
+    const textContent = editor.textContent.trim();
+    
+    console.log('📝 Editor HTML length:', editorContent.length);
+    console.log('📝 Editor text length:', textContent.length);
+    
+    // Validation
+    const title = document.getElementById('title').value.trim();
+    
+    if (!title) {
+      alert('Please enter a newsletter title');
+      return false;
     }
     
-    previewHTML += `
-      <div style="padding: 20px; line-height: 1.8;">
-        ${content}
-      </div>
-    `;
+    if (!textContent || textContent === '') {
+      alert('Please add newsletter content');
+      editor.focus();
+      return false;
+    }
     
-    document.getElementById('previewContent').innerHTML = previewHTML;
+    // Update hidden textarea with editor content
+    document.getElementById('content').value = editorContent;
+    console.log('✅ Hidden textarea updated');
+    
+    // Show loading overlay
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+      overlay.style.display = 'flex';
+      console.log('✅ Loading overlay shown');
+    }
+    
+    // Disable submit button
+    const sendBtn = document.getElementById('sendBtn');
+    if (sendBtn) {
+      sendBtn.disabled = true;
+      sendBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Sending...';
+    }
+    
+    // Submit the form
+    console.log('🚀 Submitting form NOW...');
+    
+    // Use native form submission
+    form.submit();
+  }, false);
+
+  // Preview functionality
+  const previewBtn = document.querySelector('[data-bs-target="#previewModal"]');
+  if (previewBtn) {
+    previewBtn.addEventListener('click', function() {
+      const title = document.getElementById('title').value || 'Newsletter Title';
+      const content = editor.innerHTML || '<p>No content yet...</p>';
+      const imagePreview = document.getElementById('preview').src;
+      
+      let previewHTML = `
+        <div style="background-color: #0C2E60; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+          <h2>${title}</h2>
+        </div>
+      `;
+      
+      if (imagePreview && imagePreview !== window.location.href) {
+        previewHTML += `
+          <div style="text-align: center; margin: 20px 0;">
+            <img src="${imagePreview}" style="max-width: 100%; border-radius: 8px;">
+          </div>
+        `;
+      }
+      
+      previewHTML += `
+        <div style="padding: 20px; line-height: 1.8;">
+          ${content}
+        </div>
+      `;
+      
+      document.getElementById('previewContent').innerHTML = previewHTML;
+    });
+  }
+
+  // Placeholder functionality
+  editor.addEventListener('focus', function() {
+    if (this.textContent.trim() === '') {
+      this.textContent = '';
+    }
   });
-}
 
-// Placeholder functionality
-editor.addEventListener('focus', function() {
-  if (this.textContent.trim() === '') {
-    this.textContent = '';
-  }
-});
-
-editor.addEventListener('blur', function() {
-  if (this.textContent.trim() === '') {
-    this.innerHTML = '';
-  }
+  editor.addEventListener('blur', function() {
+    if (this.textContent.trim() === '') {
+      this.innerHTML = '';
+    }
+  });
+  
+  console.log('✅ All event listeners attached');
 });
 </script>
 
