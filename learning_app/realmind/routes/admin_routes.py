@@ -1837,11 +1837,12 @@ def delete_newsletter(newsletter_id):
 
     # DELETE IMAGE FILE
     if newsletter.image_filename:
-        image_path = os.path.join(
-            BASE_DIR, 'realmind', 'static', 'uploads', 'newsletters',
-            newsletter.image_filename
+        upload_path = os.path.join(
+        current_app.static_folder,
+        'uploads',
+        'newsletters', newsletter.image_filename
         )
-        if os.path.exists(image_path):
+        if os.path.exists(upload_path):
             try:
                 os.remove(image_path)
                 current_app.logger.info(f"Deleted image: {newsletter.image_filename}")
