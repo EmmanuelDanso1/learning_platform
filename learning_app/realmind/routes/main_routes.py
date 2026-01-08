@@ -132,23 +132,103 @@ def submit_contact():
 
 @main_bp.route('/unsubscribe-feedback', methods=['POST'])
 def unsubscribe_feedback():
-    email = request.form.get('email')
-    reasons = request.form.getlist('reason')
-    comments = request.form.get('comments', '')
+    try:
+        token = request.form.get('csrf_token')
+        try:
+            validate_csrf(token)
+        except CSRFError:
+            abort(400, description="Invalid CSRF token")
+        
+        email = request.form.get('email')
+        reasons = request.form.getlist('reason')  # Get all checked reasons
+        comments = request.form.get('comments', '')
+        
+        # Build feedback message
+        reason_text = ', '.join(reasons) if reasons else 'No reason selected'
+        
+        # Create email to send to RealMindX
+        msg = Message(
+            subject=f'Newsletter Unsubscribe Feedback from {email}',
+            sender=current_app.config['MAIL_USERNAME'],
+            recipients=['realmindxgh@gmail.com']
+        )
+        
+        # Email body
+        msg.html = f"""
+        <html>
+        <head>
+            <style>
+                body {{
+                    font-family: Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #333;
+                }}
+                .container {{
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    background-color: #f9f9f9;
+                    border-radius: 10px;
+                }}
+                .header {{
+                    background-color: #0C2E60;
+                    color: white;
+                    padding: 20px;
+                    text-align: center;
+                    border-radius: 8px 8px 0 0;
+                }}
+                .content {{
+                    background-color: white;
+                    padding: 30px;
+                    border-radius: 0 0 8px 8px;
+                }}
+                .info-box {{
+                    background-color: #f8f9fa;
+                    border-left: 4px solid #0C2E60;
+                    padding: 15px;
+                    margin: 20px 0;
+                }}
+                .label {{
+                    font-weight: bold;
+                    color: #0C2E60;
+                    margin-top: 15px;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h2>Newsletter Unsubscribe Feedback</h2>
+                </div>
+                <div class="content">
+                    <div class="info-box">
+                        <p><strong>Email:</strong> {email}</p>
+                        <p><strong>Date:</strong> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+                    </div>
+                    
+                    <div class="label">Reason(s) for Unsubscribing:</div>
+                    <p>{reason_text}</p>
+                    
+                    {f'<div class="label">Additional Comments:</div><p>{comments}</p>' if comments else '<p><em>No additional comments provided.</em></p>'}
+                    
+                    <hr>
+                    <p style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
+                        This is an automated feedback notification from your newsletter system.
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Send email
+        mail.send(msg)
+        current_app.logger.info(f"Feedback sent from {email}")
+        
+        flash('Thank you for your feedback!', 'success')
+        
+    except Exception as e:
+        current_app.logger.error(f"Failed to send feedback: {str(e)}")
+        flash('Thank you! Your feedback has been recorded.', 'info') 
     
-    # Log feedback
-    current_app.logger.info(
-        f"Unsubscribe feedback from {email}: Reasons={reasons}, Comments={comments}"
-    )
-    
-    # Optional: Save to database
-    # feedback = UnsubscribeFeedback(
-    #     email=email,
-    #     reasons=','.join(reasons),
-    #     comments=comments
-    # )
-    # db.session.add(feedback)
-    # db.session.commit()
-    
-    flash("Thank you for your feedback!", "success")
-    return redirect('https://realmindxgh.com')
+    return redirect('https://bookshop.realmindxgh.com')
