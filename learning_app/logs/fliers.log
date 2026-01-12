@@ -183,3 +183,11 @@
 [2026-01-07 17:34:54,412] INFO in app: Redis client initialized
 [2026-01-07 17:34:54,426] INFO in app: Flask extensions initialized
 [2026-01-07 17:34:54,511] INFO in app: Application startup complete
+[2026-01-12 15:28:40,351] INFO in app: Application startup initiated
+[2026-01-12 15:28:40,353] INFO in app: Redis client initialized
+[2026-01-12 15:28:40,587] INFO in app: Flask extensions initialized
+[2026-01-12 15:28:41,115] INFO in app: Application startup complete
+[2026-01-12 15:28:57,675] INFO in app: Application startup initiated
+[2026-01-12 15:28:57,676] INFO in app: Redis client initialized
+[2026-01-12 15:28:57,723] INFO in app: Flask extensions initialized
+[2026-01-12 15:28:58,062] INFO in app: Application startup complete
