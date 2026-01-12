@@ -309,7 +309,6 @@ def apply(job_id):
 
         # Uploaded documents
         cv = request.files.get('cv')
-        # certificate = request.files.get('certificate')
         cover_letter = request.files.get('cover_letter')
 
         # Validation - only show errors for missing required fields
@@ -318,10 +317,6 @@ def apply(job_id):
             flash("Please upload a valid CV (PDF, DOC, or DOCX).", "danger")
             return redirect(request.url)
 
-        # if not certificate or not allowed_document(certificate.filename):
-        #     logger.warning(f"Invalid certificate upload attempt by user {current_user.id}")
-        #     flash("Please upload a valid certificate (PDF, DOC, or DOCX).", "danger")
-        #     return redirect(request.url)
 
         # --- Correct Upload Path ---
         upload_root = current_app.config['UPLOAD_FOLDER']  
@@ -335,11 +330,6 @@ def apply(job_id):
         cv.save(cv_path)
         logger.info(f"CV saved: {cv_filename}")
 
-        # Save Certificate
-        # certificate_filename = f"{uuid.uuid4().hex}_{secure_filename(certificate.filename)}"
-        # certificate_path = os.path.join(user_folder, certificate_filename)
-        # certificate.save(certificate_path)
-        # logger.info(f"Certificate saved: {certificate_filename}")
 
         # Save Cover Letter (optional)
         cover_letter_filename = None
@@ -361,7 +351,6 @@ def apply(job_id):
             date_applied=datetime.now(),
             status='Under review',
             cv=f"user_{current_user.id}/{cv_filename}",
-            # certificate=f"user_{current_user.id}/{certificate_filename}",
             cover_letter=f"user_{current_user.id}/{cover_letter_filename}" if cover_letter_filename else None,
             user_id=current_user.id,
             job_id=job.id
@@ -391,8 +380,6 @@ def apply(job_id):
             with current_app.open_resource(cv_path) as fp:
                 admin_msg.attach(cv_filename, "application/octet-stream", fp.read())
 
-            with current_app.open_resource(certificate_path) as fp:
-                admin_msg.attach(certificate_filename, "application/octet-stream", fp.read())
 
             if cover_letter_path:
                 with current_app.open_resource(cover_letter_path) as fp:
