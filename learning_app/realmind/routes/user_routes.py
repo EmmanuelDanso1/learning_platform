@@ -305,11 +305,13 @@ def apply(job_id):
         certificate = request.files.get('certificate')
         cover_letter = request.files.get('cover_letter')
 
-        # Validation
+        # Validation - only show errors for missing required fields
         if not cv or not allowed_document(cv.filename):
+            flash("Please upload a valid CV (PDF, DOC, or DOCX).", "danger")
             return redirect(request.url)
 
         if not certificate or not allowed_document(certificate.filename):
+            flash("Please upload a valid certificate (PDF, DOC, or DOCX).", "danger")
             return redirect(request.url)
 
         # --- Correct Upload Path ---
@@ -354,17 +356,20 @@ def apply(job_id):
         db.session.add(new_app)
         db.session.commit()
 
-        # Email Admin
+        # Email Admin with HTML template
         try:
+            admin_html = render_template('emails/admin_notification.html',
+                applicant_name=current_user.fullname,
+                applicant_email=current_user.email,
+                job_title=job.title,
+                date_applied=datetime.now().strftime("%B %d, %Y at %I:%M %p")
+            )
+            
             admin_msg = Message(
                 subject=f"New Job Application - {job.title}",
                 sender=os.getenv('MAIL_USERNAME'),
                 recipients=[os.getenv('MAIL_USERNAME')],
-                body=(
-                    f"A new application was submitted.\n\n"
-                    f"Applicant: {current_user.username} ({current_user.email})\n"
-                    f"Job: {job.title}\n"
-                )
+                html=admin_html
             )
 
             with current_app.open_resource(cv_path) as fp:
@@ -382,29 +387,37 @@ def apply(job_id):
         except Exception as e:
             print("Admin email error:", e)
 
-        # Email User
+        # Email User with HTML template
         try:
+            user_html = render_template('emails/application_confirmation.html',
+                user_name=current_user.username,
+                job_title=job.title,
+                date_applied=datetime.now().strftime("%B %d, %Y")
+            )
+            
             user_msg = Message(
-                subject="Your Job Application Has Been Received",
+                subject="Application Received - RealmindX Education",
                 sender=os.getenv('MAIL_USERNAME'),
                 recipients=[current_user.email],
-                body=(
-                    f"Dear {current_user.username},\n\n"
-                    f"We received your application for the position: {job.title}.\n"
-                    f"Our team will review it shortly.\n\n"
-                    f"RealmindX Recruitment Team"
-                )
+                html=user_html
             )
             mail.send(user_msg)
-            flash("Application submitted successfully.", "success")
 
         except Exception as e:
             print("User email error:", e)
-            flash("Application submitted, but confirmation email failed.", "warning")
 
-        return redirect(url_for("user.users_dashboard"))
+        # Redirect to success page instead of flashing message
+        return redirect(url_for("user.application_success", job_id=job.id))
 
     return render_template('apply.html', job=job)
+
+
+@user_bp.route('/application-success/<int:job_id>')
+@login_required
+def application_success(job_id):
+    job = JobPost.query.get_or_404(job_id)
+    return render_template('application_success.html', job=job)
+
 
 # contacts for authenticated users
 @user_bp.route('/dashboard/contact')

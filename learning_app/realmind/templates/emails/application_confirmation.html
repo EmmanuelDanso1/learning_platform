@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Confirmation</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td style="padding: 0;">
+                <table role="presentation" style="width: 600px; margin: 0 auto; background-color: #ffffff; border-collapse: collapse;">
+                    <!-- Header with Logo -->
+                    <tr>
+                        <td style="padding: 30px; background: linear-gradient(135deg, #003366 0%, #0066cc 100%); text-align: center;">
+                            <img src="https://realmindxgh.com/static/images/brain.png" alt="RealmindX Education Logo" style="max-width: 200px; height: auto;">
+                        </td>
+                    </tr>
+
+                    <!-- Main Content -->
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            <h2 style="color: #003366; margin: 0 0 20px 0; font-size: 24px;">Application Received Successfully!</h2>
+                            
+                            <p style="color: #333333; line-height: 1.6; margin: 0 0 15px 0; font-size: 16px;">
+                                Dear <strong>{{ full_name }}</strong>,
+                            </p>
+                            
+                            <p style="color: #333333; line-height: 1.6; margin: 0 0 15px 0; font-size: 16px;">
+                                Thank you for submitting your application for the position of <strong>{{ job_title }}</strong> at RealmindX Education.
+                            </p>
+                            
+                            <p style="color: #333333; line-height: 1.6; margin: 0 0 20px 0; font-size: 16px;">
+                                We have successfully received your application on <strong>{{ date_applied }}</strong>, and our recruitment team will carefully review your credentials.
+                            </p>
+
+                            <!-- Info Box -->
+                            <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f8f9fa; border-left: 4px solid #0066cc; margin: 20px 0;">
+                                <tr>
+                                    <td style="padding: 20px;">
+                                        <p style="margin: 0 0 10px 0; color: #003366; font-weight: bold; font-size: 16px;">What Happens Next?</p>
+                                        <ul style="margin: 10px 0; padding-left: 20px; color: #333333; line-height: 1.8;">
+                                            <li>Our team will review your application and documents</li>
+                                            <li>You can track your application status in your dashboard</li>
+                                            <li>If your profile matches our requirements, we will contact you for the next steps</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="color: #333333; line-height: 1.6; margin: 20px 0 0 0; font-size: 16px;">
+                                We appreciate your interest in joining our team at RealmindX Education.
+                            </p>
+                            
+                            <p style="color: #333333; line-height: 1.6; margin: 10px 0 0 0; font-size: 16px;">
+                                Best regards,<br>
+                                <strong>RealmindX Education Recruitment Team</strong>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 30px; background-color: #003366; color: #ffffff; text-align: center;">
+                            <p style="margin: 0 0 15px 0; font-size: 18px; font-weight: bold;">Contact Us</p>
+                            
+                            <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                                <tr>
+                                    <td style="text-align: center; padding: 5px;">
+                                        <span style="color: #ffffff; font-size: 14px;">
+                                            📧 realmindx@gmail.com
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center; padding: 5px;">
+                                        <span style="color: #ffffff; font-size: 14px;">
+                                            📞 +233 65 653 6165
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center; padding: 5px;">
+                                        <span style="color: #ffffff; font-size: 14px;">
+                                            📱 +233 65 652 5493
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center; padding: 5px;">
+                                        <span style="color: #ffffff; font-size: 14px;">
+                                            📍 +233 55 837 5773
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="margin: 15px 0 0 0; font-size: 12px; color: #cccccc;">
+                                Empowering minds through education, innovation and community support.
+                            </p>
+                            
+                            <div class="text-center mt-4 pt-3 border-top border-light">
+                                <small id="copyright"></small>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const currentYear = new Date().getFullYear();
+      document.getElementById("copyright").textContent =
+        `© ${currentYear} RealMindX Education. All rights reserved.`;
+    });
+</script>
+</html>
