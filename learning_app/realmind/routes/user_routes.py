@@ -10,6 +10,8 @@ from learning_app.realmind.models import JobPost, Application, User
 from flask_mail import Message
 from learning_app.realmind.utils.util import allowed_document , allowed_profile_pic
 
+import logging
+logger = logging.getLogger(__name__)
 
 user_bp = Blueprint('user', __name__)
 
@@ -276,10 +278,10 @@ def apply_homepage(job_id):
     return redirect(url_for('user.users_dashboard'))
 
 
-
 @user_bp.route('/apply/<int:job_id>', methods=['GET', 'POST'])
 @login_required
 def apply(job_id):
+    logger.info(f"User {current_user.id} accessing application for job {job_id}")
     job = JobPost.query.get_or_404(job_id)
 
     # Prevent duplicate applications
@@ -289,15 +291,20 @@ def apply(job_id):
     ).first()
 
     if existing_application:
+        logger.warning(f"Duplicate application attempt by user {current_user.id} for job {job_id}")
         flash("You have already applied for this job.", "warning")
         return redirect(url_for("user.users_dashboard"))
 
     if request.method == 'POST':
+        logger.info(f"Processing POST request for job application - User: {current_user.id}, Job: {job_id}")
+        
         # CSRF validation
         token = request.form.get("csrf_token")
         try:
             validate_csrf(token)
+            logger.debug("CSRF token validated successfully")
         except ValidationError:
+            logger.error(f"CSRF validation failed for user {current_user.id}")
             abort(400, description="Invalid CSRF token.")
 
         # Uploaded documents
@@ -307,10 +314,12 @@ def apply(job_id):
 
         # Validation - only show errors for missing required fields
         if not cv or not allowed_document(cv.filename):
+            logger.warning(f"Invalid CV upload attempt by user {current_user.id}")
             flash("Please upload a valid CV (PDF, DOC, or DOCX).", "danger")
             return redirect(request.url)
 
         if not certificate or not allowed_document(certificate.filename):
+            logger.warning(f"Invalid certificate upload attempt by user {current_user.id}")
             flash("Please upload a valid certificate (PDF, DOC, or DOCX).", "danger")
             return redirect(request.url)
 
@@ -318,16 +327,19 @@ def apply(job_id):
         upload_root = current_app.config['UPLOAD_FOLDER']  
         user_folder = os.path.join(upload_root, f"user_{current_user.id}")
         os.makedirs(user_folder, exist_ok=True)
+        logger.info(f"Created/verified user folder: {user_folder}")
 
         # Save CV
         cv_filename = f"{uuid.uuid4().hex}_{secure_filename(cv.filename)}"
         cv_path = os.path.join(user_folder, cv_filename)
         cv.save(cv_path)
+        logger.info(f"CV saved: {cv_filename}")
 
         # Save Certificate
         certificate_filename = f"{uuid.uuid4().hex}_{secure_filename(certificate.filename)}"
         certificate_path = os.path.join(user_folder, certificate_filename)
         certificate.save(certificate_path)
+        logger.info(f"Certificate saved: {certificate_filename}")
 
         # Save Cover Letter (optional)
         cover_letter_filename = None
@@ -335,12 +347,14 @@ def apply(job_id):
 
         if cover_letter and cover_letter.filename.strip():
             if not allowed_document(cover_letter.filename):
+                logger.warning(f"Invalid cover letter upload attempt by user {current_user.id}")
                 flash("Cover letter must be a PDF, DOC, or DOCX.", "danger")
                 return redirect(request.url)
 
             cover_letter_filename = f"{uuid.uuid4().hex}_{secure_filename(cover_letter.filename)}"
             cover_letter_path = os.path.join(user_folder, cover_letter_filename)
             cover_letter.save(cover_letter_path)
+            logger.info(f"Cover letter saved: {cover_letter_filename}")
 
         # Save application record
         new_app = Application(
@@ -355,9 +369,11 @@ def apply(job_id):
 
         db.session.add(new_app)
         db.session.commit()
+        logger.info(f"Application record created - ID: {new_app.id}, User: {current_user.id}, Job: {job_id}")
 
         # Email Admin with HTML template
         try:
+            logger.info(f"Preparing admin notification email for application {new_app.id}")
             admin_html = render_template('emails/admin_notification.html',
                 applicant_name=current_user.fullname,
                 applicant_email=current_user.email,
@@ -383,12 +399,15 @@ def apply(job_id):
                     admin_msg.attach(cover_letter_filename, "application/octet-stream", fp.read())
 
             mail.send(admin_msg)
+            logger.info(f"Admin notification email sent successfully for application {new_app.id}")
 
         except Exception as e:
+            logger.error(f"Admin email error for application {new_app.id}: {str(e)}", exc_info=True)
             print("Admin email error:", e)
 
         # Email User with HTML template
         try:
+            logger.info(f"Preparing user confirmation email for application {new_app.id}")
             user_html = render_template('emails/application_confirmation.html',
                 user_name=current_user.username,
                 job_title=job.title,
@@ -402,11 +421,14 @@ def apply(job_id):
                 html=user_html
             )
             mail.send(user_msg)
+            logger.info(f"User confirmation email sent successfully to {current_user.email}")
 
         except Exception as e:
+            logger.error(f"User email error for application {new_app.id}: {str(e)}", exc_info=True)
             print("User email error:", e)
 
         # Redirect to success page instead of flashing message
+        logger.info(f"Application {new_app.id} completed successfully, redirecting to success page")
         return redirect(url_for("user.application_success", job_id=job.id))
 
     return render_template('apply.html', job=job)
@@ -415,6 +437,7 @@ def apply(job_id):
 @user_bp.route('/application-success/<int:job_id>')
 @login_required
 def application_success(job_id):
+    logger.info(f"User {current_user.id} viewing application success page for job {job_id}")
     job = JobPost.query.get_or_404(job_id)
     return render_template('application_success.html', job=job)
 
