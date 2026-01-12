@@ -1329,6 +1329,10 @@ section p {
   /* Hide yellow dashboard navigation on mobile */
   .user-dashboard-nav {
     display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
   }
 }
 
