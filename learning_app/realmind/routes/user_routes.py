@@ -377,13 +377,20 @@ def apply(job_id):
                 html=admin_html
             )
 
-            with current_app.open_resource(cv_path) as fp:
-                admin_msg.attach(cv_filename, "application/octet-stream", fp.read())
-
+            with open(cv_path, "rb") as fp:
+                admin_msg.attach(
+                    cv_filename,
+                    "application/octet-stream",
+                    fp.read()
+                )
 
             if cover_letter_path:
-                with current_app.open_resource(cover_letter_path) as fp:
-                    admin_msg.attach(cover_letter_filename, "application/octet-stream", fp.read())
+                with open(cover_letter_path, "rb") as fp:
+                    admin_msg.attach(
+                        cover_letter_filename,
+                        "application/octet-stream",
+                        fp.read()
+                    )
 
             mail.send(admin_msg)
             logger.info(f"Admin notification email sent successfully for application {new_app.id}")
@@ -396,7 +403,7 @@ def apply(job_id):
         try:
             logger.info(f"Preparing user confirmation email for application {new_app.id}")
             user_html = render_template('emails/application_confirmation.html',
-                user_name=current_user.username,
+                user_name=current_user.fullname,
                 job_title=job.title,
                 date_applied=datetime.now().strftime("%B %d, %Y")
             )
