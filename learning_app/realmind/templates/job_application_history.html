@@ -27,6 +27,7 @@
             <thead>
                 <tr>
                     <th>Job Title</th>
+                    <th>Description</th>
                     <th>Date Applied</th>
                 </tr>
             </thead>
@@ -34,6 +35,7 @@
                 {% for app in applications %}
                     <tr>
                         <td>{{ app.job.title }}</td>
+                        <td>{{ app.job.description }}</td>
                         <td>{{ app.date_applied.strftime('%d %b %Y') }}</td>
                     </tr>
                 {% endfor %}
