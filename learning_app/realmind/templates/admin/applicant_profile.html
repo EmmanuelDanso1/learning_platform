@@ -185,12 +185,6 @@
 </style>
 
 <div class="applicant-container">
-    
-    <!-- Back Button -->
-    <a href="javascript:history.back()" class="back-button">
-        <i class="fas fa-arrow-left"></i> Back to Applications
-    </a>
-
     <!-- Profile Header -->
     <div class="profile-header">
         <div class="profile-image-large">
@@ -241,11 +235,6 @@
             <div class="detail-item">
                 <div class="detail-label">Phone Number</div>
                 <div class="detail-value">{{ user.phone or 'Not set' }}</div>
-            </div>
-            
-            <div class="detail-item">
-                <div class="detail-label">Ghana Card Number</div>
-                <div class="detail-value">{{ user.ghana_card_number or 'Not set' }}</div>
             </div>
         </div>
     </div>
@@ -338,11 +327,6 @@
                 <h4>{{ app.job.title }}</h4>
                 <p><strong>Level:</strong> {{ app.job.level }} | <strong>Location:</strong> {{ app.job.location }}</p>
                 <p><strong>Applied:</strong> {{ app.date_applied.strftime('%B %d, %Y at %I:%M %p') }}</p>
-                <p><strong>Status:</strong> 
-                    <span class="status-badge status-{{ app.status.replace(' ', '.') }}">
-                        {{ app.status|capitalize }}
-                    </span>
-                </p>
                 
                 <!-- Application-specific documents -->
                 <p><strong>Application Documents:</strong></p>
