@@ -346,7 +346,7 @@
                 <p><strong>Application Documents:</strong></p>
                 <div class="app-documents">
                     {% if app.cv %}
-                        <a href="{{ url_for('static', filename='uploads/ ~ app.cv) }}" 
+                        <a href="{{ url_for('static', filename='uploads/' ~ app.cv) }}" 
                            target="_blank" 
                            class="document-link">
                             <i class="fas fa-file-pdf"></i> CV
@@ -354,7 +354,7 @@
                     {% endif %}
                     
                     {% if app.certificate %}
-                        <a href="{{ url_for('static', filename='uploads/ ~ app.certificate) }}" 
+                        <a href="{{ url_for('static', filename='uploads/' ~ app.certificate) }}" 
                            target="_blank" 
                            class="document-link">
                             <i class="fas fa-certificate"></i> Certificate
@@ -362,7 +362,7 @@
                     {% endif %}
                     
                     {% if app.cover_letter %}
-                        <a href="{{ url_for('static', filename='uploads/ ~ app.cover_letter) }}" 
+                        <a href="{{ url_for('static', filename='uploads/' ~ app.cover_letter) }}" 
                            target="_blank" 
                            class="document-link">
                             <i class="fas fa-file-alt"></i> Cover Letter
