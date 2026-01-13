@@ -1,0 +1,189 @@
+{% extends "index.html" %}
+{% block title %}Job Applications - {{ job.title }}{% endblock %}
+
+{% block content %}
+
+<style>
+    .applications-container {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 20px;
+    }
+
+    .job-header {
+        background: #002b5c;
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+    }
+
+    .job-header h2 {
+        margin: 0 0 10px 0;
+    }
+
+    .applications-table {
+        width: 100%;
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .applications-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .applications-table th {
+        background: #002b5c;
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+    }
+
+    .applications-table td {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .applications-table tr:hover {
+        background: #f8f9fa;
+    }
+
+    .status-badge {
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        display: inline-block;
+    }
+
+    .status-under.review { background: #ffc107; color: #000; }
+    .status-reviewed { background: #17a2b8; color: #fff; }
+    .status-accepted { background: #28a745; color: #fff; }
+    .status-rejected { background: #dc3545; color: #fff; }
+
+    .btn-view-profile {
+        background: #002b5c;
+        color: white;
+        padding: 8px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+    }
+
+    .btn-view-profile:hover {
+        background: #004080;
+        color: white;
+    }
+
+    .status-update {
+        padding: 5px 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+    }
+
+    .no-applications {
+        text-align: center;
+        padding: 50px;
+        color: #666;
+        font-size: 18px;
+    }
+
+    .stats-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        flex: 1;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    .stat-card h3 {
+        margin: 0;
+        font-size: 32px;
+        color: #002b5c;
+    }
+
+    .stat-card p {
+        margin: 10px 0 0 0;
+        color: #666;
+    }
+</style>
+
+<div class="applications-container">
+    
+    <!-- Job Header -->
+    <div class="job-header">
+        <h2>{{ job.title }}</h2>
+        <p style="margin: 5px 0;">{{ job.location }} | {{ job.level }}</p>
+        <p style="margin: 5px 0; opacity: 0.9;">Posted: {{ job.date_posted.strftime('%B %d, %Y') }}</p>
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <h3>{{ applications|length }}</h3>
+            <p>Total Applications</p>
+        </div>
+        
+    </div>
+
+    <!-- Applications Table -->
+    <div class="applications-table">
+        {% if applications %}
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Applicant Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Applied Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for application in applications %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>
+                        <strong>{{ application.user.firstname }} {{ application.user.surname }}</strong>
+                        {% if application.user.other_names %}
+                            <br><small style="color: #666;">{{ application.user.other_names }}</small>
+                        {% endif %}
+                    </td>
+                    <td>{{ application.user.email }}</td>
+                    <td>{{ application.user.phone or 'N/A' }}</td>
+                    <td>{{ application.date_applied.strftime('%b %d, %Y') }}</td>
+                    <td>
+                        <a href="{{ url_for('admin.view_applicant_profile', user_id=application.user.id) }}" 
+                           class="btn-view-profile" target="_blank">
+                            View Profile
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="no-applications">
+            <i class="fas fa-inbox" style="font-size: 48px; color: #ccc; margin-bottom: 20px;"></i>
+            <p>No applications received yet for this job.</p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

@@ -2287,3 +2287,27 @@ def send_order_status_email(order, new_status):
         return False
 
 
+# view applicants
+@admin_bp.route('/jobs/applications/<int:job_id>')
+@login_required
+@admin_required
+def view_job_applications(job_id):
+    """View all applications for a specific job"""
+    job = JobPost.query.get_or_404(job_id)
+    applications = Application.query.filter_by(job_id=job_id).order_by(
+        Application.date_applied.desc()
+    ).all()
+    return render_template('admin/job_applications.html', 
+                         job=job, 
+                         applications=applications)
+
+
+@admin_bp.route('/jobs/applications/user/<int:user_id>')
+@login_required
+def view_applicant_profile(user_id):
+    """View applicant's full profile"""
+    user = User.query.get_or_404(user_id)
+    user_applications = Application.query.filter_by(user_id=user_id).all()
+    return render_template('admin/applicant_profile.html', 
+                         user=user,
+                         applications=user_applications)

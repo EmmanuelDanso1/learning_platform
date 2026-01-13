@@ -1,0 +1,385 @@
+{% extends "index.html" %}
+{% block title %}Applicant Profile - {{ user.firstname }} {{ user.surname }}{% endblock %}
+
+{% block content %}
+
+<style>
+    .applicant-container {
+        max-width: 1000px;
+        margin: 30px auto;
+        padding: 20px;
+    }
+
+    .back-button {
+        background: #6c757d;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 20px;
+    }
+
+    .back-button:hover {
+        background: #5a6268;
+        color: white;
+    }
+
+    .profile-header {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .profile-image-large {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid #002b5c;
+        margin: 0 auto 20px;
+    }
+
+    .profile-image-large img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-name {
+        font-size: 28px;
+        font-weight: bold;
+        color: #002b5c;
+        margin-bottom: 5px;
+    }
+
+    .profile-details-grid {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+
+    .section-header {
+        font-size: 20px;
+        font-weight: bold;
+        color: #002b5c;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #002b5c;
+    }
+
+    .detail-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        margin-bottom: 25px;
+    }
+
+    .detail-item {
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: #002b5c;
+        font-size: 14px;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .detail-value {
+        font-size: 16px;
+        color: #333;
+    }
+
+    .subject-tag {
+        display: inline-block;
+        background: #002b5c;
+        color: white;
+        padding: 6px 15px;
+        border-radius: 8px;
+        margin: 5px 5px 5px 0;
+        font-size: 14px;
+    }
+
+    .document-link {
+        display: inline-block;
+        background: #28a745;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        margin-top: 10px;
+    }
+
+    .document-link:hover {
+        background: #218838;
+        color: white;
+    }
+
+    .document-missing {
+        color: #dc3545;
+        font-style: italic;
+    }
+
+    .applications-history {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .application-item {
+        padding: 15px;
+        border-left: 4px solid #002b5c;
+        background: #f8f9fa;
+        margin-bottom: 15px;
+        border-radius: 5px;
+    }
+
+    .application-item h4 {
+        margin: 0 0 5px 0;
+        color: #002b5c;
+    }
+
+    .application-item p {
+        margin: 5px 0;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .print-button {
+        background: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        display: inline-block;
+        margin-left: 10px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .print-button:hover {
+        background: #0056b3;
+    }
+
+    .app-documents {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+    }
+
+    @media print {
+        .back-button, .print-button { display: none; }
+    }
+</style>
+
+<div class="applicant-container">
+    
+    <!-- Back Button -->
+    <a href="javascript:history.back()" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back to Applications
+    </a>
+
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="profile-image-large">
+            {% if user.profile_pic %}
+                <img src="{{ url_for('static', filename='uploads/users/user_' ~ user.id ~ '/profile/' ~ user.profile_pic) }}" 
+                     alt="Profile Picture">
+            {% else %}
+                <img src="{{ url_for('static', filename='images/default-profile.webp') }}" 
+                     alt="Default Profile">
+            {% endif %}
+        </div>
+        <div class="profile-name">
+            {{ user.firstname }} {{ user.surname }}
+            {% if user.other_names %}{{ user.other_names }}{% endif %}
+        </div>
+        <p style="color: #666; font-size: 16px;">{{ user.email }}</p>
+    </div>
+
+    <!-- Personal Details -->
+    <div class="profile-details-grid">
+        <div class="section-header">
+            <i class="fas fa-user"></i> Personal Information
+        </div>
+        
+        <div class="detail-row">
+            <div class="detail-item">
+                <div class="detail-label">First Name</div>
+                <div class="detail-value">{{ user.firstname or 'Not set' }}</div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Surname</div>
+                <div class="detail-value">{{ user.surname or 'Not set' }}</div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Other Names</div>
+                <div class="detail-value">{{ user.other_names or 'Not set' }}</div>
+            </div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-item">
+                <div class="detail-label">Email Address</div>
+                <div class="detail-value">{{ user.email }}</div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Phone Number</div>
+                <div class="detail-value">{{ user.phone or 'Not set' }}</div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Ghana Card Number</div>
+                <div class="detail-value">{{ user.ghana_card_number or 'Not set' }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Professional Details -->
+    <div class="profile-details-grid">
+        <div class="section-header">
+            <i class="fas fa-briefcase"></i> Professional Information
+        </div>
+        
+        <div class="detail-row">
+            <div class="detail-item">
+                <div class="detail-label">Preferred Level</div>
+                <div class="detail-value">
+                    {% if user.preferred_level %}
+                        {% set levels = user.preferred_level.split(",") %}
+                        {% for level in levels %}
+                            {{ level }}{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <span class="document-missing">Not set</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Preferred Subject(s)</div>
+                <div class="detail-value">
+                    {% if user.preferred_subject %}
+                        {% set subjects = user.preferred_subject.split(',') %}
+                        {% for subject in subjects %}
+                            <span class="subject-tag">{{ subject }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <span class="document-missing">Not set</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Profile Documents -->
+    <div class="profile-details-grid">
+        <div class="section-header">
+            <i class="fas fa-file-alt"></i> Profile Documents
+        </div>
+        
+        <div class="detail-row">
+            <div class="detail-item">
+                <div class="detail-label">Curriculum Vitae (CV)</div>
+                <div class="detail-value">
+                    {% if user.cv %}
+                        <a href="{{ url_for('static', filename='uploads/users/user_' ~ user.id ~ '/documents/' ~ user.cv) }}" 
+                           target="_blank" 
+                           class="document-link">
+                            <i class="fas fa-download"></i> Download Profile CV
+                        </a>
+                    {% else %}
+                        <span class="document-missing">CV Not Uploaded</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Certificate</div>
+                <div class="detail-value">
+                    {% if user.certificate %}
+                        <a href="{{ url_for('static', filename='uploads/users/user_' ~ user.id ~ '/documents/' ~ user.certificate) }}" 
+                           target="_blank" 
+                           class="document-link">
+                            <i class="fas fa-download"></i> Download Profile Certificate
+                        </a>
+                    {% else %}
+                        <span class="document-missing">Certificate Not Uploaded</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application History -->
+    <div class="applications-history">
+        <div class="section-header">
+            <i class="fas fa-history"></i> Application History
+        </div>
+        
+        {% if applications %}
+            {% for app in applications %}
+            <div class="application-item">
+                <h4>{{ app.job.title }}</h4>
+                <p><strong>Level:</strong> {{ app.job.level }} | <strong>Location:</strong> {{ app.job.location }}</p>
+                <p><strong>Applied:</strong> {{ app.date_applied.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                <p><strong>Status:</strong> 
+                    <span class="status-badge status-{{ app.status.replace(' ', '.') }}">
+                        {{ app.status|capitalize }}
+                    </span>
+                </p>
+                
+                <!-- Application-specific documents -->
+                <p><strong>Application Documents:</strong></p>
+                <div class="app-documents">
+                    {% if app.cv %}
+                        <a href="{{ url_for('static', filename='applications/user_' ~ app.user_id ~ '/job_' ~ app.job_id ~ '/' ~ app.cv) }}" 
+                           target="_blank" 
+                           class="document-link">
+                            <i class="fas fa-file-pdf"></i> CV
+                        </a>
+                    {% endif %}
+                    
+                    {% if app.certificate %}
+                        <a href="{{ url_for('static', filename='applications/user_' ~ app.user_id ~ '/job_' ~ app.job_id ~ '/' ~ app.certificate) }}" 
+                           target="_blank" 
+                           class="document-link">
+                            <i class="fas fa-certificate"></i> Certificate
+                        </a>
+                    {% endif %}
+                    
+                    {% if app.cover_letter %}
+                        <a href="{{ url_for('static', filename='applications/user_' ~ app.user_id ~ '/job_' ~ app.job_id ~ '/' ~ app.cover_letter) }}" 
+                           target="_blank" 
+                           class="document-link">
+                            <i class="fas fa-file-alt"></i> Cover Letter
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align: center; color: #666; padding: 20px;">
+                No applications found for this user.
+            </p>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}
