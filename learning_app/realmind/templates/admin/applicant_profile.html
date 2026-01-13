@@ -325,7 +325,7 @@
             {% for app in applications %}
             <div class="application-item">
                 <h4>{{ app.job.title }}</h4>
-                <p><strong>Level:</strong> {{ app.job.level }} | <strong>Location:</strong> {{ app.job.location }}</p>
+                <p><strong>Level:</strong> {{ app.job.level }}</p>
                 <p><strong>Applied:</strong> {{ app.date_applied.strftime('%B %d, %Y at %I:%M %p') }}</p>
                 
                 <!-- Application-specific documents -->
