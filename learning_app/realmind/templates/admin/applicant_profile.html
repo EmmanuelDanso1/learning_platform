@@ -185,6 +185,15 @@
 </style>
 
 <div class="applicant-container">
+    
+    <!-- Back Button -->
+    <a href="javascript:history.back()" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back to Applications
+    </a>
+    <button onclick="window.print()" class="print-button">
+        <i class="fas fa-print"></i> Print Profile
+    </button>
+
     <!-- Profile Header -->
     <div class="profile-header">
         <div class="profile-image-large">
@@ -235,6 +244,11 @@
             <div class="detail-item">
                 <div class="detail-label">Phone Number</div>
                 <div class="detail-value">{{ user.phone or 'Not set' }}</div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Ghana Card Number</div>
+                <div class="detail-value">{{ user.ghana_card_number or 'Not set' }}</div>
             </div>
         </div>
     </div>
@@ -325,14 +339,14 @@
             {% for app in applications %}
             <div class="application-item">
                 <h4>{{ app.job.title }}</h4>
-                <p><strong>Level:</strong> {{ app.job.level }}</p>
+                <p><strong>Level:</strong> {{ app.job.level }} | <strong>Location:</strong> {{ app.job.location }}</p>
                 <p><strong>Applied:</strong> {{ app.date_applied.strftime('%B %d, %Y at %I:%M %p') }}</p>
                 
                 <!-- Application-specific documents -->
                 <p><strong>Application Documents:</strong></p>
                 <div class="app-documents">
                     {% if app.cv %}
-                        <a href="{{ url_for('static', filename='uploads/users/user_' ~ app.user_id ~ '/documents/' ~ app.cv) }}" 
+                        <a href="{{ url_for('static', filename='uploads/applications/user_' ~ app.user_id ~ '/job_' ~ app.job_id ~ '/' ~ app.cv) }}" 
                            target="_blank" 
                            class="document-link">
                             <i class="fas fa-file-pdf"></i> CV
@@ -340,7 +354,7 @@
                     {% endif %}
                     
                     {% if app.certificate %}
-                        <a href="{{ url_for('static', filename='uploads/users/user_' ~ app.user_id ~ '/documents/' ~ app.certificate) }}" 
+                        <a href="{{ url_for('static', filename='uploads/applications/user_' ~ app.user_id ~ '/job_' ~ app.job_id ~ '/' ~ app.certificate) }}" 
                            target="_blank" 
                            class="document-link">
                             <i class="fas fa-certificate"></i> Certificate
@@ -348,7 +362,7 @@
                     {% endif %}
                     
                     {% if app.cover_letter %}
-                        <a href="{{ url_for('static', filename='uploads/users/user_' ~ app.user_id ~ '/documents/' ~ app.cover_letter) }}" 
+                        <a href="{{ url_for('static', filename='uploads/applications/user_' ~ app.user_id ~ '/job_' ~ app.job_id ~ '/' ~ app.cover_letter) }}" 
                            target="_blank" 
                            class="document-link">
                             <i class="fas fa-file-alt"></i> Cover Letter
