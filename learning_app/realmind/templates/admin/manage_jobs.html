@@ -41,10 +41,12 @@
               <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ job.id }}">
                 Delete
               </button>
-              <a href="{{ url_for('admin.view_job_applications', job_id=job.id) }}" 
-                class="btn btn-primary">
-                  <i class="fas fa-users"></i> View Applications ({{ job.applications|length }})
+              <a href="{{ url_for('admin.view_job_applications', job_id=job.id) }}"
+                class="btn btn-sm btn-primary">
+                View Applications
               </a>
+
+
             </td>
           </tr>
 

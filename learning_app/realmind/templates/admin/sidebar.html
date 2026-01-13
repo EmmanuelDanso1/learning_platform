@@ -45,7 +45,11 @@
           <ul class="nav flex-column">
             <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.post_job') }}"><i class="fas fa-plus-circle"></i> <span>Post Job</span></a></li>
             <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.manage_jobs') }}"><i class="fas fa-tasks"></i> <span>Manage Jobs</span></a></li>
-            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.view_job_applications') }}"><i class="fas fa-tasks"></i> <span>Applied Jobs</span></a></li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('admin.view_job_applications') }}">
+                <i class="fas fa-tasks"></i> <span>Applied Jobs</span>
+              </a>
+            </li>
           </ul>
         </div>
       </div>
