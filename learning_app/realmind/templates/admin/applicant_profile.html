@@ -358,34 +358,61 @@
                 
                 <!-- Application-specific documents -->
                 <p><strong>Application Documents:</strong></p>
-                <div class="app-documents">
-                    {% if app.cv %}
-                        <a href="{{ url_for('static', filename='uploads/' ~ app.cv) }}" 
-                           target="_blank" 
-                           class="document-link">
-                            <i class="fas fa-file-pdf"></i> Application CV
-                        </a>
-                    {% else %}
-                        <span class="document-missing">No CV submitted</span>
-                    {% endif %}
-                    
-                    {% if app.certificate %}
-                        <a href="{{ url_for('static', filename='uploads/' ~ app.certificate) }}" 
-                           target="_blank" 
-                           class="document-link">
-                            <i class="fas fa-certificate"></i> Certificate
-                        </a>
-                    {% endif %}
-                    
-                    {% if app.cover_letter %}
-                        <a href="{{ url_for('static', filename='uploads/' ~ app.cover_letter) }}" 
-                           target="_blank" 
-                           class="document-link">
-                            <i class="fas fa-file-alt"></i> Cover Letter
-                        </a>
-                    {% endif %}
-                </div>
+                <!-- ADD THIS TEMPORARILY TO YOUR applicant_profile.html 
+                Right after the "Application Documents:" line -->
+
+            <div style="background: #f0f0f0; padding: 15px; margin: 10px 0; border: 2px solid #ff0000;">
+                <h5 style="color: red;">🔍 DEBUG INFO (Remove after fixing)</h5>
+                
+                <p><strong>Database CV Value:</strong> {{ app.cv }}</p>
+                <p><strong>Database Certificate Value:</strong> {{ app.certificate }}</p>
+                <p><strong>Database Cover Letter Value:</strong> {{ app.cover_letter }}</p>
+                
+                <hr>
+                
+                <p><strong>Generated URL for CV:</strong><br>
+                {{ url_for('static', filename='uploads/' ~ app.cv) }}</p>
+                
+                <p><strong>Try These Alternative URLs:</strong></p>
+                <ol>
+                    <li>{{ url_for('static', filename=app.cv) }}</li>
+                    <li>{{ url_for('static', filename='uploads/' ~ app.cv) }}</li>
+                    <li>{{ url_for('static', filename='uploads/users/user_' ~ app.user_id ~ '/documents/' ~ app.cv) }}</li>
+                </ol>
+                
+                <p><strong>User ID:</strong> {{ app.user_id }}</p>
+                <p><strong>Job ID:</strong> {{ app.job_id }}</p>
             </div>
+
+            <!-- Now show the actual links -->
+            <div class="app-documents">
+                {% if app.cv %}
+                    <!-- TRY VERSION 1: Just the stored path -->
+                    <a href="{{ url_for('static', filename=app.cv) }}" 
+                    target="_blank" 
+                    class="document-link"
+                    style="background: #ff0000;">
+                        <i class="fas fa-file-pdf"></i> Try 1: {{ app.cv }}
+                    </a>
+                    
+                    <!-- TRY VERSION 2: With uploads/ prefix -->
+                    <a href="{{ url_for('static', filename='uploads/' ~ app.cv) }}" 
+                    target="_blank" 
+                    class="document-link"
+                    style="background: #0000ff;">
+                        <i class="fas fa-file-pdf"></i> Try 2: uploads/{{ app.cv }}
+                    </a>
+                    
+                    <!-- TRY VERSION 3: Full user path -->
+                    <a href="{{ url_for('static', filename='uploads/users/user_' ~ app.user_id ~ '/documents/' ~ app.cv.split('/')[-1]) }}" 
+                    target="_blank" 
+                    class="document-link"
+                    style="background: #00ff00;">
+                        <i class="fas fa-file-pdf"></i> Try 3: Full path
+                    </a>
+                {% endif %}
+            </div>
+            
             {% endfor %}
         {% else %}
             <p style="text-align: center; color: #666; padding: 20px;">
