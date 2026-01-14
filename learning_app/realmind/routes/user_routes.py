@@ -350,11 +350,12 @@ def apply(job_id):
         new_app = Application(
             date_applied=datetime.now(),
             status='Under review',
-            cv=f"users/user_{current_user.id}/documents/{cv_filename}",
-            cover_letter=f"users/user_{current_user.id}/documents/{cover_letter_filename}" if cover_letter_filename else None,
+            cv=cv_filename,
+            cover_letter=cover_letter_filename,
             user_id=current_user.id,
             job_id=job.id
-        )
+        )       
+
 
         db.session.add(new_app)
         db.session.commit()
