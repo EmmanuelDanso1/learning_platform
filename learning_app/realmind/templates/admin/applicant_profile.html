@@ -179,6 +179,20 @@
         flex-wrap: wrap;
     }
 
+    .status-badge {
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        display: inline-block;
+        margin-left: 10px;
+    }
+
+    .status-under-review { background: #ffc107; color: #000; }
+    .status-reviewed { background: #17a2b8; color: #fff; }
+    .status-accepted { background: #28a745; color: #fff; }
+    .status-rejected { background: #dc3545; color: #fff; }
+
     @media print {
         .back-button, .print-button { display: none; }
     }
@@ -244,11 +258,6 @@
             <div class="detail-item">
                 <div class="detail-label">Phone Number</div>
                 <div class="detail-value">{{ user.phone or 'Not set' }}</div>
-            </div>
-            
-            <div class="detail-item">
-                <div class="detail-label">Ghana Card Number</div>
-                <div class="detail-value">{{ user.ghana_card_number or 'Not set' }}</div>
             </div>
         </div>
     </div>
@@ -338,8 +347,13 @@
         {% if applications %}
             {% for app in applications %}
             <div class="application-item">
-                <h4>{{ app.job.title }}</h4>
-                <p><strong>Level:</strong> {{ app.job.level }} | <strong>Location:</strong> {{ app.job.location }}</p>
+                <h4>
+                    {{ app.job.title }}
+                    <span class="status-badge status-{{ app.status.replace(' ', '-') }}">
+                        {{ app.status|title }}
+                    </span>
+                </h4>
+                <p><strong>Level:</strong> {{ app.job.level }}</p>
                 <p><strong>Applied:</strong> {{ app.date_applied.strftime('%B %d, %Y at %I:%M %p') }}</p>
                 
                 <!-- Application-specific documents -->
@@ -349,8 +363,10 @@
                         <a href="{{ url_for('static', filename='uploads/' ~ app.cv) }}" 
                            target="_blank" 
                            class="document-link">
-                            <i class="fas fa-file-pdf"></i> CV
+                            <i class="fas fa-file-pdf"></i> Application CV
                         </a>
+                    {% else %}
+                        <span class="document-missing">No CV submitted</span>
                     {% endif %}
                     
                     {% if app.certificate %}
