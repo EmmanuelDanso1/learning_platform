@@ -320,7 +320,7 @@ def apply(job_id):
 
         # --- Correct Upload Path ---
         upload_root = current_app.config['UPLOAD_FOLDER']  
-        user_folder = os.path.join(upload_root, f"user_{current_user.id}", "documents")
+        user_folder = os.path.join(upload_root, "users", f"user_{current_user.id}", "documents")
         os.makedirs(user_folder, exist_ok=True)
         logger.info(f"Created/verified user folder: {user_folder}")
 
