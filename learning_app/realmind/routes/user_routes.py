@@ -320,7 +320,7 @@ def apply(job_id):
 
         # --- Correct Upload Path ---
         upload_root = current_app.config['UPLOAD_FOLDER']  
-        user_folder = os.path.join(upload_root, f"user_{current_user.id}")
+        user_folder = os.path.join(upload_root, f"user_{current_user.id}", "documents")
         os.makedirs(user_folder, exist_ok=True)
         logger.info(f"Created/verified user folder: {user_folder}")
 
@@ -350,8 +350,8 @@ def apply(job_id):
         new_app = Application(
             date_applied=datetime.now(),
             status='Under review',
-            cv=f"user_{current_user.id}/{cv_filename}",
-            cover_letter=f"user_{current_user.id}/{cover_letter_filename}" if cover_letter_filename else None,
+            cv=f"users/user_{current_user.id}/documents/{cv_filename}",
+            cover_letter=f"users/user_{current_user.id}/documents/{cover_letter_filename}" if cover_letter_filename else None,
             user_id=current_user.id,
             job_id=job.id
         )
