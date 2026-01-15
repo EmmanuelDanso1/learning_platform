@@ -259,6 +259,11 @@
                 <div class="detail-label">Phone Number</div>
                 <div class="detail-value">{{ user.phone or 'Not set' }}</div>
             </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Ghana Card Number</div>
+                <div class="detail-value">{{ user.ghana_card_number or 'Not set' }}</div>
+            </div>
         </div>
     </div>
 
@@ -349,7 +354,7 @@
             <div class="application-item">
                 <h4>
                     {{ app.job.title }}
-                    <span class="status-badge status-{{ app.status.replace(' ', '-') }}">
+                    <span class="status-badge status-{{ app.status.lower().replace(' ', '-') }}">
                         {{ app.status|title }}
                     </span>
                 </h4>
@@ -360,26 +365,56 @@
                 <p><strong>Application Documents:</strong></p>
                 <div class="app-documents">
                     {% if app.cv %}
-                        <a href="{{ url_for(
-                            'static',
-                            filename='uploads/users/user_' ~ app.user_id ~ '/documents/' ~ app.cv
-                        ) }}" target="_blank" class="document-link">
-                            <i class="fas fa-file-pdf"></i> Application CV
-                        </a>
-
+                        {% if app.cv.startswith('users/') or app.cv.startswith('user_') %}
+                            {# Old format with path included #}
+                            <a href="{{ url_for('static', filename='uploads/' ~ app.cv) }}" 
+                               target="_blank" 
+                               class="document-link">
+                                <i class="fas fa-file-pdf"></i> Application CV
+                            </a>
+                        {% else %}
+                            {# New format - just filename #}
+                            <a href="{{ url_for('static', filename='uploads/users/user_' ~ app.user_id ~ '/documents/' ~ app.cv) }}" 
+                               target="_blank" 
+                               class="document-link">
+                                <i class="fas fa-file-pdf"></i> Application CV
+                            </a>
+                        {% endif %}
                     {% else %}
                         <span class="document-missing">No CV submitted</span>
                     {% endif %}
                     
-                    {% if app.cover_letter %}
-                    <a href="{{ url_for(
-                        'static',
-                        filename='uploads/users/user_' ~ app.user_id ~ '/documents/' ~ app.cover_letter
-                    ) }}" target="_blank" class="document-link">
-                        <i class="fas fa-file-alt"></i> Cover Letter
-                    </a>
+                    {% if app.certificate %}
+                        {% if app.certificate.startswith('users/') or app.certificate.startswith('user_') %}
+                            <a href="{{ url_for('static', filename='uploads/' ~ app.certificate) }}" 
+                               target="_blank" 
+                               class="document-link">
+                                <i class="fas fa-certificate"></i> Certificate
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('static', filename='uploads/users/user_' ~ app.user_id ~ '/documents/' ~ app.certificate) }}" 
+                               target="_blank" 
+                               class="document-link">
+                                <i class="fas fa-certificate"></i> Certificate
+                            </a>
+                        {% endif %}
                     {% endif %}
-
+                    
+                    {% if app.cover_letter %}
+                        {% if app.cover_letter.startswith('users/') or app.cover_letter.startswith('user_') %}
+                            <a href="{{ url_for('static', filename='uploads/' ~ app.cover_letter) }}" 
+                               target="_blank" 
+                               class="document-link">
+                                <i class="fas fa-file-alt"></i> Cover Letter
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('static', filename='uploads/users/user_' ~ app.user_id ~ '/documents/' ~ app.cover_letter) }}" 
+                               target="_blank" 
+                               class="document-link">
+                                <i class="fas fa-file-alt"></i> Cover Letter
+                            </a>
+                        {% endif %}
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
