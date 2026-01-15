@@ -307,58 +307,61 @@ def apply(job_id):
             logger.error(f"CSRF validation failed for user {current_user.id}")
             abort(400, description="Invalid CSRF token.")
 
-        # Uploaded documents
-        cv = request.files.get('cv')
-        cover_letter = request.files.get('cover_letter')
+        # --- Upload directory ---
+        base_upload = os.path.join(
+            current_app.config["UPLOAD_FOLDER_USERS"],
+            f"user_{current_user.id}",
+            "documents"
+        )
+        os.makedirs(base_upload, exist_ok=True)
 
-        # Validation - only show errors for missing required fields
-        if not cv or not allowed_document(cv.filename):
-            logger.warning(f"Invalid CV upload attempt by user {current_user.id}")
+        # ================================
+        # CV UPLOAD (REQUIRED)
+        # ================================
+        cv_file = request.files.get("cv")
+        if not cv_file or not allowed_document(cv_file.filename):
             flash("Please upload a valid CV (PDF, DOC, or DOCX).", "danger")
             return redirect(request.url)
 
+        cv_ext = cv_file.filename.rsplit(".", 1)[-1].lower()
+        cv_filename = secure_filename(f"cv_{uuid.uuid4().hex}.{cv_ext}")
+        cv_path = os.path.join(base_upload, cv_filename)
+        cv_file.save(cv_path)
 
-        # --- Correct Upload Path ---
-        upload_root = current_app.config['UPLOAD_FOLDER']  
-        user_folder = os.path.join(upload_root, "users", f"user_{current_user.id}", "documents")
-        os.makedirs(user_folder, exist_ok=True)
-        logger.info(f"Created/verified user folder: {user_folder}")
-
-        # Save CV
-        cv_filename = f"{uuid.uuid4().hex}_{secure_filename(cv.filename)}"
-        cv_path = os.path.join(user_folder, cv_filename)
-        cv.save(cv_path)
-        logger.info(f"CV saved: {cv_filename}")
-
-
-        # Save Cover Letter (optional)
+        # ================================
+        # COVER LETTER (OPTIONAL)
+        # ================================
+        cover_letter_file = request.files.get("cover_letter")
         cover_letter_filename = None
         cover_letter_path = None
 
-        if cover_letter and cover_letter.filename.strip():
-            if not allowed_document(cover_letter.filename):
-                logger.warning(f"Invalid cover letter upload attempt by user {current_user.id}")
-                flash("Cover letter must be a PDF, DOC, or DOCX.", "danger")
+        if cover_letter_file and cover_letter_file.filename.strip():
+            if not allowed_document(cover_letter_file.filename):
+                flash("Cover letter must be PDF, DOC, or DOCX.", "danger")
                 return redirect(request.url)
 
-            cover_letter_filename = f"{uuid.uuid4().hex}_{secure_filename(cover_letter.filename)}"
-            cover_letter_path = os.path.join(user_folder, cover_letter_filename)
-            cover_letter.save(cover_letter_path)
-            logger.info(f"Cover letter saved: {cover_letter_filename}")
+            cover_ext = cover_letter_file.filename.rsplit(".", 1)[-1].lower()
+            cover_letter_filename = secure_filename(
+                f"cover_{uuid.uuid4().hex}.{cover_ext}"
+            )
+            cover_letter_path = os.path.join(base_upload, cover_letter_filename)
+            cover_letter_file.save(cover_letter_path)
 
-        # Save application record
+        # ================================
+        # SAVE APPLICATION
+        # ================================
         new_app = Application(
             date_applied=datetime.now(),
-            status='Under review',
-            cv=cv_filename,
+            status="Under review",
+            cv=cv_filename,                     
             cover_letter=cover_letter_filename,
             user_id=current_user.id,
             job_id=job.id
-        )       
-
+        )
 
         db.session.add(new_app)
         db.session.commit()
+
         logger.info(f"Application record created - ID: {new_app.id}, User: {current_user.id}, Job: {job_id}")
 
         # Email Admin with HTML template
