@@ -121,19 +121,16 @@
                 </div>
             </div>
 
-            <div class="profile-row">
-                <div class="profile-col">
-                    <div class="profile-label">Sex</div>
-                    <div class="profile-value">
-                        {{ current_user.sex or 'Not set' }}
-                    </div>
-                </div>
-            </div>
-
         </div>
 
         <!-- Email / Phone / Ghana Card -->
         <div class="profile-row">
+            <div class="profile-col">
+                <div class="profile-label">Sex</div>
+                <div class="profile-value">
+                    {{ current_user.sex or 'Not set' }}
+                </div>
+            </div>
             <div class="profile-col">
                 <div class="profile-label">E-mail Address</div>
                 <div class="profile-value">{{ current_user.email }}</div>
@@ -142,13 +139,14 @@
                 <div class="profile-label">Phone Number</div>
                 <div class="profile-value">{{ current_user.phone or 'Not set' }}</div>
             </div>
+            
+        </div>
+        <!-- location -->
+        <div class="profile-row">
             <div class="profile-col">
                 <div class="profile-label">Ghana Card Number</div>
                 <div class="profile-value">{{ current_user.ghana_card_number or 'Not set' }}</div>
             </div>
-        </div>
-        <!-- location -->
-        <div class="profile-row">
             <div class="profile-col">
                 <div class="profile-label">Location</div>
                 <div class="profile-value">{{ current_user.location or 'Not set' }}</div>
