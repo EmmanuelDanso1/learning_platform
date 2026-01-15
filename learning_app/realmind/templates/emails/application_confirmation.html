@@ -1,145 +1,148 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Application Confirmation</title>
+  <meta charset="UTF-8">
+  <title>Application Confirmation</title>
 </head>
-<style>
-    /* Base Styles */
-    
-    
-    .section-title {
-      font-weight: bold;
-      margin-top: 20px;
-      margin-bottom: 10px;
-      color: #0C2E60;
-      font-size: 16px;
-    }
-    
-    .social-section {
-      text-align: center;
-      margin: 30px 0;
-      padding: 20px;
-      background-color: #f8f9fa;
-      border-radius: 5px;
-    }
-    
-    .social-title {
-      font-weight: bold;
-      margin-bottom: 15px;
-      color: #0C2E60;
-    }
-    
-    .social-icons {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    
-    .social-icons a {
-      text-decoration: none;
-      font-weight: bold;
-      padding: 8px 15px;
-      border-radius: 5px;
-      color: white;
-      font-size: 14px;
-      transition: opacity 0.3s;
-    }
-    
-    .social-icons a:hover {
-      opacity: 0.8;
-    }
-    
-    .social-fb { background-color: #1877F2; }
-    .social-x { background-color: #000000; }
-    .social-ig { background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); }
-    .social-yt { background-color: #FF0000; }
-    .social-wa { background-color: #25D366; }
-    
-    
-  </style>
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
-    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+
+<body style="margin:0;padding:0;background-color:#f4f4f4;font-family:Arial,sans-serif;">
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f4;">
+  <tr>
+    <td align="center">
+
+      <!-- MAIN CONTAINER -->
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;">
+
+        <!-- HEADER -->
         <tr>
-            <td style="padding: 0;">
-                <table role="presentation" style="width: 600px; margin: 0 auto; background-color: #ffffff; border-collapse: collapse;">
-                    <!-- Header with Logo -->
-                    <tr>
-                        <td style="padding: 30px; background: linear-gradient(135deg, #143670 0%, #143670 100%); text-align: center;">
-                            <img src="https://realmindxgh.com/static/images/real.jpg" alt="RealmindX Education Logo" style="max-width: 200px; height: auto;">
-                        </td>
-                    </tr>
-
-                    <!-- Main Content -->
-                    <tr>
-                        <td style="padding: 40px 30px;">
-                            <h2 style="color: #143670; margin: 0 0 20px 0; font-size: 24px;">Application Received Successfully!</h2>
-                            <p style="color: #333333; line-height: 1.6; margin: 0 0 15px 0; font-size: 16px;">
-                                Thank you for submitting your application for the position of <strong>{{ job_title }}</strong> at RealmindX Education.
-                            </p>
-                            
-                            <p style="color: #333333; line-height: 1.6; margin: 0 0 20px 0; font-size: 16px;">
-                                We have successfully received your application on <strong>{{ date_applied }}</strong>, and our recruitment team will carefully review your credentials.
-                            </p>
-
-                            <!-- Info Box -->
-                            <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f8f9fa; border-left: 4px solid #0066cc; margin: 20px 0;">
-                                <tr>
-                                    <td style="padding: 20px;">
-                                        <p style="margin: 0 0 10px 0; color: #003366; font-weight: bold; font-size: 16px;">What Happens Next?</p>
-                                        <ul style="margin: 10px 0; padding-left: 20px; color: #333333; line-height: 1.8;">
-                                            <li>Our team will review your application and documents</li>
-                                            <li>If your profile matches our requirements, we will contact you for the next steps</li>
-                                        </ul>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <p style="color: #333333; line-height: 1.6; margin: 20px 0 0 0; font-size: 16px;">
-                                We appreciate your interest in joining our team at RealmindX Education.
-                            </p>
-                            
-                            <p style="color: #333333; line-height: 1.6; margin: 10px 0 0 0; font-size: 16px;">
-                                Best regards,<br>
-                                <strong>RealmindX Education Recruitment Team</strong>
-                            </p>
-                        </td>
-                    </tr>
-
-                    <!-- Footer -->
-                    <!-- Social Media Section -->
-                    <div class="social-section">
-                    <div class="social-title">Connect With Us</div>
-                    <div class="social-icons">
-                        <a href="https://web.facebook.com/profile.php?id=61566941171883" class="social-fb">Facebook</a>
-                        <a href="https://x.com/RealMindXgh" class="social-x">X</a>
-                        <a href="https://www.instagram.com/realmindxgh/" class="social-ig">Instagram</a>
-                        <a href="https://www.youtube.com/@realmindxgh" class="social-yt">YouTube</a>
-                        <a href="https://wa.link/d6x888" class="social-wa">WhatsApp</a>
-                    </div>
-                    </div>
-
-                    <!-- Footer -->
-                    <div class="footer">
-                    <p><strong>Customer service period:</strong> Monday–Saturday, 7AM to 5PM</p>
-                    <p><strong>Hotline:</strong> (+233) 558039190 / 551324729 / 554529493</p>
-                    <p><strong>WhatsApp:</strong> +233 558039190</p>
-                    <p><strong>Email:</strong> realmindxgh@gmail.com</p>
-                    <p style="margin-top: 15px;"><em>Please note: This is an automated message. Replies will not be monitored.</em></p>
-                    </div>
-                </table>
-            </td>
+          <td align="center" style="padding:30px;background-color:#143670;">
+            <img src="https://realmindxgh.com/static/images/real.jpg"
+                 alt="RealMindX Education"
+                 style="max-width:200px;height:auto;display:block;">
+          </td>
         </tr>
-    </table>
+
+        <!-- CONTENT -->
+        <tr>
+          <td style="padding:40px 30px;color:#333333;">
+
+            <h2 style="margin:0 0 20px 0;color:#143670;font-size:24px;">
+              Application Received Successfully!
+            </h2>
+
+            <p style="margin:0 0 15px 0;font-size:16px;line-height:1.6;">
+              Thank you for submitting your application for the position of
+              <strong>{{ job_title }}</strong> at RealMindX Education.
+            </p>
+
+            <p style="margin:0 0 20px 0;font-size:16px;line-height:1.6;">
+              We have successfully received your application on
+              <strong>{{ date_applied }}</strong>, and our recruitment team will
+              carefully review your credentials.
+            </p>
+
+            <!-- INFO BOX -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                   style="background-color:#f8f9fa;border-left:4px solid #0066cc;margin:20px 0;">
+              <tr>
+                <td style="padding:20px;">
+                  <p style="margin:0 0 10px 0;font-weight:bold;color:#003366;font-size:16px;">
+                    What Happens Next?
+                  </p>
+                  <ul style="margin:0;padding-left:20px;font-size:15px;line-height:1.8;">
+                    <li>Our team will review your application and documents</li>
+                    <li>If your profile matches our requirements, we will contact you</li>
+                  </ul>
+                </td>
+              </tr>
+            </table>
+
+            <p style="margin:20px 0 0 0;font-size:16px;line-height:1.6;">
+              We appreciate your interest in joining our team.
+            </p>
+
+            <p style="margin:10px 0 0 0;font-size:16px;">
+              Best regards,<br>
+              <strong>RealMindX Education Recruitment Team</strong>
+            </p>
+
+          </td>
+        </tr>
+
+        <!-- FOOTER (FULL-WIDTH BLUE) -->
+        <tr>
+          <td style="background-color:#0C2E60;padding:30px 20px;">
+
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+
+              <!-- CONNECT -->
+              <tr>
+                <td align="center" style="color:#ffffff;font-size:16px;font-weight:bold;padding-bottom:15px;">
+                  Connect With Us
+                </td>
+              </tr>
+
+              <!-- SOCIAL BUTTONS -->
+              <tr>
+                <td align="center">
+                  <a href="https://web.facebook.com/profile.php?id=61566941171883"
+                     style="background:#1877F2;color:#ffffff;text-decoration:none;
+                     padding:8px 14px;border-radius:5px;font-size:14px;
+                     margin:3px;display:inline-block;">Facebook</a>
+
+                  <a href="https://x.com/RealMindXgh"
+                     style="background:#000000;color:#ffffff;text-decoration:none;
+                     padding:8px 14px;border-radius:5px;font-size:14px;
+                     margin:3px;display:inline-block;">X</a>
+
+                  <a href="https://www.instagram.com/realmindxgh/"
+                     style="background:#E1306C;color:#ffffff;text-decoration:none;
+                     padding:8px 14px;border-radius:5px;font-size:14px;
+                     margin:3px;display:inline-block;">Instagram</a>
+
+                  <a href="https://www.youtube.com/@realmindxgh"
+                     style="background:#FF0000;color:#ffffff;text-decoration:none;
+                     padding:8px 14px;border-radius:5px;font-size:14px;
+                     margin:3px;display:inline-block;">YouTube</a>
+
+                  <a href="https://wa.link/d6x888"
+                     style="background:#25D366;color:#ffffff;text-decoration:none;
+                     padding:8px 14px;border-radius:5px;font-size:14px;
+                     margin:3px;display:inline-block;">WhatsApp</a>
+                </td>
+              </tr>
+
+              <!-- CONTACT INFO -->
+              <tr>
+                <td align="center"
+                    style="color:#ffffff;font-size:14px;line-height:1.6;padding-top:25px;">
+                  <strong>Customer service period:</strong> Monday–Saturday, 7AM–5PM<br>
+                  <strong>Hotline:</strong> (+233) 558039190 / 551324729 / 554529493<br>
+                  <strong>WhatsApp:</strong> +233 558039190<br>
+                  <strong>Email:</strong> realmindxgh@gmail.com
+                </td>
+              </tr>
+
+              <!-- DISCLAIMER -->
+              <tr>
+                <td align="center"
+                    style="color:#dddddd;font-size:12px;padding-top:15px;">
+                  <em>This is an automated message. Replies will not be monitored.</em>
+                </td>
+              </tr>
+
+            </table>
+
+          </td>
+        </tr>
+
+      </table>
+      <!-- END MAIN CONTAINER -->
+
+    </td>
+  </tr>
+</table>
 
 </body>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-      const currentYear = new Date().getFullYear();
-      document.getElementById("copyright").textContent =
-        `© ${currentYear} RealMindX Education. All rights reserved.`;
-    });
-</script>
 </html>

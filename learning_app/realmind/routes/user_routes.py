@@ -29,6 +29,7 @@ def users_dashboard():
         current_user.firstname,
         current_user.surname,
         current_user.phone,
+        current_user.location,
         current_user.ghana_card_number,
         current_user.preferred_subject,
         current_user.preferred_level,
@@ -90,6 +91,7 @@ def edit_profile():
         update_if_not_empty(current_user, "surname", request.form.get("surname"))
         update_if_not_empty(current_user, "other_names", request.form.get("other_names"))
         update_if_not_empty(current_user, "phone", request.form.get("phone"))
+        update_if_not_empty(current_user, "location", request.form.get("location"))
         update_if_not_empty(current_user, "ghana_card_number", request.form.get("ghana_card_number"))
 
         # MULTIPLE LEVELS (always overwrite because it's a list)

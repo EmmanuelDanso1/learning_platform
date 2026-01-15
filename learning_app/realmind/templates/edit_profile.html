@@ -108,6 +108,16 @@
                 <input type="text" name="phone" value="{{ current_user.phone  or ''}}" class="custom-input" required>
             </div>
 
+            <div class="col-md-6">
+                <label class="form-label">Location<span class="required-asterisk">*</span></label>
+                <input type="text"
+                    name="location"
+                    value="{{ current_user.location or '' }}"
+                    class="custom-input"
+                    placeholder="City / Town / Region"
+                    required>
+            </div>
+
 
             <!-- ========================= -->
             <!-- GHANA CARD / CV / CERTIFICATE (INLINE) -->
@@ -127,6 +137,8 @@
                     <small class="text-success">Current CV:
                         <a href="{{ url_for('static', filename='uploads/users/user_' ~ current_user.id ~ '/documents/' ~ current_user.cv) }}" target="_blank">View / Download</a>
                     </small>
+                {% else %}
+                    <small class="text-muted">No CV uploaded yet</small>
                 {% endif %}
             </div>
 
@@ -140,6 +152,8 @@
                     <small class="text-success">Current Certificate:
                         <a href="{{ url_for('static', filename='uploads/users/user_' ~ current_user.id ~ '/documents/' ~ current_user.certificate) }}" target="_blank">View / Download</a>
                     </small>
+                {% else %}
+                    <small class="text-muted">No certificate uploaded yet</small>
                 {% endif %}
             </div>
 

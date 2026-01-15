@@ -1345,3 +1345,26 @@ section p {
     display: block !important;
   }
 }
+
+/* for view profile on mobile */
+@media (max-width: 768px) {
+  .profile-row {
+    flex-direction: column; /* Stack vertically */
+    gap: 20px;
+  }
+
+  .profile-col {
+    width: 100%; /* Full width on mobile */
+  }
+  .profile-container {
+    padding: 0 15px; /* Prevent edge overflow on mobile */
+  }
+
+  .profile-value {
+    word-wrap: break-word; /* Prevent long emails from overflowing */
+  }
+
+  .profile-row {
+    gap: 15px; /* Space between columns */
+  }
+}

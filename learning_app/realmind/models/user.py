@@ -26,7 +26,7 @@ class User(UserMixin, db.Model):
     other_names = db.Column(db.String(150), nullable=True)
     phone = db.Column(db.String(20), nullable=True)
     ghana_card_number = db.Column(db.String(20), nullable=True)
-
+    location = db.Column(db.String(150), nullable=True)
     preferred_subject = db.Column(db.String(150), nullable=True)
     preferred_level = db.Column(db.String(150), nullable=True)
 
@@ -67,6 +67,7 @@ class User(UserMixin, db.Model):
             self.surname,
             self.other_names,
             self.phone,
+            self.location,
             self.ghana_card_number,
             self.preferred_level,
             self.preferred_subject
