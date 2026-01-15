@@ -14,10 +14,10 @@ class JobPost(db.Model):
     # job post deletion but application history still remains
     is_deleted = db.Column(db.Boolean, default=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
-    
+
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False)
-    applications = db.relationship('Application', backref='job', cascade='all, delete-orphan', lazy=True)
+    applications = db.relationship('Application', backref='job', lazy=True)
 
     # level and suject
     level = db.Column(db.String(150), nullable=False)

@@ -5,7 +5,8 @@ job_bp = Blueprint('jobs', __name__)
 
 @job_bp.route("/job")
 def job():
-    jobs = JobPost.query.order_by(JobPost.id.desc()).all()
+    # Only show non-deleted jobs
+    jobs = JobPost.query.filter_by(is_deleted=False).order_by(JobPost.id.desc()).all()
     return render_template("jobs.html", title="Job", jobs=jobs)
 
 
@@ -15,7 +16,9 @@ def job_listings():
     page = request.args.get('page', 1, type=int)
     per_page = 5
 
-    query = JobPost.query
+    # Start with only non-deleted jobs
+    query = JobPost.query.filter_by(is_deleted=False)
+    
     if keyword:
         query = query.filter(JobPost.title.ilike(f"%{keyword}%"))
 

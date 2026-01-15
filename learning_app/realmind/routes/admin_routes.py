@@ -262,7 +262,9 @@ def manage_jobs():
 
     page = request.args.get('page', 1, type=int)
     per_page = 10
-    jobs_paginated = JobPost.query.filter_by(admin_id=current_user.id)\
+    
+    # Only show non-deleted jobs
+    jobs_paginated = JobPost.query.filter_by(admin_id=current_user.id, is_deleted=False)\
                                   .order_by(JobPost.id.desc())\
                                   .paginate(page=page, per_page=per_page)
 
@@ -272,6 +274,7 @@ def manage_jobs():
         current_page=page,
         total_pages=jobs_paginated.pages
     )
+
 
 # edit jobs
 @admin_bp.route('/admin/edit-job/<int:job_id>', methods=['GET', 'POST'])
@@ -314,7 +317,7 @@ def delete_job(job_id):
     job.is_deleted = True
     job.deleted_at = datetime.utcnow()
     db.session.commit()
-    
+
     flash("Job deleted successfully!", "success")
     return redirect(url_for('admin.manage_jobs'))
 
