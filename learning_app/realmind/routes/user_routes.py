@@ -318,17 +318,22 @@ def apply(job_id):
         os.makedirs(base_upload, exist_ok=True)
 
         # ================================
-        # CV UPLOAD (REQUIRED)
+        # CV UPLOAD (OPTIONAL)
         # ================================
         cv_file = request.files.get("cv")
-        if cv_file or not allowed_document(cv_file.filename):
-            flash("Please upload a valid CV (PDF, DOC, or DOCX).", "danger")
-            return redirect(request.url)
+        cv_filename = None
+        cv_path = None
 
-        cv_ext = cv_file.filename.rsplit(".", 1)[-1].lower()
-        cv_filename = secure_filename(f"cv_{uuid.uuid4().hex}.{cv_ext}")
-        cv_path = os.path.join(base_upload, cv_filename)
-        cv_file.save(cv_path)
+        if cv_file and cv_file.filename.strip():
+            if not allowed_document(cv_file.filename):
+                flash("CV must be PDF, DOC, or DOCX.", "danger")
+                return redirect(request.url)
+
+            cv_ext = cv_file.filename.rsplit(".", 1)[-1].lower()
+            cv_filename = secure_filename(f"cv_{uuid.uuid4().hex}.{cv_ext}")
+            cv_path = os.path.join(base_upload, cv_filename)
+            cv_file.save(cv_path)
+
 
         # ================================
         # COVER LETTER (OPTIONAL)
@@ -383,12 +388,13 @@ def apply(job_id):
                 html=admin_html
             )
 
-            with open(cv_path, "rb") as fp:
-                admin_msg.attach(
-                    cv_filename,
-                    "application/octet-stream",
-                    fp.read()
-                )
+            if cv_path:
+                with open(cv_path, "rb") as fp:
+                    admin_msg.attach(
+                        cv_filename,
+                        "application/octet-stream",
+                        fp.read()
+                    )
 
             if cover_letter_path:
                 with open(cover_letter_path, "rb") as fp:
