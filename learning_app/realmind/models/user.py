@@ -8,6 +8,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     fullname = db.Column(db.String(150), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
+    sex = db.Column(db.String(10), nullable=True)
 
     # Allow NULL for Google OAuth users
     password = db.Column(db.String(255), nullable=True)
@@ -66,6 +67,7 @@ class User(UserMixin, db.Model):
             self.firstname,
             self.surname,
             self.other_names,
+            self.sex,
             self.phone,
             self.location,
             self.ghana_card_number,

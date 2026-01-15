@@ -97,7 +97,14 @@
                 <label class="form-label">Other Names</label>
                 <input type="text" name="other_names" value="{{ current_user.other_names  or '' }}" class="custom-input">
             </div>
-
+            <div class="col-md-4">
+                <label class="form-label">Sex<span class="required-asterisk">*</span></label>
+                <select name="sex" class="custom-select" required>
+                    <option value="">-- Select --</option>
+                    <option value="Male" {% if current_user.sex == 'Male' %}selected{% endif %}>Male</option>
+                    <option value="Female" {% if current_user.sex == 'Female' %}selected{% endif %}>Female</option>
+                </select>
+            </div>
             <div class="col-md-6">
                 <label class="form-label">E-mail Address<span class="required-asterisk">*</span></label>
                 <input type="email" name="email" value="{{ current_user.email  or ''}}" class="custom-input" required>

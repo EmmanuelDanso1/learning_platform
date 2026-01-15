@@ -104,18 +104,32 @@
     <div class="profile-details">
 
         <div class="profile-row">
-            <div class="profile-col">
-                <div class="profile-label">First Name</div>
-                <div class="profile-value">{{ current_user.firstname or 'Not set' }}</div>
+            <div class="profile-row">
+                <div class="profile-col">
+                    <div class="profile-label">First Name</div>
+                    <div class="profile-value">{{ current_user.firstname or 'Not set' }}</div>
+                </div>
+
+                <div class="profile-col">
+                    <div class="profile-label">Surname</div>
+                    <div class="profile-value">{{ current_user.surname or 'Not set' }}</div>
+                </div>
+
+                <div class="profile-col">
+                    <div class="profile-label">Other Names</div>
+                    <div class="profile-value">{{ current_user.other_names or 'Not set' }}</div>
+                </div>
             </div>
-            <div class="profile-col">
-                <div class="profile-label">Surname</div>
-                <div class="profile-value">{{ current_user.surname or 'Not set' }}</div>
+
+            <div class="profile-row">
+                <div class="profile-col">
+                    <div class="profile-label">Sex</div>
+                    <div class="profile-value">
+                        {{ current_user.sex or 'Not set' }}
+                    </div>
+                </div>
             </div>
-            <div class="profile-col">
-                <div class="profile-label">Other Names</div>
-                <div class="profile-value">{{ current_user.other_names or 'Not set' }}</div>
-            </div>
+
         </div>
 
         <!-- Email / Phone / Ghana Card -->

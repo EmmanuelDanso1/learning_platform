@@ -28,6 +28,7 @@ def users_dashboard():
     required_fields = [
         current_user.firstname,
         current_user.surname,
+        current_user.sex,
         current_user.phone,
         current_user.location,
         current_user.ghana_card_number,
@@ -90,6 +91,7 @@ def edit_profile():
         update_if_not_empty(current_user, "firstname", request.form.get("firstname"))
         update_if_not_empty(current_user, "surname", request.form.get("surname"))
         update_if_not_empty(current_user, "other_names", request.form.get("other_names"))
+        update_if_not_empty(current_user, "sex", request.form.get("sex"))
         update_if_not_empty(current_user, "phone", request.form.get("phone"))
         update_if_not_empty(current_user, "location", request.form.get("location"))
         update_if_not_empty(current_user, "ghana_card_number", request.form.get("ghana_card_number"))
