@@ -4,94 +4,98 @@
 {% block content %}
 
 <style>
-    .profile-container {
-        max-width: 900px;
-        margin: 50px auto;
-        text-align: center;
-        padding: 0 15px; /* Add padding for mobile */
-    }
+.profile-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 15px;
+    text-align: center;
+}
 
-    .profile-image {
-        width: 200px;
-        height: 200px;
-        border-radius: 50%;
-        overflow: hidden;
-        border: 4px solid #002b5c;
-        margin: 20px auto;
-    }
+/* Profile Image */
+.profile-image {
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 25px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #002b5c;
+}
 
-    .profile-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
+.profile-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 
-    .profile-details {
-        margin-top: 30px;
-        text-align: left;
-    }
+/* Details */
+.profile-details {
+    text-align: left;
+    margin-top: 30px;
+}
 
+.section-title {
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #002b5c;
+    margin: 35px 0 20px;
+}
+
+.profile-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.profile-col {
+    flex: 1;
+}
+
+.profile-label {
+    font-weight: 600;
+    color: #002b5c;
+    font-size: 15px;
+}
+
+.profile-value {
+    margin-top: 6px;
+    font-size: 16px;
+    word-break: break-word;
+}
+
+/* Subject Badges */
+.subject-badge {
+    display: inline-block;
+    background: #002b5c;
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 8px;
+    margin: 4px 4px 0 0;
+    font-size: 14px;
+}
+
+/* Links */
+.profile-value a {
+    color: #002b5c;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.profile-value a:hover {
+    text-decoration: underline;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
     .profile-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 20px;
-        gap: 15px; /* Add gap between columns */
+        flex-direction: column;
     }
-
-    .profile-col {
-        width: 30%;
-    }
-
-    .profile-label {
-        font-weight: bold;
-        color: #002b5c;
-        font-size: 16px;
-    }
-
-    .profile-value {
-        font-size: 17px;
-        margin-top: 5px;
-        word-wrap: break-word; /* Prevent overflow */
-    }
-
-    .section-title {
-        text-align: center;
-        font-weight: bold;
-        color: #002b5c;
-        margin: 40px 0 20px;
-        font-size: 20px;
-    }
-
-    .no-applications {
-        text-align: center;
-        font-style: italic;
-        font-size: 17px;
-    }
-
-    /* Mobile Responsive Styles */
-    @media (max-width: 768px) {
-        .profile-row {
-            flex-direction: column; /* Stack vertically */
-            gap: 20px;
-        }
-
-        .profile-col {
-            width: 100%; /* Full width on mobile */
-        }
-
-        .profile-label {
-            font-size: 15px;
-        }
-
-        .profile-value {
-            font-size: 16px;
-        }
-    }
+}
 </style>
 
 <div class="profile-container">
 
-    <!-- Profile Image -->
+    <!-- Profile Picture -->
     <div class="profile-image">
         {% if current_user.profile_pic %}
             <img src="{{ url_for('static', filename='uploads/users/user_' ~ current_user.id ~ '/profile/' ~ current_user.profile_pic) }}">
@@ -100,106 +104,92 @@
         {% endif %}
     </div>
 
-    <!-- Surname, Other Names -->
     <div class="profile-details">
 
+        <!-- Names -->
         <div class="profile-row">
-            <div class="profile-row">
-                <div class="profile-col">
-                    <div class="profile-label">First Name</div>
-                    <div class="profile-value">{{ current_user.firstname or 'Not set' }}</div>
-                </div>
-
-                <div class="profile-col">
-                    <div class="profile-label">Surname</div>
-                    <div class="profile-value">{{ current_user.surname or 'Not set' }}</div>
-                </div>
-
-                <div class="profile-col">
-                    <div class="profile-label">Other Names</div>
-                    <div class="profile-value">{{ current_user.other_names or 'Not set' }}</div>
-                </div>
+            <div class="profile-col">
+                <div class="profile-label">First Name</div>
+                <div class="profile-value">{{ current_user.firstname or 'Not set' }}</div>
             </div>
 
+            <div class="profile-col">
+                <div class="profile-label">Surname</div>
+                <div class="profile-value">{{ current_user.surname or 'Not set' }}</div>
+            </div>
+
+            <div class="profile-col">
+                <div class="profile-label">Other Names</div>
+                <div class="profile-value">{{ current_user.other_names or 'Not set' }}</div>
+            </div>
         </div>
 
-        <!-- Email / Phone / Ghana Card -->
+        <!-- Bio Info -->
         <div class="profile-row">
             <div class="profile-col">
                 <div class="profile-label">Sex</div>
-                <div class="profile-value">
-                    {{ current_user.sex or 'Not set' }}
-                </div>
+                <div class="profile-value">{{ current_user.sex or 'Not set' }}</div>
             </div>
+
             <div class="profile-col">
-                <div class="profile-label">E-mail Address</div>
+                <div class="profile-label">Email Address</div>
                 <div class="profile-value">{{ current_user.email }}</div>
             </div>
+
             <div class="profile-col">
                 <div class="profile-label">Phone Number</div>
                 <div class="profile-value">{{ current_user.phone or 'Not set' }}</div>
             </div>
-            
         </div>
-        <!-- location -->
+
+        <!-- Location -->
         <div class="profile-row">
             <div class="profile-col">
                 <div class="profile-label">Ghana Card Number</div>
                 <div class="profile-value">{{ current_user.ghana_card_number or 'Not set' }}</div>
             </div>
+
             <div class="profile-col">
                 <div class="profile-label">Location</div>
                 <div class="profile-value">{{ current_user.location or 'Not set' }}</div>
             </div>
         </div>
 
-        <!-- Preferred Subject / Level / Documents -->
+        <!-- Preferences -->
+        <div class="section-title">Teaching Preferences</div>
+
         <div class="profile-row">
             <div class="profile-col">
                 <div class="profile-label">Preferred Level</div>
-
                 {% if current_user.preferred_level %}
-                    {% set levels = current_user.preferred_level.split(",") %}
                     <div class="profile-value">
-                        {% for level in levels %}
-                            <span>{{ level }}</span>{% if not loop.last %}, {% endif %}
-                        {% endfor %}
+                        {{ current_user.preferred_level.replace(",", ", ") }}
                     </div>
                 {% else %}
-                    <div class="profile-value">Please select levels</div>
+                    <div class="profile-value">Not selected</div>
                 {% endif %}
             </div>
-            
-           <div class="profile-col">
-            <div class="profile-label">Preferred Subject</div>
-
-                {% if current_user.preferred_subject %}
-                    {% set selected_subjects = current_user.preferred_subject.split(',') %}
-
-                    <div class="profile-value">
-                        {% for s in selected_subjects %}
-                            <span style="
-                                display:inline-block;
-                                background:#002b5c;
-                                color:#fff;
-                                padding:5px 12px;
-                                border-radius:8px;
-                                margin:3px;
-                                font-size:14px;
-                            ">
-                                {{ s }}
-                            </span>
-                        {% endfor %}
-                    </div>
-
-                {% else %}
-                    <div class="profile-value">Please select subjects</div>
-                {% endif %}
-            </div>
-
 
             <div class="profile-col">
-                <div class="profile-label">CV</div>
+                <div class="profile-label">Preferred Subjects</div>
+                {% if current_user.preferred_subject %}
+                    <div class="profile-value">
+                        {% for s in current_user.preferred_subject.split(",") %}
+                            <span class="subject-badge">{{ s }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="profile-value">Not selected</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Documents -->
+        <div class="section-title">Documents</div>
+
+        <div class="profile-row">
+            <div class="profile-col">
+                <div class="profile-label">Curriculum Vitae (CV)</div>
                 {% if current_user.cv %}
                     <div class="profile-value">
                         <a href="{{ url_for('static', filename='uploads/users/user_' ~ current_user.id ~ '/documents/' ~ current_user.cv) }}" target="_blank">
@@ -207,12 +197,10 @@
                         </a>
                     </div>
                 {% else %}
-                    <div class="profile-value">CV Not Uploaded</div>
+                    <div class="profile-value">Not uploaded</div>
                 {% endif %}
             </div>
-        </div>
 
-        <div class="profile-row">
             <div class="profile-col">
                 <div class="profile-label">Certificate</div>
                 {% if current_user.certificate %}
@@ -222,7 +210,7 @@
                         </a>
                     </div>
                 {% else %}
-                    <div class="profile-value">Certificate Not Uploaded</div>
+                    <div class="profile-value">Not uploaded</div>
                 {% endif %}
             </div>
         </div>
