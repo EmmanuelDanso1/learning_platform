@@ -311,8 +311,10 @@ def delete_job(job_id):
         flash("Unauthorized access", "danger")
         return redirect(url_for('admin.manage_jobs'))
 
-    db.session.delete(job)
+    job.is_deleted = True
+    job.deleted_at = datetime.utcnow()
     db.session.commit()
+    
     flash("Job deleted successfully!", "success")
     return redirect(url_for('admin.manage_jobs'))
 

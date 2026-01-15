@@ -16,6 +16,11 @@
         font-style: italic;
         font-size: 17px;
     }
+    
+    .deleted-job {
+        background-color: #f8f9fa;
+        color: #6c757d;
+    }
 </style>
 <!-- Applications Section -->
     <div class="section-title">JOB APPLICATION HISTORY</div>
@@ -33,8 +38,13 @@
             </thead>
             <tbody>
                 {% for app in applications %}
-                    <tr>
-                        <td>{{ app.job.title }}</td>
+                    <tr class="{{ 'deleted-job' if app.job.is_deleted else '' }}">
+                        <td>
+                            {{ app.job.title }}
+                            {% if app.job.is_deleted %}
+                                <span class="badge badge-secondary">No longer available</span>
+                            {% endif %}
+                        </td>
                         <td>{{ app.job.description }}</td>
                         <td>{{ app.date_applied.strftime('%d %b %Y') }}</td>
                     </tr>
