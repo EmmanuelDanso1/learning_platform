@@ -239,7 +239,7 @@ def post_job():
         db.session.add(job)
         db.session.commit()
         flash('Job posted successfully!', 'success')
-        return redirect(url_for('admin.post_job'))
+        return redirect(url_for('admin.manage_jobs'))
 
     page = request.args.get('page', 1, type=int)
     per_page = 5
