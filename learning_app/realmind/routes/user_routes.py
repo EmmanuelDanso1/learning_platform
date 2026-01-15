@@ -321,7 +321,7 @@ def apply(job_id):
         # CV UPLOAD (REQUIRED)
         # ================================
         cv_file = request.files.get("cv")
-        if not cv_file or not allowed_document(cv_file.filename):
+        if cv_file or not allowed_document(cv_file.filename):
             flash("Please upload a valid CV (PDF, DOC, or DOCX).", "danger")
             return redirect(request.url)
 

@@ -28,14 +28,9 @@
     {% set display_name = '' %}
     
     {# Build display name from available fields #}
-    {% if current_user.firstname and current_user.surname %}
-        {% set display_name = current_user.firstname ~ ' ' ~ current_user.surname %}
-    {% elif current_user.firstname %}
+    
+    {% if current_user.firstname %}
         {% set display_name = current_user.firstname %}
-    {% elif current_user.surname %}
-        {% set display_name = current_user.surname %}
-    {% elif current_user.other_names %}
-        {% set display_name = current_user.other_names %}
     {% elif current_user.fullname and current_user.fullname != 'UNKNOWN' %}
         {% set display_name = current_user.fullname %}
     {% else %}
