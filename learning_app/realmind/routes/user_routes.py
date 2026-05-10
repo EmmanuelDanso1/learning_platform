@@ -6,7 +6,7 @@ import os, uuid
 from wtforms.validators import ValidationError
 from flask_wtf.csrf import generate_csrf,validate_csrf, CSRFError
 from learning_app.extensions import db, mail  
-from learning_app.realmind.models import JobPost, Application, User
+from learning_app.realmind.models import JobPost, Application, User, CVTutorial
 from flask_mail import Message
 from learning_app.realmind.utils.util import allowed_document , allowed_profile_pic
 
@@ -50,7 +50,8 @@ def users_dashboard():
         'users_dashboard.html',
         jobs=jobs,
         applied_jobs=applied_jobs,
-        profile_complete=profile_complete
+        profile_complete=profile_complete,
+        now=datetime.now()
     )
 
 
@@ -286,7 +287,12 @@ def apply_homepage(job_id):
 @login_required
 def apply(job_id):
     logger.info(f"User {current_user.id} accessing application for job {job_id}")
+
     job = JobPost.query.get_or_404(job_id)
+    # Enforce application deadline
+    if job.application_deadline and datetime.now() > job.application_deadline:
+        flash("The application deadline for this job has passed. You can no longer apply.", "danger")
+        return redirect(url_for("user.users_dashboard"))
 
     # Prevent duplicate applications
     existing_application = Application.query.filter_by(
@@ -439,7 +445,9 @@ def apply(job_id):
         logger.info(f"Application {new_app.id} completed successfully, redirecting to success page")
         return redirect(url_for("user.application_success", job_id=job.id))
 
-    return render_template('apply.html', job=job)
+    cv_tutorial = CVTutorial.query.filter_by(is_active=True)\
+                                  .order_by(CVTutorial.posted_at.desc()).first()
+    return render_template('apply.html', job=job, cv_tutorial=cv_tutorial)
 
 
 @user_bp.route('/application-success/<int:job_id>')

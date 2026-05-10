@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request
 from learning_app.realmind.models import JobPost
+from datetime import datetime
 
 job_bp = Blueprint('jobs', __name__)
 
@@ -7,7 +8,7 @@ job_bp = Blueprint('jobs', __name__)
 def job():
     # Only show non-deleted jobs
     jobs = JobPost.query.filter_by(is_deleted=False).order_by(JobPost.id.desc()).all()
-    return render_template("jobs.html", title="Job", jobs=jobs)
+    return render_template("jobs.html", title="Job", jobs=jobs, now=datetime.now())
 
 
 @job_bp.route('/jobs')
@@ -28,4 +29,5 @@ def job_listings():
                            jobs=jobs.items,
                            current_page=page,
                            total_pages=jobs.pages,
-                           keyword=keyword)
+                           keyword=keyword,
+                           now=datetime.now())

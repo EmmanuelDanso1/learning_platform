@@ -1,0 +1,145 @@
+{% extends "admin/admin_base.html" %}
+{% block content %}
+<div class="container py-4">
+
+  <h2 class="mb-1 fw-bold">CV Tutorial Video</h2>
+  <p class="text-muted mb-4">
+    Post a YouTube tutorial so teachers see it on the job application page when
+    they are about to upload their CV. Only <strong>one tutorial can be active</strong>
+    at a time.
+  </p>
+
+  <!-- POST NEW TUTORIAL -->
+  <div class="card shadow-sm mb-5">
+    <div class="card-header fw-semibold" style="background:#0C2E60; color:#fff;">
+      <i class="bi bi-plus-circle me-2"></i> Post New Tutorial
+    </div>
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('admin.manage_cv_tutorial') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">
+            Tutorial Title <span class="text-danger">*</span>
+          </label>
+          <input type="text" name="title" class="form-control" maxlength="200" required
+                 placeholder="e.g. How to Build a Professional Teaching CV">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">
+            YouTube URL <span class="text-danger">*</span>
+          </label>
+          <input type="url" name="youtube_url" class="form-control" required
+                 placeholder="https://www.youtube.com/watch?v=XXXXXXXXXXX">
+          <div class="form-text">
+            Paste any YouTube link — full URL (<code>youtube.com/watch?v=…</code>) or
+            short URL (<code>youtu.be/…</code>). The system converts it automatically.
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">
+            Short Description
+            <span class="text-muted fw-normal">(optional)</span>
+          </label>
+          <textarea name="description" class="form-control" rows="2"
+                    placeholder="e.g. Step-by-step guide to creating a professional CV using RealMindX templates."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary px-4">
+          <i class="bi bi-upload me-1"></i> Post &amp; Activate Tutorial
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- EXISTING TUTORIALS -->
+  <h4 class="fw-semibold mb-3">All Tutorials</h4>
+
+  {% if tutorials %}
+  <div class="table-responsive">
+    <table class="table table-bordered align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Title</th>
+          <th>YouTube Link</th>
+          <th>Posted</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in tutorials %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>
+            <strong>{{ t.title }}</strong>
+            {% if t.description %}
+            <br>
+            <small class="text-muted">
+              {{ t.description[:80] }}{% if t.description|length > 80 %}…{% endif %}
+            </small>
+            {% endif %}
+          </td>
+          <td>
+            {% if t.watch_url %}
+            <a href="{{ t.watch_url }}" target="_blank" rel="noopener" class="text-primary small">
+              <i class="bi bi-youtube me-1"></i>Open on YouTube
+            </a>
+            {% else %}
+            <span class="text-danger small">Invalid URL</span>
+            {% endif %}
+          </td>
+          <td class="small text-nowrap">{{ t.posted_at.strftime('%b %d, %Y') }}</td>
+          <td>
+            {% if t.is_active %}
+            <span class="badge bg-success">Active</span>
+            {% else %}
+            <span class="badge bg-secondary">Inactive</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="d-flex gap-2 flex-wrap">
+
+              <!-- Toggle -->
+              <form method="POST"
+                    action="{{ url_for('admin.toggle_cv_tutorial', tutorial_id=t.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                {% if t.is_active %}
+                <button type="submit" class="btn btn-sm btn-outline-warning">
+                  <i class="bi bi-eye-slash me-1"></i>Deactivate
+                </button>
+                {% else %}
+                <button type="submit" class="btn btn-sm btn-outline-success">
+                  <i class="bi bi-eye me-1"></i>Set Active
+                </button>
+                {% endif %}
+              </form>
+
+              <!-- Delete -->
+              <form method="POST"
+                    action="{{ url_for('admin.delete_cv_tutorial', tutorial_id=t.id) }}"
+                    onsubmit="return confirm('Delete this tutorial permanently?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                  <i class="bi bi-trash me-1"></i>Delete
+                </button>
+              </form>
+
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-info">
+    No tutorials posted yet. Use the form above to add your first one.
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

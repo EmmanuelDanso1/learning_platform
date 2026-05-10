@@ -11,3 +11,5 @@ from .resource_info import InfoDocument
 from .recieve_orders import ReceivedOrder, ReceivedOrderItem
 from .promotion_flyer import PromotionFlier
 from .newsletter import Newsletter, ExternalSubscriber
+from .cv_tutorial import CVTutorial
+from .partner import Partner

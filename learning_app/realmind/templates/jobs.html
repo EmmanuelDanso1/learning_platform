@@ -16,8 +16,14 @@
                 </span>
 
                 {% if job.subject %}
-                <span class="badge bg-info text-dark">
+                <span class="badge bg-info text-dark me-2">
                     Subject: {{ job.subject }}
+                </span>
+                {% endif %}
+
+                {% if job.location %}
+                <span class="badge  text-dark">
+                    <i class="bi bi-geo-alt"></i> {{ job.location }}
                 </span>
                 {% endif %}
             </div>
@@ -26,11 +32,23 @@
                 {{ job.description[:100] }}{% if job.description|length > 100 %}...{% endif %}
             </p>
 
+            {% if job.application_deadline %}
+            <p class="text-danger">
+                <strong>Deadline:</strong> {{ job.application_deadline.strftime('%B %d, %Y at %I:%M %p') }}
+            </p>
+            {% endif %}
+
             <form action="{{ url_for('user.apply', job_id=job.id) }}" method="post">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                {% if job.application_deadline and job.application_deadline < now %}
+                <button type="button" class="btn btn-secondary rounded-pill px-4 py-2" disabled>
+                    Application Closed
+                </button>
+                {% else %}
                 <button type="submit" class="btn btn-primary rounded-pill px-4 py-2">
                     Apply Now
                 </button>
+                {% endif %}
             </form>
 
         </div>

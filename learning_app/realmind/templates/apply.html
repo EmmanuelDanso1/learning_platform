@@ -1,17 +1,180 @@
 {% extends "index.html" %}
 {% block content %}
-    <h2>Apply for {{ job.title }}</h2>
+<div class="container mt-4">
+    <h2 class="mb-4">Apply for {{ job.title }}</h2>
 
-    <form action="{{ url_for('user.apply', job_id=job.id) }}" method="POST" enctype="multipart/form-data">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <label for="cv">Upload your CV (optional - PDF, DOC, DOCX):</label>
-        <input type="file" name="cv"><br><br>
+    <!-- Job Details Section -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h4 class="card-title">{{ job.title }}</h4>
+            
+            <div class="mb-3">
+                <strong>Description:</strong>
+                <p>{{ job.description }}</p>
+            </div>
 
-        <label for="cover_letter">Upload your Cover Letter (optional - PDF, DOC, DOCX):</label>
-        <input type="file" name="cover_letter"><br><br>
+            <div class="mb-3">
+                <strong>Requirements:</strong>
+                <p>{{ job.requirements }}</p>
+            </div>
 
-        <button class="btn btn-primary" type="submit">Submit Application</button>
-    </form><br>
+            <!-- Job Meta Information -->
+            <div class="mb-3">
+                <span class="badge bg-secondary me-2">
+                    Level: {{ job.level }}
+                </span>
 
-    <a href="{{ url_for('user.users_dashboard') }}">Back to Dashboard</a>
+                {% if job.subject %}
+                <span class="badge bg-info text-dark me-2">
+                    Subject: {{ job.subject }}
+                </span>
+                {% endif %}
+
+                {% if job.location %}
+                <span class="badge text-dark me-2">
+                    <i class="bi bi-geo-alt"></i> {{ job.location }}
+                </span>
+                {% endif %}
+            </div>
+
+            {% if job.application_deadline %}
+            <div class="mb-3">
+                <strong class="text-danger">Application Deadline:</strong>
+                <p class="text-danger">{{ job.application_deadline.strftime('%B %d, %Y at %I:%M %p') }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Application Form -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Submit Your Application</h5>
+
+            <form action="{{ url_for('user.apply', job_id=job.id) }}" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <!-- ── CV Tutorial Banner ── -->
+                {% if cv_tutorial and cv_tutorial.video_id %}
+                <div class="rounded-3 p-4 mb-4"
+                     style="background:linear-gradient(135deg,#0C2E60 0%,#143670 100%);">
+
+                    <!-- Title row + Watch on YouTube button -->
+                    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-3">
+                        <div class="text-white">
+                            <h6 class="fw-bold mb-1">
+                                <i class="bi bi-play-circle-fill me-2" style="color:#FFD000;"></i>
+                                {{ cv_tutorial.title }}
+                            </h6>
+                            <p class="mb-0 small" style="opacity:.9;">
+                                {% if cv_tutorial.description %}
+                                    {{ cv_tutorial.description }}
+                                {% else %}
+                                    Not sure how to write your CV? Watch this tutorial before uploading.
+                                {% endif %}
+                            </p>
+                        </div>
+                        <!-- Primary CTA: always works, opens in new tab -->
+                        <a href="{{ cv_tutorial.watch_url }}"
+                           target="_blank" rel="noopener"
+                           class="btn btn-sm fw-bold flex-shrink-0"
+                           style="background:#FFD000;border-radius:30px;color:#0C2E60;">
+                            <i class="bi bi-youtube me-1"></i> Watch on YouTube
+                        </a>
+                    </div>
+
+                    <!-- Thumbnail (click-to-play — iframe only loads on click) -->
+                    <div id="tutorialThumbnail"
+                         onclick="loadTutorialVideo()"
+                         style="cursor:pointer; position:relative; border-radius:8px;
+                                overflow:hidden; line-height:0;">
+                        <img src="{{ cv_tutorial.thumbnail_url }}"
+                             alt="{{ cv_tutorial.title }}"
+                             style="width:100%; display:block; object-fit:cover; max-height:280px;"
+                             onerror="this.parentElement.style.display='none';
+                                      document.getElementById('tutorialFallback').style.display='flex';">
+                        <!-- Red play button overlay -->
+                        <div style="position:absolute;inset:0;display:flex;
+                                    align-items:center;justify-content:center;
+                                    background:rgba(0,0,0,0.25);">
+                            <div style="background:#FF0000;border-radius:14px;
+                                        padding:12px 22px;display:flex;
+                                        align-items:center;gap:8px;
+                                        box-shadow:0 4px 12px rgba(0,0,0,0.4);">
+                                <i class="bi bi-play-fill text-white" style="font-size:1.4rem;"></i>
+                                <span class="text-white fw-bold" style="font-size:0.95rem;">
+                                    Click to Watch
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fallback shown if thumbnail image fails -->
+                    <div id="tutorialFallback"
+                         onclick="loadTutorialVideo()"
+                         style="display:none; cursor:pointer; border-radius:8px;
+                                background:#111; height:160px;
+                                align-items:center; justify-content:center; gap:12px;">
+                        <i class="bi bi-youtube text-danger" style="font-size:2.5rem;"></i>
+                        <span class="text-white fw-semibold">Click to Watch Tutorial</span>
+                    </div>
+
+                    <!-- Iframe injected by JS on click (never auto-loads) -->
+                    <div id="tutorialEmbed"
+                         style="display:none; border-radius:8px; overflow:hidden;" class="mt-2">
+                        <div class="ratio ratio-16x9" id="tutorialEmbedInner"></div>
+                    </div>
+
+                </div>
+
+                <script>
+                function loadTutorialVideo() {
+                    document.getElementById('tutorialThumbnail').style.display  = 'none';
+                    document.getElementById('tutorialFallback').style.display   = 'none';
+                    var wrap = document.getElementById('tutorialEmbed');
+                    wrap.style.display = 'block';
+                    document.getElementById('tutorialEmbedInner').innerHTML =
+                        '<iframe src="{{ cv_tutorial.embed_url }}&autoplay=1" ' +
+                        'title="{{ cv_tutorial.title }}" ' +
+                        'allow="accelerometer; autoplay; clipboard-write; ' +
+                        'encrypted-media; gyroscope; picture-in-picture" ' +
+                        'allowfullscreen style="border:none;width:100%;height:100%;"></iframe>';
+                }
+                </script>
+                {% endif %}
+                <!-- ── End CV Tutorial Banner ── -->
+
+                <!-- CV Upload -->
+                <div class="mb-3">
+                    <label for="cv" class="form-label fw-semibold">
+                        <i class="bi bi-file-earmark-person me-1"></i>
+                        Upload your CV
+                        <span class="text-muted fw-normal">(optional – PDF, DOC, DOCX)</span>
+                    </label>
+                    <input type="file" name="cv" id="cv" class="form-control">
+                    {% if cv_tutorial and cv_tutorial.embed_url %}
+                    <div class="form-text">
+                        <i class="bi bi-lightbulb text-warning me-1"></i>
+                        Need help building your CV? Watch the tutorial above.
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Cover Letter Upload -->
+                <div class="mb-3">
+                    <label for="cover_letter" class="form-label fw-semibold">
+                        <i class="bi bi-file-earmark-text me-1"></i>
+                        Upload your Cover Letter
+                        <span class="text-muted fw-normal">(optional – PDF, DOC, DOCX)</span>
+                    </label>
+                    <input type="file" name="cover_letter" id="cover_letter" class="form-control">
+                </div>
+
+                <button class="btn btn-primary px-4" type="submit">Submit Application</button>
+            </form>
+        </div>
+    </div>
+
+    <a href="{{ url_for('user.users_dashboard') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+</div>
 {% endblock %}

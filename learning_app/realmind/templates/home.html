@@ -116,63 +116,96 @@
   <section class="services-section py-5">
     <div class="container">
       <h2>OUR SERVICES</h2>
+      <div class="text-start service-grid">
 
-      <div class="row justify-content-center text-start service-grid">
-        <!-- Column 1 #--jumps directly to that section on your Our Services page. -->
-        <div class="col-md-4 mb-4">
-          <div class="service-item">
-            <i class="bi bi-person-badge"></i>
-            <a href="{{ url_for('main.services') }}#teacher-recruitment">Teacher Recruitment</a>
+        <!-- Row 1 -->
+        <div class="row justify-content-center mb-2">
+          <div class="col-md-4 mb-4">
+            <div class="service-item">
+              <i class="bi bi-person-badge"></i>
+              <a href="{{ url_for('main.services') }}#teacher-recruitment">Teacher Recruitment</a>
+            </div>
           </div>
-          <div class="service-item">
-            <i class="bi bi-easel2"></i>
-            <a href="{{ url_for('main.services') }}#teacher-development">Teacher Professional Development</a>
+          <div class="col-md-4 mb-4">
+            <div class="service-item">
+              <i class="bi bi-book"></i>
+              <a href="{{ url_for('main.services') }}#bookshop" target="_blank">Bookshop</a>
+            </div>
           </div>
-          <div class="service-item">
-            <i class="bi bi-building-gear"></i>
-            <a href="{{ url_for('main.services') }}#school-structuring">School Structuring & Restructuring</a>
+          <div class="col-md-4 mb-4">
+            <div class="service-item">
+              <i class="bi bi-file-earmark-text"></i>
+              <a href="{{ url_for('main.services') }}#secretarial">Secretarial Services</a>
+            </div>
           </div>
         </div>
 
-        <!-- Column 2 -->
-        <div class="col-md-4 mb-4">
-          <div class="service-item">
-            <i class="bi bi-book"></i>
-            <a href="{{ url_for('main.services') }}#bookshop" target="_blank">Bookshop</a>
+        <!-- Row 2 -->
+        <div class="row justify-content-center mb-2">
+          <div class="col-md-4 mb-4">
+            <div class="service-item">
+              <i class="bi bi-easel2"></i>
+              <a href="{{ url_for('main.services') }}#teacher-development">Teacher Professional Development</a>
+            </div>
           </div>
-          <div class="service-item">
-            <i class="bi bi-laptop"></i>
-            <a href="{{ url_for('main.services') }}#after-school">After School / Weekend Tutoring (Online / In-Person)</a>
+          <div class="col-md-4 mb-4">
+            <div class="service-item">
+              <i class="bi bi-laptop"></i>
+              <a href="{{ url_for('main.services') }}#after-school">After School / Weekend Tutoring (Online / In-Person)</a>
+            </div>
           </div>
-          <div class="service-item">
-            <i class="bi bi-person-wheelchair"></i>
-            <a href="{{ url_for('main.services') }}#special-education">Special Education Support</a>
-          </div>
-        </div>
-
-        <!-- Column 3 -->
-        <div class="col-md-4 mb-4">
-          <div class="service-item">
-            <i class="bi bi-file-earmark-text"></i>
-            <a href="{{ url_for('main.services') }}#secretarial">Secretarial Services</a>
-          </div>
-          <div class="service-item">
-            <i class="bi bi-lightbulb"></i>
-            <a href="{{ url_for('main.services') }}#consulting">Educational Consulting</a>
-          </div>
-          <div class="service-item">
-            <i class="bi bi-journal-text"></i>
-            <a href="{{ url_for('main.services') }}#research">Research & Assignments</a>
+          <div class="col-md-4 mb-4">
+            <div class="service-item">
+              <i class="bi bi-lightbulb"></i>
+              <a href="{{ url_for('main.services') }}#consulting">Educational Consulting</a>
+            </div>
           </div>
         </div>
 
-        <!-- Column 4 -->
-        <div class="col-md-4 mb-4">
-          <div class="service-item">
-            <i class="bi bi-file-earmark-text"></i>
-            <a href="{{ url_for('main.services') }}#extracurricular">ExtraCurricular Offers</a>
+        <!-- Row 3 -->
+        <div class="row justify-content-center mb-2">
+          <div class="col-md-4 mb-4">
+            <div class="service-item">
+              <i class="bi bi-building-gear"></i>
+              <a href="{{ url_for('main.services') }}#school-structuring">School Structuring & Restructuring</a>
+            </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="service-item">
+              <i class="bi bi-person-wheelchair"></i>
+              <a href="{{ url_for('main.services') }}#special-education">Special Education Support</a>
+            </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="service-item">
+              <i class="bi bi-journal-text"></i>
+              <a href="{{ url_for('main.services') }}#research">Research & Assignments</a>
+            </div>
           </div>
         </div>
+
+        <!-- Row 4 -->
+        <div class="row justify-content-center">
+          <div class="col-md-4 mb-4">
+            <div class="service-item">
+              <i class="bi bi-file-earmark-text"></i>
+              <a href="{{ url_for('main.services') }}#extracurricular">ExtraCurricular Offers</a>
+            </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="service-item">
+              <i class="bi bi-house-heart"></i>
+              <a href="{{ url_for('main.services') }}#home-schooling">Home Schooling Support</a>
+            </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="service-item">
+              <i class="bi bi-house-heart"></i>
+              <a href="{{ url_for('main.services') }}#laundry">Laundry Services</a>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <!-- Learn More Button -->
@@ -266,6 +299,69 @@
 
   </div>
 </section>
+<!-- Partners Section (only rendered when at least one active partner exists) -->
+{% if partners %}
+<section class="py-5" style="background:#f8f9fa; border-top:1px solid #e9ecef;">
+  <div class="container">
+
+    <h2 class="fw-bold text-center mb-2"
+        style="font-family:'Montserrat',sans-serif; color:#0C2E60;">
+      OUR PARTNERS
+    </h2>
+    <p class="text-center text-muted mb-5"
+       style="font-family:'Arimo',sans-serif;">
+      Trusted organisations we work with to deliver quality education services.
+    </p>
+
+    <div class="d-flex flex-wrap justify-content-center align-items-center gap-4">
+      {% for partner in partners %}
+      <div class="text-center" style="min-width:130px; max-width:180px;">
+
+        {% if partner.website_url %}
+        <a href="{{ partner.website_url }}" target="_blank" rel="noopener"
+           title="{{ partner.name }}"
+           class="d-block p-3 rounded-3 shadow-sm bg-white text-decoration-none"
+           style="transition:transform .2s;"
+           onmouseover="this.style.transform='scale(1.06)'"
+           onmouseout="this.style.transform='scale(1)'">
+        {% else %}
+        <div class="d-block p-3 rounded-3 shadow-sm bg-white">
+        {% endif %}
+
+          {% if partner.logo_filename %}
+          <img src="{{ url_for('static', filename='uploads/partners/' ~ partner.logo_filename) }}"
+               alt="{{ partner.name }}"
+               style="max-height:70px; max-width:150px; object-fit:contain; display:block; margin:0 auto;">
+          {% else %}
+          <div class="fw-bold text-dark" style="font-size:1.05rem; line-height:1.3;">
+            {{ partner.name }}
+          </div>
+          {% endif %}
+
+          {% if partner.description %}
+          <p class="mt-2 mb-0 text-muted" style="font-size:0.78rem; line-height:1.3;">
+            {{ partner.description }}
+          </p>
+          {% elif partner.logo_filename %}
+          <p class="mt-2 mb-0 text-dark fw-semibold" style="font-size:0.82rem;">
+            {{ partner.name }}
+          </p>
+          {% endif %}
+
+        {% if partner.website_url %}
+        </a>
+        {% else %}
+        </div>
+        {% endif %}
+
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+{% endif %}
+
 <!-- Bookshop Section -->
 <section class="text-center py-5 bg-light">
   <div class="container">

@@ -45,6 +45,7 @@
           <ul class="nav flex-column">
             <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.post_job') }}"><i class="fas fa-plus-circle"></i> <span>Post Job</span></a></li>
             <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.manage_jobs') }}"><i class="fas fa-tasks"></i> <span>Manage Jobs</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.manage_cv_tutorial') }}"><i class="fab fa-youtube"></i> <span>CV Tutorial Video</span></a></li>
           </ul>
         </div>
       </div>
@@ -150,6 +151,29 @@
             <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.list_newsletters') }}"><i class="fas fa-newspaper"></i> <span>Manage Newsletter</span></a></li>
             <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.view_subscribers') }}"><i class="fas fa-user-friends"></i> <span>View Subscribers</span></a></li>
 
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Partners -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="partnersHeading">
+        <button class="accordion-button collapsed" type="button"
+                data-bs-toggle="collapse" data-bs-target="#partnersCollapse"
+                aria-expanded="false" aria-controls="partnersCollapse">
+          <i class="fas fa-handshake me-2"></i> <span>Partners</span>
+        </button>
+      </h2>
+      <div id="partnersCollapse" class="accordion-collapse collapse"
+           aria-labelledby="partnersHeading" data-bs-parent="#adminAccordion">
+        <div class="accordion-body px-0">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('admin.manage_partners') }}">
+                <i class="fas fa-building me-1"></i> <span>Manage Partners</span>
+              </a>
+            </li>
           </ul>
         </div>
       </div>

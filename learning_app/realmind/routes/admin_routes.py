@@ -2,8 +2,11 @@ from flask import Blueprint, render_template, redirect, url_for,jsonify, flash, 
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 # using the imports from __init__.py file
-from learning_app.realmind.models import Admin, Application, JobPost, News, Gallery, Newsletter, Product, Category, PromotionFlier, InfoDocument, ReceivedOrder, ReceivedOrderItem, ExternalSubscriber
+from learning_app.realmind.models import Admin, Application, JobPost, News, Gallery, Newsletter, Product, Category, PromotionFlier, InfoDocument, ReceivedOrder, ReceivedOrderItem, ExternalSubscriber, CVTutorial, Partner
 from learning_app.realmind.forms import JobPostForm
+from learning_app.realmind.forms.jobs import LEVEL_CHOICES
+
+_PREDEFINED_LEVELS = {value for value, _ in LEVEL_CHOICES}
 from learning_app.extensions import db, mail
 from flask_mail import Message
 from flask_wtf.csrf import generate_csrf,validate_csrf, CSRFError
@@ -14,7 +17,8 @@ from datetime import datetime
 import requests
 from learning_app.realmind.models.user import User
 from learning_app.realmind.utils.email import send_order_status_email
-from learning_app.realmind.utils.util import UPLOAD_FOLDER, allowed_profile_pic,allowed_image_file, allowed_document, allowed_file, FLIERS_FOLDER,generate_unsubscribe_token, verify_unsubscribe_token 
+from learning_app.realmind.utils.util import UPLOAD_FOLDER, allowed_profile_pic,allowed_image_file, allowed_document, allowed_file, FLIERS_FOLDER,generate_unsubscribe_token, verify_unsubscribe_token
+from learning_app.realmind.utils.email import notify_matching_teachers
 import logging
 from learning_app.realmind.routes.newsletter_sync import sync_bookshop_subscribers
 
@@ -228,18 +232,38 @@ def post_job():
     form = JobPostForm()
     
     if form.validate_on_submit():
-        job = JobPost(
-            title=form.title.data,
-            description=form.description.data,
-            requirements=form.requirements.data,
-            level=form.level.data,          
-            subject=form.subject.data,
-            admin_id=current_user.id
-        )
-        db.session.add(job)
-        db.session.commit()
-        flash('Job posted successfully!', 'success')
-        return redirect(url_for('admin.manage_jobs'))
+        selected = list(form.level.data or [])
+        other = (form.level_other.data or '').strip()
+        if other:
+            selected.append(other)
+        if not selected:
+            flash('Please select at least one level or specify one in "Other".', 'danger')
+        else:
+            job = JobPost(
+                title=form.title.data,
+                description=form.description.data,
+                requirements=form.requirements.data,
+                location=form.location.data,
+                level=', '.join(selected),
+                subject=form.subject.data,
+                application_deadline=form.application_deadline.data,
+                admin_id=current_user.id
+            )
+            db.session.add(job)
+            db.session.commit()
+
+            # Notify matching teachers asynchronously (errors must not break posting)
+            try:
+                sent, _ = notify_matching_teachers(job)
+                if sent:
+                    flash(f'Job posted! {sent} matching teacher(s) have been notified.', 'success')
+                else:
+                    flash('Job posted successfully!', 'success')
+            except Exception as e:
+                logger.error(f"Failed to send job notifications for job {job.id}: {e}")
+                flash('Job posted successfully!', 'success')
+
+            return redirect(url_for('admin.manage_jobs'))
 
     page = request.args.get('page', 1, type=int)
     per_page = 5
@@ -288,14 +312,35 @@ def edit_job(job_id):
         flash("Unauthorized access", "danger")
         return redirect(url_for('admin.manage_jobs'))
 
-    form = JobPostForm(obj=job)
+    form = JobPostForm()
+
+    if request.method == 'GET':
+        form.title.data = job.title
+        form.description.data = job.description
+        form.requirements.data = job.requirements
+        form.location.data = job.location
+        form.subject.data = job.subject
+        form.application_deadline.data = job.application_deadline
+        stored = [l.strip() for l in job.level.split(',') if l.strip()]
+        form.level.data = [l for l in stored if l in _PREDEFINED_LEVELS]
+        other = [l for l in stored if l not in _PREDEFINED_LEVELS]
+        form.level_other.data = ', '.join(other)
 
     if form.validate_on_submit():
+        selected = list(form.level.data or [])
+        other = (form.level_other.data or '').strip()
+        if other:
+            selected.append(other)
+        if not selected:
+            flash('Please select at least one level or specify one in "Other".', 'danger')
+            return render_template('admin/edit_job.html', form=form, job=job)
         job.title = form.title.data
         job.description = form.description.data
         job.requirements = form.requirements.data
-        job.level=form.level.data,          
-        job.subject=form.subject.data,
+        job.location = form.location.data
+        job.level = ', '.join(selected)
+        job.subject = form.subject.data
+        job.application_deadline = form.application_deadline.data
         db.session.commit()
         flash("Job updated successfully!", "success")
         return redirect(url_for('admin.manage_jobs'))
@@ -320,6 +365,86 @@ def delete_job(job_id):
 
     flash("Job deleted successfully!", "success")
     return redirect(url_for('admin.manage_jobs'))
+
+
+# ── CV Tutorial management ────────────────────────────────────────────────────
+
+@admin_bp.route('/admin/cv-tutorial', methods=['GET', 'POST'])
+@login_required
+def manage_cv_tutorial():
+    if not isinstance(current_user, Admin):
+        return redirect(url_for('user.users_dashboard'))
+
+    if request.method == 'POST':
+        try:
+            validate_csrf(request.form.get('csrf_token'))
+        except CSRFError:
+            abort(400, description="Invalid CSRF token")
+
+        title       = request.form.get('title', '').strip()
+        description = request.form.get('description', '').strip()
+        youtube_url = request.form.get('youtube_url', '').strip()
+
+        if not title or not youtube_url:
+            flash('Title and YouTube URL are required.', 'danger')
+        else:
+            CVTutorial.query.filter_by(is_active=True).update({'is_active': False})
+            db.session.add(CVTutorial(
+                title=title,
+                description=description or None,
+                youtube_url=youtube_url,
+                is_active=True,
+                admin_id=current_user.id,
+            ))
+            db.session.commit()
+            flash('CV tutorial posted and set as active.', 'success')
+            return redirect(url_for('admin.manage_cv_tutorial'))
+
+    tutorials = CVTutorial.query.order_by(CVTutorial.posted_at.desc()).all()
+    return render_template('admin/cv_tutorial.html', tutorials=tutorials,
+                           csrf_token=generate_csrf())
+
+
+@admin_bp.route('/admin/cv-tutorial/toggle/<int:tutorial_id>', methods=['POST'])
+@login_required
+def toggle_cv_tutorial(tutorial_id):
+    if not isinstance(current_user, Admin):
+        abort(403)
+    try:
+        validate_csrf(request.form.get('csrf_token'))
+    except CSRFError:
+        abort(400, description="Invalid CSRF token")
+
+    tutorial = CVTutorial.query.get_or_404(tutorial_id)
+    if not tutorial.is_active:
+        CVTutorial.query.filter_by(is_active=True).update({'is_active': False})
+        tutorial.is_active = True
+        flash('Tutorial set as active. Teachers will now see it on the apply page.', 'success')
+    else:
+        tutorial.is_active = False
+        flash('Tutorial deactivated.', 'info')
+
+    db.session.commit()
+    return redirect(url_for('admin.manage_cv_tutorial'))
+
+
+@admin_bp.route('/admin/cv-tutorial/delete/<int:tutorial_id>', methods=['POST'])
+@login_required
+def delete_cv_tutorial(tutorial_id):
+    if not isinstance(current_user, Admin):
+        abort(403)
+    try:
+        validate_csrf(request.form.get('csrf_token'))
+    except CSRFError:
+        abort(400, description="Invalid CSRF token")
+
+    tutorial = CVTutorial.query.get_or_404(tutorial_id)
+    db.session.delete(tutorial)
+    db.session.commit()
+    flash('Tutorial deleted.', 'success')
+    return redirect(url_for('admin.manage_cv_tutorial'))
+
+# ── End CV Tutorial management ────────────────────────────────────────────────
 
 
 from flask_wtf.csrf import generate_csrf
@@ -440,11 +565,12 @@ def add_product():
         )
 
         # Optional fields
-        author = request.form.get('author')
-        grade = request.form.get('grade')
-        level = request.form.get('level')
+        author  = request.form.get('author')
+        grade   = request.form.get('grade')
+        level   = request.form.get('level')
         subject = request.form.get('subject')
-        brand = request.form.get('brand')
+        brand   = request.form.get('brand')
+        source  = request.form.get('source', '').strip() or None   # admin-only field
         discount_percentage = request.form.get('discount_percentage')
         discount_percentage = float(discount_percentage) if discount_percentage else 0.0
 
@@ -463,20 +589,21 @@ def add_product():
         upload_path = None
 
         if image_file and allowed_file(image_file.filename):
-            filename = secure_filename(image_file.filename)
+            ext = os.path.splitext(image_file.filename)[1].lower()
+            filename = f"{uuid.uuid4().hex}{ext}"          # unique name — no overwrites
             upload_path = os.path.join(
                 current_app.root_path, 'realmind', 'static', 'uploads', filename
             )
-
             try:
                 os.makedirs(os.path.dirname(upload_path), exist_ok=True)
                 image_file.save(upload_path)
-                logger.info(f"Image saved locally: {upload_path}")
-                logger.info(f"Image size: {os.path.getsize(upload_path)} bytes")
+                logger.info(f"Image saved: {upload_path} ({os.path.getsize(upload_path)} bytes)")
             except Exception as img_err:
                 logger.exception(f"Failed to save local image: {img_err}")
+                upload_path = None
+                filename = None
         else:
-            logger.warning("⚠ No valid image uploaded or file type not allowed")
+            logger.warning("No valid image uploaded or file type not allowed")
 
         # --- Save product locally ---
         product = Product(
@@ -492,6 +619,7 @@ def add_product():
             level=level,
             subject=subject,
             brand=brand,
+            source=source,
             discount_percentage=discount_percentage
         )
 
@@ -499,66 +627,81 @@ def add_product():
         db.session.commit()
         logger.info(f"Product saved locally: id={product.id}")
 
-        # --- Sync to e-commerce ---
+        # --- Sync to Bookshop e-commerce ---
+        BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
+        API_TOKEN    = os.getenv('API_TOKEN')
+
+        if not BOOKSHOP_API or not API_TOKEN:
+            logger.warning("BOOKSHOP_API_BASE_URL or API_TOKEN not set — skipping sync")
+            flash("Product saved. Bookshop sync skipped (API not configured).", "warning")
+            return redirect(url_for('admin.manage_products'))
+
+        # Send individual form fields (same pattern as working flier/info syncs)
+        product_payload = {
+            'name':                name,
+            'description':         description,
+            'price':               str(price),
+            'in_stock':            'true' if in_stock else 'false',
+            'category':            category.name,
+            'author':              author or '',
+            'grade':               grade or '',
+            'level':               level or '',
+            'subject':             subject or '',
+            'brand':               brand or '',
+            'discount_percentage': str(discount_percentage),
+        }
+
+        headers = {'Authorization': f'Bearer {API_TOKEN}'}
+
         try:
-            BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
-            API_TOKEN = os.getenv('API_TOKEN')
-
-            headers = {
-                'Authorization': f'Bearer {API_TOKEN}'
-            }
-
-            product_data = {
-                'name': name,
-                'description': description,
-                'price': price,
-                'in_stock': in_stock,
-                'category': category.name,
-                'author': author,
-                'grade': grade,
-                'level': level,
-                'subject': subject,
-                'brand': brand,
-                'discount_percentage': discount_percentage
-            }
-
-            files = {'data': (None, json.dumps(product_data))}
             if upload_path and os.path.exists(upload_path):
-                files['image'] = open(upload_path, 'rb')
-                logger.info("Sending image to Bookshop API")
+                with open(upload_path, 'rb') as img_file:
+                    res = requests.post(
+                        f"{BOOKSHOP_API}/products",
+                        data=product_payload,
+                        files={'image': img_file},
+                        headers=headers,
+                        timeout=15,
+                    )
             else:
-                logger.warning(" No image file to send to Bookshop API")
-
-            logger.info(f"Sending product to {BOOKSHOP_API}/products")
-
-            res = requests.post(
-                f"{BOOKSHOP_API}/products",
-                files=files,
-                headers=headers,
-                timeout=15
-            )
-
-            logger.info(
-                f"Bookshop response: status={res.status_code}, "
-                f"body={res.text[:200]}"
-            )
-
-            if res.status_code == 201:
-                data = res.json()
-                product.ecommerce_product_id = data.get('id')
-                product.bookshop_image_url = data.get('image_url')
-                db.session.commit()
-                logger.info(
-                    f"Linked to Bookshop product: "
-                    f"id={product.ecommerce_product_id}, "
-                    f"image_url={product.bookshop_image_url}"
+                res = requests.post(
+                    f"{BOOKSHOP_API}/products",
+                    data=product_payload,
+                    headers=headers,
+                    timeout=15,
                 )
 
+            logger.info(f"Bookshop sync: {res.status_code} — {res.text[:300]}")
+
+            if res.status_code in (200, 201):
+                resp_json = res.json()
+                product.ecommerce_product_id = resp_json.get('id')
+                product.bookshop_image_url   = resp_json.get('image_url')
+                db.session.commit()
+                logger.info(
+                    f"Bookshop product created: id={product.ecommerce_product_id}, "
+                    f"image_url={product.bookshop_image_url}"
+                )
+                flash("Product posted and synced with Bookshop!", "success")
+            else:
+                logger.error(
+                    f"Bookshop rejected product (HTTP {res.status_code}): {res.text[:500]}"
+                )
+                flash(
+                    f"Product saved locally but Bookshop sync failed "
+                    f"(HTTP {res.status_code}). Check server logs.",
+                    "warning"
+                )
+
+        except requests.exceptions.ConnectionError:
+            logger.error(f"Cannot reach Bookshop API at {BOOKSHOP_API}")
+            flash("Product saved locally. Cannot connect to Bookshop — check BOOKSHOP_API_BASE_URL.", "warning")
+        except requests.exceptions.Timeout:
+            logger.error("Bookshop API request timed out")
+            flash("Product saved locally. Bookshop sync timed out.", "warning")
         except Exception as e:
-            logger.exception("Error syncing product with Bookshop")
-            flash("Product added locally but failed to sync with Bookshop.", "warning")
-        else:
-            flash("Product added and synced with Bookshop!", "success")
+            logger.exception(f"Unexpected error syncing with Bookshop: {e}")
+            flash("Product saved locally. Unexpected sync error — check server logs.", "warning")
 
         return redirect(url_for('admin.manage_products'))
 
@@ -2312,6 +2455,247 @@ def view_applicant_profile(user_id):
     """View applicant's full profile"""
     user = User.query.get_or_404(user_id)
     user_applications = Application.query.filter_by(user_id=user_id).all()
-    return render_template('admin/applicant_profile.html', 
+    return render_template('admin/applicant_profile.html',
                          user=user,
                          applications=user_applications)
+
+
+# ── Excel exports ─────────────────────────────────────────────────────────────
+
+def _styled_header(ws, headers, brand_hex='143670'):
+    """Write a bold, coloured header row and return the sheet."""
+    from openpyxl.styles import Font, PatternFill, Alignment
+    ws.append(headers)
+    fill = PatternFill('solid', fgColor=brand_hex)
+    font = Font(bold=True, color='FFFFFF')
+    align = Alignment(horizontal='center', vertical='center', wrap_text=True)
+    for cell in ws[1]:
+        cell.font  = font
+        cell.fill  = fill
+        cell.alignment = align
+    ws.row_dimensions[1].height = 20
+
+
+@admin_bp.route('/admin/export/products')
+@login_required
+def export_products():
+    """Download all stock as an Excel file. Admin only."""
+    if not isinstance(current_user, Admin):
+        abort(403)
+
+    from io import BytesIO
+    import openpyxl
+    from flask import send_file
+
+    products = Product.query.order_by(Product.id.asc()).all()
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = 'Stock'
+
+    headers = [
+        'ID', 'Name', 'Description', 'Price (₵)', 'Discount (%)',
+        'Discounted Price (₵)', 'Category', 'Author', 'Grade', 'Level',
+        'Subject', 'Brand', 'Source', 'In Stock', 'Date Created',
+        'Synced to Bookshop',
+    ]
+    _styled_header(ws, headers)
+
+    for p in products:
+        ws.append([
+            p.id,
+            p.name,
+            p.description,
+            round(p.price, 2),
+            round(p.discount_percentage, 2),
+            round(p.discounted_price, 2),
+            p.category.name if p.category else '',
+            p.author or '',
+            p.grade or '',
+            p.level or '',
+            p.subject or '',
+            p.brand or '',
+            p.source or '',
+            'Yes' if p.in_stock else 'No',
+            p.date_created.strftime('%Y-%m-%d %H:%M') if p.date_created else '',
+            'Yes' if p.ecommerce_product_id else 'No',
+        ])
+
+    # Auto-fit column widths
+    for col in ws.columns:
+        max_len = max((len(str(cell.value or '')) for cell in col), default=10)
+        ws.column_dimensions[col[0].column_letter].width = min(max_len + 4, 60)
+
+    buf = BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+
+    return send_file(
+        buf,
+        as_attachment=True,
+        download_name='realmindx_stock.xlsx',
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+
+
+@admin_bp.route('/admin/export/users')
+@login_required
+def export_users():
+    """Download all registered teachers as an Excel file. Admin only."""
+    if not isinstance(current_user, Admin):
+        abort(403)
+
+    from io import BytesIO
+    import openpyxl
+    from flask import send_file
+
+    users = User.query.order_by(User.id.asc()).all()
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = 'Teachers'
+
+    headers = [
+        'ID', 'Full Name', 'First Name', 'Surname', 'Other Names',
+        'Email', 'Phone', 'Sex', 'Location',
+        'Preferred Subject(s)', 'Preferred Level(s)',
+        'CV Uploaded', 'Certificate Uploaded',
+        'Account Status', 'Email Verified', 'Auth Provider', 'Date Joined',
+    ]
+    _styled_header(ws, headers)
+
+    for u in users:
+        ws.append([
+            u.id,
+            u.fullname or '',
+            u.firstname or '',
+            u.surname or '',
+            u.other_names or '',
+            u.email,
+            u.phone or '',
+            u.sex or '',
+            u.location or '',
+            u.preferred_subject or '',
+            u.preferred_level or '',
+            'Yes' if u.cv else 'No',
+            'Yes' if u.certificate else 'No',
+            'Active' if u.is_active else 'Inactive',
+            'Yes' if u.is_verified else 'No',
+            u.auth_provider or 'local',
+            u.created_at.strftime('%Y-%m-%d %H:%M') if u.created_at else '',
+        ])
+
+    for col in ws.columns:
+        max_len = max((len(str(cell.value or '')) for cell in col), default=10)
+        ws.column_dimensions[col[0].column_letter].width = min(max_len + 4, 50)
+
+    buf = BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+
+    return send_file(
+        buf,
+        as_attachment=True,
+        download_name='realmindx_teachers.xlsx',
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+
+# ── End Excel exports ─────────────────────────────────────────────────────────
+
+
+# ── Partner management ─────────────────────────────────────────────────────────
+
+PARTNERS_UPLOAD_FOLDER = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    'static', 'uploads', 'partners'
+)
+
+
+@admin_bp.route('/admin/partners', methods=['GET', 'POST'])
+@login_required
+def manage_partners():
+    if not isinstance(current_user, Admin):
+        abort(403)
+
+    if request.method == 'POST':
+        try:
+            validate_csrf(request.form.get('csrf_token'))
+        except CSRFError:
+            abort(400, description="Invalid CSRF token")
+
+        name        = request.form.get('name', '').strip()
+        description = request.form.get('description', '').strip() or None
+        website_url = request.form.get('website_url', '').strip() or None
+        display_order = int(request.form.get('display_order') or 0)
+        logo_file   = request.files.get('logo')
+
+        if not name:
+            flash('Partner name is required.', 'danger')
+            return redirect(url_for('admin.manage_partners'))
+
+        logo_filename = None
+        if logo_file and logo_file.filename and allowed_image_file(logo_file.filename):
+            os.makedirs(PARTNERS_UPLOAD_FOLDER, exist_ok=True)
+            ext = os.path.splitext(logo_file.filename)[1].lower()
+            logo_filename = f"{uuid.uuid4().hex}{ext}"
+            logo_file.save(os.path.join(PARTNERS_UPLOAD_FOLDER, logo_filename))
+
+        partner = Partner(
+            name=name,
+            description=description,
+            website_url=website_url,
+            logo_filename=logo_filename,
+            display_order=display_order,
+            is_active=True,
+            admin_id=current_user.id,
+        )
+        db.session.add(partner)
+        db.session.commit()
+        flash(f'Partner "{name}" added successfully.', 'success')
+        return redirect(url_for('admin.manage_partners'))
+
+    partners = Partner.query.order_by(Partner.display_order.asc(), Partner.created_at.desc()).all()
+    return render_template('admin/partners.html', partners=partners, csrf_token=generate_csrf())
+
+
+@admin_bp.route('/admin/partners/toggle/<int:partner_id>', methods=['POST'])
+@login_required
+def toggle_partner(partner_id):
+    if not isinstance(current_user, Admin):
+        abort(403)
+    try:
+        validate_csrf(request.form.get('csrf_token'))
+    except CSRFError:
+        abort(400, description="Invalid CSRF token")
+
+    partner = Partner.query.get_or_404(partner_id)
+    partner.is_active = not partner.is_active
+    db.session.commit()
+    state = 'visible' if partner.is_active else 'hidden'
+    flash(f'"{partner.name}" is now {state} on the homepage.', 'info')
+    return redirect(url_for('admin.manage_partners'))
+
+
+@admin_bp.route('/admin/partners/delete/<int:partner_id>', methods=['POST'])
+@login_required
+def delete_partner(partner_id):
+    if not isinstance(current_user, Admin):
+        abort(403)
+    try:
+        validate_csrf(request.form.get('csrf_token'))
+    except CSRFError:
+        abort(400, description="Invalid CSRF token")
+
+    partner = Partner.query.get_or_404(partner_id)
+
+    if partner.logo_filename:
+        logo_path = os.path.join(PARTNERS_UPLOAD_FOLDER, partner.logo_filename)
+        if os.path.exists(logo_path):
+            os.remove(logo_path)
+
+    db.session.delete(partner)
+    db.session.commit()
+    flash(f'Partner "{partner.name}" deleted.', 'success')
+    return redirect(url_for('admin.manage_partners'))
+
+# ── End Partner management ─────────────────────────────────────────────────────

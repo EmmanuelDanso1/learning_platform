@@ -239,3 +239,1050 @@
 [2026-01-15 18:49:11,252] INFO in app: Redis client initialized
 [2026-01-15 18:49:11,268] INFO in app: Flask extensions initialized
 [2026-01-15 18:49:11,376] INFO in app: Application startup complete
+[2026-05-08 14:35:20,138] INFO in app: Application startup initiated
+[2026-05-08 14:35:20,139] INFO in app: Redis client initialized
+[2026-05-08 14:35:20,254] INFO in app: Flask extensions initialized
+[2026-05-08 14:35:20,812] INFO in app: Application startup complete
+[2026-05-08 14:35:41,380] ERROR in app: Exception on / [GET]
+Traceback (most recent call last):
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 357, in connect
+    sock = self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect(error)
+    )
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\retry.py", line 62, in call_with_retry
+    return do()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 358, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ~~~~~~~~~~~~~^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 730, in _connect
+    raise err
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 718, in _connect
+    sock.connect(socket_address)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 878, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 1253, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask_limiter\_extension.py", line 1169, in _check_request_limit
+    raise e
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask_limiter\_extension.py", line 1153, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask_limiter\_extension.py", line 1081, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+           ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\limits\strategies.py", line 157, in hit
+    self.storage.incr(
+    ~~~~~~~~~~~~~~~~~^
+        item.key_for(*identifiers),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        item.get_expiry(),
+        ^^^^^^^^^^^^^^^^^^
+        amount=cost,
+        ^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\limits\storage\redis.py", line 224, in incr
+    return int(self.lua_incr_expire([key], [expiry, amount]))
+               ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\commands\core.py", line 5501, in __call__
+    return client.evalsha(self.sha, len(keys), *args)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\commands\core.py", line 5710, in evalsha
+    return self._evalsha("EVALSHA", sha, numkeys, *keys_and_args)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\commands\core.py", line 5694, in _evalsha
+    return self.execute_command(command, sha, numkeys, *keys_and_args)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\client.py", line 559, in execute_command
+    return self._execute_command(*args, **options)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\client.py", line 565, in _execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+                              ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 1422, in get_connection
+    connection.connect()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 363, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. No connection could be made because the target machine actively refused it.
+[2026-05-08 14:36:01,384] ERROR in app: Exception on / [GET]
+Traceback (most recent call last):
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 357, in connect
+    sock = self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect(error)
+    )
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\retry.py", line 62, in call_with_retry
+    return do()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 358, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ~~~~~~~~~~~~~^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 730, in _connect
+    raise err
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 718, in _connect
+    sock.connect(socket_address)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 878, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 1253, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask_limiter\_extension.py", line 1169, in _check_request_limit
+    raise e
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask_limiter\_extension.py", line 1153, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask_limiter\_extension.py", line 1081, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+           ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\limits\strategies.py", line 157, in hit
+    self.storage.incr(
+    ~~~~~~~~~~~~~~~~~^
+        item.key_for(*identifiers),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        item.get_expiry(),
+        ^^^^^^^^^^^^^^^^^^
+        amount=cost,
+        ^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\limits\storage\redis.py", line 224, in incr
+    return int(self.lua_incr_expire([key], [expiry, amount]))
+               ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\commands\core.py", line 5501, in __call__
+    return client.evalsha(self.sha, len(keys), *args)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\commands\core.py", line 5710, in evalsha
+    return self._evalsha("EVALSHA", sha, numkeys, *keys_and_args)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\commands\core.py", line 5694, in _evalsha
+    return self.execute_command(command, sha, numkeys, *keys_and_args)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\client.py", line 559, in execute_command
+    return self._execute_command(*args, **options)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\client.py", line 565, in _execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+                              ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 1422, in get_connection
+    connection.connect()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 363, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. No connection could be made because the target machine actively refused it.
+[2026-05-08 14:36:46,602] ERROR in app: Exception on / [GET]
+Traceback (most recent call last):
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 357, in connect
+    sock = self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect(error)
+    )
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\retry.py", line 62, in call_with_retry
+    return do()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 358, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ~~~~~~~~~~~~~^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 730, in _connect
+    raise err
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 718, in _connect
+    sock.connect(socket_address)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 878, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 1253, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask_limiter\_extension.py", line 1169, in _check_request_limit
+    raise e
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask_limiter\_extension.py", line 1153, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask_limiter\_extension.py", line 1081, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+           ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\limits\strategies.py", line 157, in hit
+    self.storage.incr(
+    ~~~~~~~~~~~~~~~~~^
+        item.key_for(*identifiers),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        item.get_expiry(),
+        ^^^^^^^^^^^^^^^^^^
+        amount=cost,
+        ^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\limits\storage\redis.py", line 224, in incr
+    return int(self.lua_incr_expire([key], [expiry, amount]))
+               ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\commands\core.py", line 5501, in __call__
+    return client.evalsha(self.sha, len(keys), *args)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\commands\core.py", line 5710, in evalsha
+    return self._evalsha("EVALSHA", sha, numkeys, *keys_and_args)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\commands\core.py", line 5694, in _evalsha
+    return self.execute_command(command, sha, numkeys, *keys_and_args)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\client.py", line 559, in execute_command
+    return self._execute_command(*args, **options)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\client.py", line 565, in _execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+                              ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 1422, in get_connection
+    connection.connect()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 363, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. No connection could be made because the target machine actively refused it.
+[2026-05-08 14:36:54,358] ERROR in app: Exception on / [GET]
+Traceback (most recent call last):
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 357, in connect
+    sock = self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect(error)
+    )
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\retry.py", line 62, in call_with_retry
+    return do()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 358, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ~~~~~~~~~~~~~^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 730, in _connect
+    raise err
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 718, in _connect
+    sock.connect(socket_address)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 878, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 1253, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask_limiter\_extension.py", line 1169, in _check_request_limit
+    raise e
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask_limiter\_extension.py", line 1153, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask_limiter\_extension.py", line 1081, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+           ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\limits\strategies.py", line 157, in hit
+    self.storage.incr(
+    ~~~~~~~~~~~~~~~~~^
+        item.key_for(*identifiers),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        item.get_expiry(),
+        ^^^^^^^^^^^^^^^^^^
+        amount=cost,
+        ^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\limits\storage\redis.py", line 224, in incr
+    return int(self.lua_incr_expire([key], [expiry, amount]))
+               ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\commands\core.py", line 5501, in __call__
+    return client.evalsha(self.sha, len(keys), *args)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\commands\core.py", line 5710, in evalsha
+    return self._evalsha("EVALSHA", sha, numkeys, *keys_and_args)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\commands\core.py", line 5694, in _evalsha
+    return self.execute_command(command, sha, numkeys, *keys_and_args)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\client.py", line 559, in execute_command
+    return self._execute_command(*args, **options)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\client.py", line 565, in _execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+                              ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 1422, in get_connection
+    connection.connect()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\redis\connection.py", line 363, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. No connection could be made because the target machine actively refused it.
+[2026-05-08 14:37:36,502] INFO in app: Application startup initiated
+[2026-05-08 14:37:36,503] INFO in app: Redis client initialized
+[2026-05-08 14:37:36,515] INFO in app: Flask extensions initialized
+[2026-05-08 14:37:36,626] INFO in app: Application startup complete
+[2026-05-08 14:46:53,516] INFO in app: Application startup initiated
+[2026-05-08 14:46:53,517] INFO in app: Redis client initialized
+[2026-05-08 14:46:53,532] INFO in app: Flask extensions initialized
+[2026-05-08 14:46:53,610] INFO in app: Application startup complete
+[2026-05-08 14:49:56,319] INFO in app: Application startup initiated
+[2026-05-08 14:49:56,320] INFO in app: Redis client initialized
+[2026-05-08 14:49:56,333] INFO in app: Flask extensions initialized
+[2026-05-08 14:49:56,417] INFO in app: Application startup complete
+[2026-05-08 14:56:21,856] INFO in app: Application startup initiated
+[2026-05-08 14:56:21,856] INFO in app: Redis client initialized
+[2026-05-08 14:56:21,869] INFO in app: Flask extensions initialized
+[2026-05-08 14:56:21,949] INFO in app: Application startup complete
+[2026-05-08 14:59:07,239] INFO in app: Application startup initiated
+[2026-05-08 14:59:07,239] INFO in app: Redis client initialized
+[2026-05-08 14:59:07,251] INFO in app: Flask extensions initialized
+[2026-05-08 14:59:07,330] INFO in app: Application startup complete
+[2026-05-08 15:01:20,791] INFO in app: Application startup initiated
+[2026-05-08 15:01:20,792] INFO in app: Redis client initialized
+[2026-05-08 15:01:20,807] INFO in app: Flask extensions initialized
+[2026-05-08 15:01:20,991] INFO in app: Application startup complete
+[2026-05-08 15:07:30,166] INFO in app: Application startup initiated
+[2026-05-08 15:07:30,167] INFO in app: Redis client initialized
+[2026-05-08 15:07:30,179] INFO in app: Flask extensions initialized
+[2026-05-08 15:07:30,256] INFO in app: Application startup complete
+[2026-05-08 15:11:40,997] INFO in app: Application startup initiated
+[2026-05-08 15:11:40,997] INFO in app: Redis client initialized
+[2026-05-08 15:11:41,010] INFO in app: Flask extensions initialized
+[2026-05-08 15:11:41,097] INFO in app: Application startup complete
+[2026-05-08 15:25:24,545] INFO in app: Application startup initiated
+[2026-05-08 15:25:24,546] INFO in app: Redis client initialized
+[2026-05-08 15:25:24,564] INFO in app: Flask extensions initialized
+[2026-05-08 15:25:24,644] INFO in app: Application startup complete
+[2026-05-08 15:26:18,899] INFO in app: Application startup initiated
+[2026-05-08 15:26:18,899] INFO in app: Redis client initialized
+[2026-05-08 15:26:18,912] INFO in app: Flask extensions initialized
+[2026-05-08 15:26:18,992] INFO in app: Application startup complete
+[2026-05-08 15:27:09,070] INFO in app: Application startup initiated
+[2026-05-08 15:27:09,071] INFO in app: Redis client initialized
+[2026-05-08 15:27:09,083] INFO in app: Flask extensions initialized
+[2026-05-08 15:27:09,172] INFO in app: Application startup complete
+[2026-05-08 15:27:33,438] INFO in app: Application startup initiated
+[2026-05-08 15:27:33,439] INFO in app: Redis client initialized
+[2026-05-08 15:27:33,453] INFO in app: Flask extensions initialized
+[2026-05-08 15:27:33,531] INFO in app: Application startup complete
+[2026-05-08 15:27:50,851] INFO in app: Application startup initiated
+[2026-05-08 15:27:50,852] INFO in app: Redis client initialized
+[2026-05-08 15:27:50,864] INFO in app: Flask extensions initialized
+[2026-05-08 15:27:50,941] INFO in app: Application startup complete
+[2026-05-08 15:28:14,427] INFO in app: Application startup initiated
+[2026-05-08 15:28:14,428] INFO in app: Redis client initialized
+[2026-05-08 15:28:14,441] INFO in app: Flask extensions initialized
+[2026-05-08 15:28:14,515] INFO in app: Application startup complete
+[2026-05-08 15:29:09,715] INFO in app: Application startup initiated
+[2026-05-08 15:29:09,716] INFO in app: Redis client initialized
+[2026-05-08 15:29:09,731] INFO in app: Flask extensions initialized
+[2026-05-08 15:29:09,810] INFO in app: Application startup complete
+[2026-05-08 15:29:34,293] INFO in app: Application startup initiated
+[2026-05-08 15:29:34,294] INFO in app: Redis client initialized
+[2026-05-08 15:29:34,306] INFO in app: Flask extensions initialized
+[2026-05-08 15:29:34,380] INFO in app: Application startup complete
+[2026-05-08 15:32:44,940] ERROR in app: Exception on /admin/post-job [POST]
+Traceback (most recent call last):
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 942, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.NotNullViolation: null value in column "location" of relation "job_post" violates not-null constraint
+DETAIL:  Failing row contains (3, testing, testing, null, testing, 2026-05-08 15:32:44.936874, 1, Pre-School, Mathematics, f, null, null).
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\learning_app\realmind\routes\admin_routes.py", line 240, in post_job
+    db.session.commit()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\scoping.py", line 599, in commit
+    return self._proxied.commit()
+           ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2032, in commit
+    trans.commit(_to_root=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "<string>", line 2, in commit
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 1313, in commit
+    self._prepare_impl()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "<string>", line 2, in _prepare_impl
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 1288, in _prepare_impl
+    self.session.flush()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4353, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4488, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4449, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1416, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 516, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1843, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2352, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 942, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.IntegrityError: (psycopg2.errors.NotNullViolation) null value in column "location" of relation "job_post" violates not-null constraint
+DETAIL:  Failing row contains (3, testing, testing, null, testing, 2026-05-08 15:32:44.936874, 1, Pre-School, Mathematics, f, null, null).
+
+[SQL: INSERT INTO job_post (title, description, job_type, requirements, is_deleted, deleted_at, date_posted, admin_id, level, subject, location) VALUES (%(title)s, %(description)s, %(job_type)s, %(requirements)s, %(is_deleted)s, %(deleted_at)s, %(date_posted)s, %(admin_id)s, %(level)s, %(subject)s, %(location)s) RETURNING job_post.id]
+[parameters: {'title': 'testing', 'description': 'testing', 'job_type': None, 'requirements': 'testing', 'is_deleted': False, 'deleted_at': None, 'date_posted': datetime.datetime(2026, 5, 8, 15, 32, 44, 936874), 'admin_id': 1, 'level': 'Pre-School', 'subject': 'Mathematics', 'location': None}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+[2026-05-08 15:37:22,851] INFO in app: Application startup initiated
+[2026-05-08 15:37:22,851] INFO in app: Redis client initialized
+[2026-05-08 15:37:22,864] INFO in app: Flask extensions initialized
+[2026-05-08 15:37:23,079] INFO in app: Application startup complete
+[2026-05-08 15:41:03,217] INFO in app: Application startup initiated
+[2026-05-08 15:41:03,217] INFO in app: Redis client initialized
+[2026-05-08 15:41:03,229] INFO in app: Flask extensions initialized
+[2026-05-08 15:41:03,306] INFO in app: Application startup complete
+[2026-05-08 15:41:49,111] INFO in app: Application startup initiated
+[2026-05-08 15:41:49,112] INFO in app: Redis client initialized
+[2026-05-08 15:41:49,124] INFO in app: Flask extensions initialized
+[2026-05-08 15:41:49,197] INFO in app: Application startup complete
+[2026-05-08 19:05:03,305] INFO in app: Application startup initiated
+[2026-05-08 19:05:03,306] INFO in app: Redis client initialized
+[2026-05-08 19:05:03,339] INFO in app: Flask extensions initialized
+[2026-05-08 19:05:03,551] INFO in app: Application startup complete
+[2026-05-08 19:06:39,926] ERROR in app: Exception on /jobs [GET]
+Traceback (most recent call last):
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 942, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.UndefinedColumn: column job_post.application_deadline does not exist
+LINE 1: ..._subject, job_post.location AS job_post_location, job_post.a...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\learning_app\realmind\routes\jobs_routes.py", line 25, in job_listings
+    jobs = query.order_by(JobPost.id.desc()).paginate(page=page, per_page=per_page, error_out=False)
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask_sqlalchemy\query.py", line 98, in paginate
+    return QueryPagination(
+        query=self,
+    ...<4 lines>...
+        count=count,
+    )
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask_sqlalchemy\pagination.py", line 72, in __init__
+    items = self._query_items()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask_sqlalchemy\pagination.py", line 358, in _query_items
+    out = query.limit(self.per_page).offset(self._query_offset).all()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\query.py", line 2699, in all
+    return self._iter().all()  # type: ignore
+           ~~~~~~~~~~^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\query.py", line 2853, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ~~~~~~~~~~~~~~~~~~~~^
+        statement,
+        ^^^^^^^^^^
+        params,
+        ^^^^^^^
+        execution_options={"_sa_orm_load_options": self.load_options},
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2365, in execute
+    return self._execute_internal(
+           ~~~~~~~~~~~~~~~~~~~~~~^
+        statement,
+        ^^^^^^^^^^
+    ...<4 lines>...
+        _add_event=_add_event,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2251, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<4 lines>...
+        conn,
+        ^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\context.py", line 305, in orm_execute_statement
+    result = conn.execute(
+        statement, params or {}, execution_options=execution_options
+    )
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1416, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 516, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1843, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2352, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 942, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column job_post.application_deadline does not exist
+LINE 1: ..._subject, job_post.location AS job_post_location, job_post.a...
+                                                             ^
+
+[SQL: SELECT job_post.id AS job_post_id, job_post.title AS job_post_title, job_post.description AS job_post_description, job_post.job_type AS job_post_job_type, job_post.requirements AS job_post_requirements, job_post.is_deleted AS job_post_is_deleted, job_post.deleted_at AS job_post_deleted_at, job_post.date_posted AS job_post_date_posted, job_post.admin_id AS job_post_admin_id, job_post.level AS job_post_level, job_post.subject AS job_post_subject, job_post.location AS job_post_location, job_post.application_deadline AS job_post_application_deadline 
+FROM job_post 
+WHERE job_post.is_deleted = false ORDER BY job_post.id DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s]
+[parameters: {'param_1': 5, 'param_2': 0}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-05-08 19:21:29,706] INFO in app: Application startup initiated
+[2026-05-08 19:21:29,707] INFO in app: Redis client initialized
+[2026-05-08 19:21:29,722] INFO in app: Flask extensions initialized
+[2026-05-08 19:21:29,811] INFO in app: Application startup complete
+[2026-05-08 19:21:42,793] ERROR in app: Exception on /jobs [GET]
+Traceback (most recent call last):
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 942, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.UndefinedColumn: column job_post.application_deadline does not exist
+LINE 1: ..._subject, job_post.location AS job_post_location, job_post.a...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\learning_app\realmind\routes\jobs_routes.py", line 25, in job_listings
+    jobs = query.order_by(JobPost.id.desc()).paginate(page=page, per_page=per_page, error_out=False)
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask_sqlalchemy\query.py", line 98, in paginate
+    return QueryPagination(
+        query=self,
+    ...<4 lines>...
+        count=count,
+    )
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask_sqlalchemy\pagination.py", line 72, in __init__
+    items = self._query_items()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask_sqlalchemy\pagination.py", line 358, in _query_items
+    out = query.limit(self.per_page).offset(self._query_offset).all()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\query.py", line 2699, in all
+    return self._iter().all()  # type: ignore
+           ~~~~~~~~~~^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\query.py", line 2853, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ~~~~~~~~~~~~~~~~~~~~^
+        statement,
+        ^^^^^^^^^^
+        params,
+        ^^^^^^^
+        execution_options={"_sa_orm_load_options": self.load_options},
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2365, in execute
+    return self._execute_internal(
+           ~~~~~~~~~~~~~~~~~~~~~~^
+        statement,
+        ^^^^^^^^^^
+    ...<4 lines>...
+        _add_event=_add_event,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2251, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<4 lines>...
+        conn,
+        ^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\orm\context.py", line 305, in orm_execute_statement
+    result = conn.execute(
+        statement, params or {}, execution_options=execution_options
+    )
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1416, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 516, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1843, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2352, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 942, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column job_post.application_deadline does not exist
+LINE 1: ..._subject, job_post.location AS job_post_location, job_post.a...
+                                                             ^
+
+[SQL: SELECT job_post.id AS job_post_id, job_post.title AS job_post_title, job_post.description AS job_post_description, job_post.job_type AS job_post_job_type, job_post.requirements AS job_post_requirements, job_post.is_deleted AS job_post_is_deleted, job_post.deleted_at AS job_post_deleted_at, job_post.date_posted AS job_post_date_posted, job_post.admin_id AS job_post_admin_id, job_post.level AS job_post_level, job_post.subject AS job_post_subject, job_post.location AS job_post_location, job_post.application_deadline AS job_post_application_deadline 
+FROM job_post 
+WHERE job_post.is_deleted = false ORDER BY job_post.id DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s]
+[parameters: {'param_1': 5, 'param_2': 0}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-05-08 19:24:56,443] INFO in app: Application startup initiated
+[2026-05-08 19:24:56,443] INFO in app: Redis client initialized
+[2026-05-08 19:24:56,458] INFO in app: Flask extensions initialized
+[2026-05-08 19:24:56,543] INFO in app: Application startup complete
+[2026-05-08 19:26:04,404] INFO in app: Application startup initiated
+[2026-05-08 19:26:04,404] INFO in app: Redis client initialized
+[2026-05-08 19:26:04,419] INFO in app: Flask extensions initialized
+[2026-05-08 19:26:04,504] INFO in app: Application startup complete
+[2026-05-08 19:26:58,202] INFO in app: Application startup initiated
+[2026-05-08 19:26:58,202] INFO in app: Redis client initialized
+[2026-05-08 19:26:58,215] INFO in app: Flask extensions initialized
+[2026-05-08 19:26:58,312] INFO in app: Application startup complete
+[2026-05-08 19:27:12,338] INFO in app: Application startup initiated
+[2026-05-08 19:27:12,339] INFO in app: Redis client initialized
+[2026-05-08 19:27:12,352] INFO in app: Flask extensions initialized
+[2026-05-08 19:27:12,435] INFO in app: Application startup complete
+[2026-05-08 19:27:30,163] INFO in app: Application startup initiated
+[2026-05-08 19:27:30,163] INFO in app: Redis client initialized
+[2026-05-08 19:27:30,176] INFO in app: Flask extensions initialized
+[2026-05-08 19:27:30,258] INFO in app: Application startup complete
+[2026-05-08 19:27:51,146] INFO in app: Application startup initiated
+[2026-05-08 19:27:51,147] INFO in app: Redis client initialized
+[2026-05-08 19:27:51,162] INFO in app: Flask extensions initialized
+[2026-05-08 19:27:51,243] INFO in app: Application startup complete
+[2026-05-08 19:27:59,763] INFO in app: Application startup initiated
+[2026-05-08 19:27:59,764] INFO in app: Redis client initialized
+[2026-05-08 19:27:59,780] INFO in app: Flask extensions initialized
+[2026-05-08 19:27:59,863] INFO in app: Application startup complete
+[2026-05-08 19:32:49,940] INFO in app: Application startup initiated
+[2026-05-08 19:32:49,941] INFO in app: Redis client initialized
+[2026-05-08 19:32:49,953] INFO in app: Flask extensions initialized
+[2026-05-08 19:32:50,034] INFO in app: Application startup complete
+[2026-05-08 19:37:26,932] INFO in app: Application startup initiated
+[2026-05-08 19:37:26,933] INFO in app: Redis client initialized
+[2026-05-08 19:37:26,947] INFO in app: Flask extensions initialized
+[2026-05-08 19:37:27,031] INFO in app: Application startup complete
+[2026-05-08 19:38:16,203] INFO in app: Application startup initiated
+[2026-05-08 19:38:16,204] INFO in app: Redis client initialized
+[2026-05-08 19:38:16,216] INFO in app: Flask extensions initialized
+[2026-05-08 19:38:16,297] INFO in app: Application startup complete
+[2026-05-09 01:13:47,795] INFO in app: Application startup initiated
+[2026-05-09 01:13:47,796] INFO in app: Redis client initialized
+[2026-05-09 01:13:47,827] INFO in app: Flask extensions initialized
+[2026-05-09 01:13:48,012] INFO in app: Application startup complete
+[2026-05-09 01:22:56,981] INFO in app: Application startup initiated
+[2026-05-09 01:22:56,982] INFO in app: Redis client initialized
+[2026-05-09 01:22:56,997] INFO in app: Flask extensions initialized
+[2026-05-09 01:22:57,089] INFO in app: Application startup complete
+[2026-05-09 16:11:01,746] INFO in app: Application startup initiated
+[2026-05-09 16:11:01,747] INFO in app: Redis client initialized
+[2026-05-09 16:11:01,799] INFO in app: Flask extensions initialized
+[2026-05-09 16:11:02,040] INFO in app: Application startup complete
+[2026-05-09 16:21:12,007] INFO in app: Application startup initiated
+[2026-05-09 16:21:12,008] INFO in app: Redis client initialized
+[2026-05-09 16:21:12,049] INFO in app: Flask extensions initialized
+[2026-05-09 16:21:12,244] INFO in app: Application startup complete
+[2026-05-09 16:50:28,388] INFO in app: Application startup initiated
+[2026-05-09 16:50:28,390] INFO in app: Redis client initialized
+[2026-05-09 16:50:28,403] INFO in app: Flask extensions initialized
+[2026-05-09 16:50:28,511] INFO in app: Application startup complete
+[2026-05-09 16:55:06,230] INFO in app: Application startup initiated
+[2026-05-09 16:55:06,230] INFO in app: Redis client initialized
+[2026-05-09 16:55:06,243] INFO in app: Flask extensions initialized
+[2026-05-09 16:55:06,327] INFO in app: Application startup complete
+[2026-05-09 17:15:07,742] INFO in app: Application startup initiated
+[2026-05-09 17:15:07,742] INFO in app: Redis client initialized
+[2026-05-09 17:15:07,758] INFO in app: Flask extensions initialized
+[2026-05-09 17:15:07,845] INFO in app: Application startup complete
+[2026-05-09 17:20:40,065] INFO in app: Application startup initiated
+[2026-05-09 17:20:40,065] INFO in app: Redis client initialized
+[2026-05-09 17:20:40,078] INFO in app: Flask extensions initialized
+[2026-05-09 17:20:40,153] INFO in app: Application startup complete
+[2026-05-09 17:23:08,216] INFO in email: Job alert sent to kwekudanso21@gmail.com (job_id=9)
+[2026-05-09 17:23:08,216] INFO in email: Job notifications complete for 'Homeschooling' (ID 9): 1 sent, 0 failed
+[2026-05-09 17:37:41,112] INFO in app: Application startup initiated
+[2026-05-09 17:37:41,113] INFO in app: Redis client initialized
+[2026-05-09 17:37:41,128] INFO in app: Flask extensions initialized
+[2026-05-09 17:37:41,209] INFO in app: Application startup complete
+[2026-05-09 21:14:07,664] INFO in app: Application startup initiated
+[2026-05-09 21:14:07,664] INFO in app: Redis client initialized
+[2026-05-09 21:14:07,681] INFO in app: Flask extensions initialized
+[2026-05-09 21:14:07,757] INFO in app: Application startup complete
+[2026-05-09 21:32:07,073] INFO in app: Application startup initiated
+[2026-05-09 21:32:07,074] INFO in app: Redis client initialized
+[2026-05-09 21:32:07,085] INFO in app: Flask extensions initialized
+[2026-05-09 21:32:07,224] INFO in app: Application startup complete
+[2026-05-09 21:33:08,937] INFO in app: Application startup initiated
+[2026-05-09 21:33:08,937] INFO in app: Redis client initialized
+[2026-05-09 21:33:08,949] INFO in app: Flask extensions initialized
+[2026-05-09 21:33:09,028] INFO in app: Application startup complete
+[2026-05-09 21:43:32,862] INFO in app: Application startup initiated
+[2026-05-09 21:43:32,863] INFO in app: Redis client initialized
+[2026-05-09 21:43:32,876] INFO in app: Flask extensions initialized
+[2026-05-09 21:43:32,954] INFO in app: Application startup complete
+[2026-05-09 21:46:29,336] INFO in app: Application startup initiated
+[2026-05-09 21:46:29,337] INFO in app: Redis client initialized
+[2026-05-09 21:46:29,348] INFO in app: Flask extensions initialized
+[2026-05-09 21:46:29,420] INFO in app: Application startup complete
+[2026-05-09 21:47:16,269] INFO in app: Application startup initiated
+[2026-05-09 21:47:16,269] INFO in app: Redis client initialized
+[2026-05-09 21:47:16,283] INFO in app: Flask extensions initialized
+[2026-05-09 21:47:16,366] INFO in app: Application startup complete
+[2026-05-09 21:47:31,354] INFO in app: Application startup initiated
+[2026-05-09 21:47:31,354] INFO in app: Redis client initialized
+[2026-05-09 21:47:31,367] INFO in app: Flask extensions initialized
+[2026-05-09 21:47:31,442] INFO in app: Application startup complete
+[2026-05-09 21:48:20,527] INFO in app: Application startup initiated
+[2026-05-09 21:48:20,528] INFO in app: Redis client initialized
+[2026-05-09 21:48:20,539] INFO in app: Flask extensions initialized
+[2026-05-09 21:48:20,618] INFO in app: Application startup complete
+[2026-05-09 21:53:38,641] INFO in app: Application startup initiated
+[2026-05-09 21:53:38,641] INFO in app: Redis client initialized
+[2026-05-09 21:53:38,654] INFO in app: Flask extensions initialized
+[2026-05-09 21:53:38,764] INFO in app: Application startup complete
+[2026-05-09 21:55:55,720] INFO in app: Application startup initiated
+[2026-05-09 21:55:55,721] INFO in app: Redis client initialized
+[2026-05-09 21:55:55,735] INFO in app: Flask extensions initialized
+[2026-05-09 21:55:55,935] INFO in app: Application startup complete
+[2026-05-09 22:01:25,838] INFO in app: Application startup initiated
+[2026-05-09 22:01:25,838] INFO in app: Redis client initialized
+[2026-05-09 22:01:25,851] INFO in app: Flask extensions initialized
+[2026-05-09 22:01:25,927] INFO in app: Application startup complete
+[2026-05-09 22:01:56,875] ERROR in app: Exception on /admin/dashboard [GET]
+Traceback (most recent call last):
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\learning_app\realmind\routes\admin_routes.py", line 51, in admin_dashboard
+    return render_template('admin_dashboard.html', admin=current_user, jobs=jobs)
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\jinja2\environment.py", line 1304, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\jinja2\environment.py", line 939, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "C:\Users\HP\Desktop\pro\learning_platform\learning_app\realmind\templates\admin_dashboard.html", line 1, in top-level template code
+    {% extends "admin/admin_base.html" %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\learning_app\realmind\templates\admin\admin_base.html", line 147, in top-level template code
+    {% include 'admin/sidebar.html' %}
+    ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\learning_app\realmind\templates\admin\sidebar.html", line 48, in top-level template code
+    <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.manage_cv_tutorial') }}"><i class="fab fa-youtube"></i> <span>CV Tutorial Video</span></a></li>
+    ^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 1084, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 1073, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+        endpoint,
+    ...<3 lines>...
+        force_external=_external,
+    )
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'admin.manage_cv_tutorial'. Did you mean 'admin.manage_jobs' instead?
+[2026-05-09 22:06:49,430] INFO in app: Application startup initiated
+[2026-05-09 22:06:49,431] INFO in app: Redis client initialized
+[2026-05-09 22:06:49,445] INFO in app: Flask extensions initialized
+[2026-05-09 22:09:17,866] INFO in app: Application startup initiated
+[2026-05-09 22:09:17,867] INFO in app: Redis client initialized
+[2026-05-09 22:09:17,882] INFO in app: Flask extensions initialized
+[2026-05-09 22:09:17,963] INFO in app: Application startup complete
+[2026-05-09 22:09:46,588] ERROR in app: Exception on /admin/cv-tutorial [GET]
+Traceback (most recent call last):
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\learning_app\realmind\routes\admin_routes.py", line 404, in manage_cv_tutorial
+    return render_template('admin/cv_tutorial.html', tutorials=tutorials,
+                           csrf_token=generate_csrf())
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\templating.py", line 149, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\jinja2\environment.py", line 1084, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\jinja2\environment.py", line 1013, in get_template
+    return self._load_template(name, globals)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\jinja2\environment.py", line 972, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\jinja2\loaders.py", line 126, in load
+    source, filename, uptodate = self.get_source(environment, name)
+                                 ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\templating.py", line 65, in get_source
+    return self._get_source_fast(environment, template)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Desktop\pro\learning_platform\venv\Lib\site-packages\flask\templating.py", line 99, in _get_source_fast
+    raise TemplateNotFound(template)
+jinja2.exceptions.TemplateNotFound: admin/cv_tutorial.html
+[2026-05-09 22:11:07,816] INFO in app: Application startup initiated
+[2026-05-09 22:11:07,816] INFO in app: Redis client initialized
+[2026-05-09 22:11:07,829] INFO in app: Flask extensions initialized
+[2026-05-09 22:11:07,910] INFO in app: Application startup complete
+[2026-05-09 22:20:17,967] INFO in app: Application startup initiated
+[2026-05-09 22:20:17,967] INFO in app: Redis client initialized
+[2026-05-09 22:20:17,979] INFO in app: Flask extensions initialized
+[2026-05-09 22:20:18,064] INFO in app: Application startup complete
+[2026-05-10 06:15:49,039] INFO in app: Application startup initiated
+[2026-05-10 06:15:49,040] INFO in app: Redis client initialized
+[2026-05-10 06:15:49,054] INFO in app: Flask extensions initialized
+[2026-05-10 06:15:49,224] INFO in app: Application startup complete
+[2026-05-10 06:48:24,387] INFO in app: Application startup initiated
+[2026-05-10 06:48:24,388] INFO in app: Redis client initialized
+[2026-05-10 06:48:24,402] INFO in app: Flask extensions initialized
+[2026-05-10 06:48:24,625] INFO in app: Application startup complete
+[2026-05-10 06:54:30,345] INFO in app: Application startup initiated
+[2026-05-10 06:54:30,345] INFO in app: Redis client initialized
+[2026-05-10 06:54:30,360] INFO in app: Flask extensions initialized
+[2026-05-10 06:54:30,573] INFO in app: Application startup complete
+[2026-05-10 06:55:45,474] INFO in app: Application startup initiated
+[2026-05-10 06:55:45,475] INFO in app: Redis client initialized
+[2026-05-10 06:55:45,490] INFO in app: Flask extensions initialized
+[2026-05-10 06:55:45,575] INFO in app: Application startup complete
+[2026-05-10 07:02:33,846] INFO in app: Application startup initiated
+[2026-05-10 07:02:33,847] INFO in app: Redis client initialized
+[2026-05-10 07:02:33,862] INFO in app: Flask extensions initialized
+[2026-05-10 07:02:33,978] INFO in app: Application startup complete
+[2026-05-10 07:06:29,268] INFO in app: Application startup initiated
+[2026-05-10 07:06:29,269] INFO in app: Redis client initialized
+[2026-05-10 07:06:29,282] INFO in app: Flask extensions initialized
+[2026-05-10 07:06:29,395] INFO in app: Application startup complete
+[2026-05-10 07:18:12,678] INFO in app: Application startup initiated
+[2026-05-10 07:18:12,679] INFO in app: Redis client initialized
+[2026-05-10 07:18:12,693] INFO in app: Flask extensions initialized
+[2026-05-10 07:18:12,820] INFO in app: Application startup complete
+[2026-05-10 07:24:00,118] INFO in app: Application startup initiated
+[2026-05-10 07:24:00,118] INFO in app: Redis client initialized
+[2026-05-10 07:24:00,130] INFO in app: Flask extensions initialized
+[2026-05-10 07:24:00,248] INFO in app: Application startup complete

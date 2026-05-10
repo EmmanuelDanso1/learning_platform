@@ -19,10 +19,41 @@
             {{ form.requirements(class="form-control") }}
         </div>
         
-        <!-- NEW: Level Field -->
+        <!-- Location Field -->
         <div class="mb-3">
-            {{ form.level.label(class="form-label") }}
-            {{ form.level(class="form-control") }}
+            {{ form.location.label(class="form-label") }}
+            {{ form.location(class="form-control", placeholder="e.g., Accra, Kumasi, Tema") }}
+        </div>
+        
+        <!-- Level checkboxes -->
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Level <span class="text-danger">*</span></label>
+            <div class="border rounded p-3">
+                {% for value, label in [
+                    ('Early Childhood', 'Early Childhood'),
+                    ('Primary', 'Primary'),
+                    ('Lower Secondary', 'Lower Secondary (Junior High)'),
+                    ('Upper Secondary', 'Upper Secondary (Senior High)')
+                ] %}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="level"
+                           id="level_{{ loop.index }}" value="{{ value }}"
+                           {% if value in (form.level.data or []) %}checked{% endif %}>
+                    <label class="form-check-label" for="level_{{ loop.index }}">{{ label }}</label>
+                </div>
+                {% endfor %}
+
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" id="level_other_toggle"
+                           {% if form.level_other.data %}checked{% endif %}>
+                    <label class="form-check-label" for="level_other_toggle">Other (specify below)</label>
+                </div>
+                <div id="level_other_box" class="mt-2 {% if not form.level_other.data %}d-none{% endif %}">
+                    {{ form.level_other(class="form-control", id="level_other",
+                       placeholder="e.g., Tertiary, Vocational, Special Needs") }}
+                </div>
+            </div>
+            <small class="form-text text-muted">Select all levels this position applies to.</small>
         </div>
         
         <!-- NEW: Subject Field -->
@@ -30,8 +61,31 @@
             {{ form.subject.label(class="form-label") }}
             {{ form.subject(class="form-control") }}
         </div>
-        
+
+        <!-- Application Deadline Field -->
+        <div class="mb-3">
+            {{ form.application_deadline.label(class="form-label") }}
+            {{ form.application_deadline(class="form-control", placeholder="YYYY-MM-DD HH:MM") }}
+            <small class="form-text text-muted">Leave blank for no deadline. Applications are automatically closed after this date and time.</small>
+        </div>
+
         <button type="submit" class="btn btn-primary">Post Job</button>
     </form>
 </div>
+
+<script>
+(function () {
+    var toggle = document.getElementById('level_other_toggle');
+    var box    = document.getElementById('level_other_box');
+    var input  = document.getElementById('level_other');
+    toggle.addEventListener('change', function () {
+        if (this.checked) {
+            box.classList.remove('d-none');
+        } else {
+            box.classList.add('d-none');
+            input.value = '';
+        }
+    });
+})();
+</script>
 {% endblock %}

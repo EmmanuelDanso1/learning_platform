@@ -1,0 +1,166 @@
+{% extends "admin/admin_base.html" %}
+{% block content %}
+<div class="container py-4">
+
+  <h2 class="fw-bold mb-1">Partner Listings</h2>
+  <p class="text-muted mb-4">
+    Partner logos appear on the homepage before the Bookshop section.
+    Use <strong>Display Order</strong> (lower number = appears first).
+  </p>
+
+  <!-- ADD PARTNER FORM -->
+  <div class="card shadow-sm mb-5">
+    <div class="card-header fw-semibold" style="background:#0C2E60; color:#fff;">
+      <i class="fas fa-plus-circle me-2"></i> Add New Partner
+    </div>
+    <div class="card-body">
+      <form method="POST" enctype="multipart/form-data"
+            action="{{ url_for('admin.manage_partners') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+        <div class="row g-3">
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">
+              Partner Name <span class="text-danger">*</span>
+            </label>
+            <input type="text" name="name" class="form-control" required
+                   placeholder="e.g. Ready Books">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Website URL</label>
+            <input type="url" name="website_url" class="form-control"
+                   placeholder="https://example.com">
+          </div>
+
+          <div class="col-md-8">
+            <label class="form-label fw-semibold">Short Description
+              <span class="text-muted fw-normal">(optional)</span>
+            </label>
+            <input type="text" name="description" class="form-control" maxlength="255"
+                   placeholder="e.g. Our trusted book supplier">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Display Order</label>
+            <input type="number" name="display_order" class="form-control"
+                   value="0" min="0"
+                   placeholder="0 = first">
+            <div class="form-text">Lower number appears first.</div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label fw-semibold">Partner Logo
+              <span class="text-muted fw-normal">(PNG, JPG, JPEG, WEBP — recommended 200×80 px)</span>
+            </label>
+            <input type="file" name="logo" class="form-control"
+                   accept="image/png,image/jpeg,image/jpg,image/webp">
+          </div>
+
+        </div>
+
+        <button type="submit" class="btn btn-primary px-4 mt-4">
+          <i class="fas fa-plus me-1"></i> Add Partner
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- EXISTING PARTNERS -->
+  <h4 class="fw-semibold mb-3">All Partners</h4>
+
+  {% if partners %}
+  <div class="table-responsive">
+    <table class="table table-bordered align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>Order</th>
+          <th>Logo</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Website</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in partners %}
+        <tr>
+          <td class="text-center fw-semibold">{{ p.display_order }}</td>
+
+          <td class="text-center">
+            {% if p.logo_filename %}
+            <img src="{{ url_for('static', filename='uploads/partners/' ~ p.logo_filename) }}"
+                 alt="{{ p.name }}"
+                 style="max-height:50px; max-width:120px; object-fit:contain;">
+            {% else %}
+            <span class="text-muted small">No logo</span>
+            {% endif %}
+          </td>
+
+          <td><strong>{{ p.name }}</strong></td>
+
+          <td class="small text-muted">
+            {{ p.description or '—' }}
+          </td>
+
+          <td class="small">
+            {% if p.website_url %}
+            <a href="{{ p.website_url }}" target="_blank" rel="noopener">
+              {{ p.website_url[:40] }}{% if p.website_url|length > 40 %}…{% endif %}
+            </a>
+            {% else %}—{% endif %}
+          </td>
+
+          <td>
+            {% if p.is_active %}
+            <span class="badge bg-success">Visible</span>
+            {% else %}
+            <span class="badge bg-secondary">Hidden</span>
+            {% endif %}
+          </td>
+
+          <td>
+            <div class="d-flex gap-2 flex-wrap">
+
+              <!-- Toggle visibility -->
+              <form method="POST"
+                    action="{{ url_for('admin.toggle_partner', partner_id=p.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                {% if p.is_active %}
+                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                  <i class="fas fa-eye-slash me-1"></i>Hide
+                </button>
+                {% else %}
+                <button type="submit" class="btn btn-sm btn-outline-success">
+                  <i class="fas fa-eye me-1"></i>Show
+                </button>
+                {% endif %}
+              </form>
+
+              <!-- Delete -->
+              <form method="POST"
+                    action="{{ url_for('admin.delete_partner', partner_id=p.id) }}"
+                    onsubmit="return confirm('Delete {{ p.name }}? This cannot be undone.');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                  <i class="fas fa-trash me-1"></i>Delete
+                </button>
+              </form>
+
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-info">
+    No partners added yet. Use the form above to add your first partner.
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

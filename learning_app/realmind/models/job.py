@@ -22,3 +22,5 @@ class JobPost(db.Model):
     # level and suject
     level = db.Column(db.String(150), nullable=False)
     subject = db.Column(db.String(150), nullable=False)
+    location = db.Column(db.String(255), nullable=False)
+    application_deadline = db.Column(db.DateTime, nullable=True)

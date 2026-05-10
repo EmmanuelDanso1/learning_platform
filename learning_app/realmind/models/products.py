@@ -18,11 +18,13 @@ class Product(db.Model):
     ecommerce_product_id = db.Column(db.Integer, nullable=True)
 
     # New fields
-    author = db.Column(db.String(120), nullable=True)
-    grade = db.Column(db.String(50), nullable=True)
-    level = db.Column(db.String(50), nullable=True)
+    author  = db.Column(db.String(120), nullable=True)
+    grade   = db.Column(db.String(50),  nullable=True)
+    level   = db.Column(db.String(50),  nullable=True)
     subject = db.Column(db.String(100), nullable=True)
-    brand = db.Column(db.String(100), nullable=True)
+    brand   = db.Column(db.String(100), nullable=True)
+    # Admin-only — not exposed on the public site
+    source  = db.Column(db.String(255), nullable=True)
 
     # Foreign Key to Admin
     admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable=False)

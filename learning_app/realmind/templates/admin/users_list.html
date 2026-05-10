@@ -8,7 +8,11 @@
   <div class="card shadow-sm">
     <div class="card-header text-white d-flex justify-content-between align-items-center"
          style="background-color:#143670;">
-      <h3 class="mb-0 text-center">Registered Users</h3>
+      <h3 class="mb-0">Registered Users</h3>
+      <a href="{{ url_for('admin.export_users') }}"
+         class="btn btn-success btn-sm">
+        <i class="fas fa-file-excel me-1"></i> Download Excel
+      </a>
     </div>
 
     <div class="card-body">

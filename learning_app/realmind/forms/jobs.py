@@ -1,23 +1,26 @@
 # forms/jobs.py
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, SubmitField, SelectField
-from wtforms.validators import DataRequired, Length
+from wtforms import StringField, TextAreaField, SubmitField, SelectField, DateTimeField, SelectMultipleField
+from wtforms.validators import DataRequired, Length, Optional
 from flask_wtf.file import FileField, FileAllowed
+
+LEVEL_CHOICES = [
+    ('Early Childhood', 'Early Childhood'),
+    ('Primary', 'Primary'),
+    ('Lower Secondary', 'Lower Secondary (Junior High)'),
+    ('Upper Secondary', 'Upper Secondary (Senior High)'),
+]
+
 class JobPostForm(FlaskForm):
     title = StringField('Job Title', validators=[DataRequired(), Length(min=5, max=100)])
     description = TextAreaField('Job Description', validators=[DataRequired()])
     requirements = TextAreaField('Job Requirements', validators=[DataRequired()])
-    level = SelectField('Level', validators=[DataRequired()], choices=[
-        ('Pre-School', 'Pre-School'),
-        ('Lower Primary', 'Lower Primary'),
-        ('Upper Primary', 'Upper Primary'),
-        ('Junior High', 'Junior High'),
-        ('Lower Secondary', 'Lower Secondary'),
-        ('Senior High', 'Senior High'),
-        ('Upper Secondary', 'Upper Secondary'),
-        ('O-Level', 'O-Level'),
-        ('A-Level', 'A-Level')
-    ])
+
+    # Multi-select checkboxes; rendered manually in templates
+    level = SelectMultipleField('Level', validators=[Optional()], choices=LEVEL_CHOICES)
+    level_other = StringField('Other Level', validators=[Optional(), Length(max=150)])
+
+    location = StringField('Location', validators=[DataRequired(), Length(min=3, max=255)])
     
     subject = SelectField('Subject', validators=[DataRequired()], choices=[
         ('Mathematics', 'Mathematics'),
@@ -78,6 +81,7 @@ class JobPostForm(FlaskForm):
         ('Pottery', 'Pottery'),
         ('Other', 'Other')
     ])
+    application_deadline = DateTimeField('Application Deadline (Optional)', validators=[Optional()], format='%Y-%m-%d %H:%M')
     submit = SubmitField('Post Job')
 
 class ApplyJobForm(FlaskForm):

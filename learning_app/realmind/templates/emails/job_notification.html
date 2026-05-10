@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>New Job Opportunity – RealMindX Education</title>
+</head>
+
+<body style="margin:0;padding:0;background-color:#f4f4f4;font-family:Arial,sans-serif;">
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f4;">
+  <tr>
+    <td align="center">
+
+      <!-- MAIN CONTAINER -->
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;">
+
+        <!-- HEADER -->
+        <tr>
+          <td align="center" style="padding:30px;background-color:#143670;">
+            <img src="https://realmindxgh.com/static/images/real.jpg"
+                 alt="RealMindX Education"
+                 style="max-width:200px;height:auto;display:block;">
+          </td>
+        </tr>
+
+        <!-- CONTENT -->
+        <tr>
+          <td style="padding:40px 30px;color:#333333;">
+
+            <h2 style="margin:0 0 20px 0;color:#143670;font-size:24px;">
+              New Job Opportunity For You!
+            </h2>
+
+            <p style="margin:0 0 15px 0;font-size:16px;line-height:1.6;">
+              Dear <strong>{{ teacher_name }}</strong>,
+            </p>
+
+            <p style="margin:0 0 20px 0;font-size:16px;line-height:1.6;">
+              A new teaching position has been posted that matches
+              <strong>{{ match_reason }}</strong>. We thought you'd want to be
+              among the first to know!
+            </p>
+
+            <!-- JOB DETAILS BOX -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                   style="background-color:#f8f9fa;border:1px solid #dee2e6;margin:0 0 25px 0;">
+              <tr>
+                <td style="padding:25px;">
+
+                  <h3 style="margin:0 0 15px 0;color:#003366;font-size:20px;
+                              border-bottom:2px solid #143670;padding-bottom:10px;">
+                    {{ job_title }}
+                  </h3>
+
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                    <tr>
+                      <td style="padding:7px 0;width:38%;color:#555555;font-weight:bold;
+                                  font-size:14px;vertical-align:top;">Subject:</td>
+                      <td style="padding:7px 0;color:#222222;font-size:14px;
+                                  vertical-align:top;">{{ job_subject }}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:7px 0;color:#555555;font-weight:bold;
+                                  font-size:14px;vertical-align:top;">Level:</td>
+                      <td style="padding:7px 0;color:#222222;font-size:14px;
+                                  vertical-align:top;">{{ job_level }}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:7px 0;color:#555555;font-weight:bold;
+                                  font-size:14px;vertical-align:top;">Location:</td>
+                      <td style="padding:7px 0;color:#222222;font-size:14px;
+                                  vertical-align:top;">{{ job_location }}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:7px 0;color:#555555;font-weight:bold;
+                                  font-size:14px;vertical-align:top;">Deadline:</td>
+                      <td style="padding:7px 0;font-size:14px;vertical-align:top;">
+                        {% if job_deadline %}
+                          <span style="color:#c0392b;font-weight:bold;">{{ job_deadline }}</span>
+                        {% else %}
+                          <span style="color:#555555;">Open until filled</span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  </table>
+
+                  {% if job_description %}
+                  <p style="margin:15px 0 0 0;font-size:14px;color:#444444;line-height:1.7;
+                              border-top:1px solid #dee2e6;padding-top:15px;">
+                    {{ job_description }}{% if job_description_truncated %}…{% endif %}
+                  </p>
+                  {% endif %}
+
+                </td>
+              </tr>
+            </table>
+
+            <!-- CTA BUTTON -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                   style="margin:0 0 30px 0;">
+              <tr>
+                <td align="center">
+                  <a href="{{ apply_url }}"
+                     style="background-color:#143670;color:#ffffff;text-decoration:none;
+                            padding:14px 36px;border-radius:5px;font-size:16px;
+                            font-weight:bold;display:inline-block;">
+                    View Job &amp; Apply Now
+                  </a>
+                </td>
+              </tr>
+            </table>
+
+            <!-- URGENCY NOTE -->
+            {% if job_deadline %}
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                   style="background-color:#fff3cd;border-left:4px solid #f0ad4e;
+                          margin:0 0 25px 0;">
+              <tr>
+                <td style="padding:15px 20px;">
+                  <p style="margin:0;color:#856404;font-size:14px;line-height:1.6;">
+                    <strong>⏰ Act quickly!</strong> Applications close on
+                    <strong>{{ job_deadline }}</strong>. Don't miss this opportunity.
+                  </p>
+                </td>
+              </tr>
+            </table>
+            {% endif %}
+
+            <!-- WHY THIS EMAIL -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                   style="background-color:#e8f4f8;border-left:4px solid #143670;
+                          margin:0 0 25px 0;">
+              <tr>
+                <td style="padding:15px 20px;">
+                  <p style="margin:0;color:#1a4a6e;font-size:13px;line-height:1.6;">
+                    You are receiving this notification because your profile preferences
+                    match this job opportunity. You can update your preferences anytime
+                    from your dashboard.
+                  </p>
+                </td>
+              </tr>
+            </table>
+
+            <p style="margin:0;font-size:15px;line-height:1.6;">
+              Best regards,<br>
+              <strong>RealMindX Education Recruitment Team</strong>
+            </p>
+
+          </td>
+        </tr>
+
+        <!-- FOOTER -->
+        <tr>
+          <td style="background-color:#0C2E60;padding:30px 20px;">
+
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+
+              <tr>
+                <td align="center" style="color:#ffffff;font-size:16px;font-weight:bold;
+                                          padding-bottom:15px;">
+                  Connect With Us
+                </td>
+              </tr>
+
+              <!-- SOCIAL BUTTONS -->
+              <tr>
+                <td align="center">
+                  <a href="https://web.facebook.com/profile.php?id=61566941171883"
+                     style="background:#1877F2;color:#ffffff;text-decoration:none;
+                            padding:8px 14px;border-radius:5px;font-size:14px;
+                            margin:3px;display:inline-block;">Facebook</a>
+
+                  <a href="https://x.com/RealMindXgh"
+                     style="background:#000000;color:#ffffff;text-decoration:none;
+                            padding:8px 14px;border-radius:5px;font-size:14px;
+                            margin:3px;display:inline-block;">X</a>
+
+                  <a href="https://www.instagram.com/realmindxgh/"
+                     style="background:#E1306C;color:#ffffff;text-decoration:none;
+                            padding:8px 14px;border-radius:5px;font-size:14px;
+                            margin:3px;display:inline-block;">Instagram</a>
+
+                  <a href="https://www.youtube.com/@realmindxgh"
+                     style="background:#FF0000;color:#ffffff;text-decoration:none;
+                            padding:8px 14px;border-radius:5px;font-size:14px;
+                            margin:3px;display:inline-block;">YouTube</a>
+
+                  <a href="https://wa.link/d6x888"
+                     style="background:#25D366;color:#ffffff;text-decoration:none;
+                            padding:8px 14px;border-radius:5px;font-size:14px;
+                            margin:3px;display:inline-block;">WhatsApp</a>
+                </td>
+              </tr>
+
+              <!-- CONTACT INFO -->
+              <tr>
+                <td align="center"
+                    style="color:#ffffff;font-size:14px;line-height:1.6;padding-top:25px;">
+                  <strong>Customer service:</strong> Monday–Saturday, 7AM–5PM<br>
+                  <strong>Hotline:</strong> (+233) 558039190 / 551324729 / 554529493<br>
+                  <strong>WhatsApp:</strong> +233 558039190<br>
+                  <strong>Email:</strong> realmindxgh@gmail.com
+                </td>
+              </tr>
+
+              <!-- DISCLAIMER -->
+              <tr>
+                <td align="center"
+                    style="color:#dddddd;font-size:12px;padding-top:15px;">
+                  <em>This is an automated message. Replies will not be monitored.</em>
+                </td>
+              </tr>
+
+            </table>
+
+          </td>
+        </tr>
+
+      </table>
+      <!-- END MAIN CONTAINER -->
+
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>
