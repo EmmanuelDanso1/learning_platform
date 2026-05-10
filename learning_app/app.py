@@ -3,7 +3,7 @@ import logging
 from flask_wtf import CSRFProtect
 from flask import Flask, current_app
 from flask_sqlalchemy import SQLAlchemy
-from learning_app.extensions import db,bcrypt,migrate,mail, login_manager
+from learning_app.extensions import db, bcrypt, migrate, mail, login_manager, cache
 from flask_mail import Mail
 from flask_migrate import Migrate
 from dotenv import load_dotenv
@@ -63,6 +63,10 @@ def create_app():
     app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
+    # Cache — SimpleCache (in-process, no Redis required)
+    app.config['CACHE_TYPE']              = 'SimpleCache'
+    app.config['CACHE_DEFAULT_TIMEOUT']  = 300  # 5 minutes
+
     # SETUP LOGGING HERE
     setup_logging(app)
     app.logger.info("Application startup initiated")
@@ -89,6 +93,7 @@ def create_app():
     mail.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
+    cache.init_app(app)
 
     app.logger.info("Flask extensions initialized")
 

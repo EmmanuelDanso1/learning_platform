@@ -1286,3 +1286,11 @@ jinja2.exceptions.TemplateNotFound: admin/cv_tutorial.html
 [2026-05-10 07:24:00,118] INFO in app: Redis client initialized
 [2026-05-10 07:24:00,130] INFO in app: Flask extensions initialized
 [2026-05-10 07:24:00,248] INFO in app: Application startup complete
+[2026-05-10 07:43:42,618] INFO in app: Application startup initiated
+[2026-05-10 07:43:42,618] INFO in app: Redis client initialized
+[2026-05-10 07:43:42,665] INFO in app: Flask extensions initialized
+[2026-05-10 07:43:42,804] INFO in app: Application startup complete
+[2026-05-10 07:43:44,208] INFO in app: Application startup initiated
+[2026-05-10 07:43:44,209] INFO in app: Redis client initialized
+[2026-05-10 07:43:44,223] INFO in app: Flask extensions initialized
+[2026-05-10 07:43:44,308] INFO in app: Application startup complete

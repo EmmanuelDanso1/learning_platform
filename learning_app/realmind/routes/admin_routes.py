@@ -17,7 +17,7 @@ from datetime import datetime
 import requests
 from learning_app.realmind.models.user import User
 from learning_app.realmind.utils.email import send_order_status_email
-from learning_app.realmind.utils.util import UPLOAD_FOLDER, allowed_profile_pic,allowed_image_file, allowed_document, allowed_file, FLIERS_FOLDER,generate_unsubscribe_token, verify_unsubscribe_token
+from learning_app.realmind.utils.util import UPLOAD_FOLDER, allowed_profile_pic, allowed_image_file, allowed_document, allowed_file, FLIERS_FOLDER, generate_unsubscribe_token, verify_unsubscribe_token, optimize_image
 from learning_app.realmind.utils.email import notify_matching_teachers
 import logging
 from learning_app.realmind.routes.newsletter_sync import sync_bookshop_subscribers
@@ -145,6 +145,8 @@ def upload_gallery():
         file.save(save_path)
 
         file_type = 'video' if filename.lower().endswith(('.mp4', '.mov', '.avi')) else 'image'
+        if file_type == 'image':
+            optimize_image(save_path, max_width=1920)
 
         new_item = Gallery(filename=filename, caption=caption, file_type=file_type)
         db.session.add(new_item)
@@ -468,6 +470,7 @@ def post_news():
             unique_filename = f"{uuid.uuid4().hex}_{filename}"
             path = os.path.join(UPLOAD_FOLDER, unique_filename)
             image.save(path)
+            optimize_image(path, max_width=1200)
             # Store relative path for templates
             image_url = f'uploads/news/{unique_filename}'
 
@@ -597,6 +600,7 @@ def add_product():
             try:
                 os.makedirs(os.path.dirname(upload_path), exist_ok=True)
                 image_file.save(upload_path)
+                optimize_image(upload_path, max_width=1200)
                 logger.info(f"Image saved: {upload_path} ({os.path.getsize(upload_path)} bytes)")
             except Exception as img_err:
                 logger.exception(f"Failed to save local image: {img_err}")
@@ -1257,6 +1261,7 @@ def post_flier():
         os.makedirs(FLIERS_FOLDER, exist_ok=True)
         save_path = os.path.join(FLIERS_FOLDER, filename)
         image_file.save(save_path)
+        optimize_image(save_path, max_width=1200)
 
         flier = PromotionFlier(title=title, image_filename=filename)
         db.session.add(flier)
@@ -2638,7 +2643,9 @@ def manage_partners():
             os.makedirs(PARTNERS_UPLOAD_FOLDER, exist_ok=True)
             ext = os.path.splitext(logo_file.filename)[1].lower()
             logo_filename = f"{uuid.uuid4().hex}{ext}"
-            logo_file.save(os.path.join(PARTNERS_UPLOAD_FOLDER, logo_filename))
+            logo_path = os.path.join(PARTNERS_UPLOAD_FOLDER, logo_filename)
+            logo_file.save(logo_path)
+            optimize_image(logo_path, max_width=400)
 
         partner = Partner(
             name=name,

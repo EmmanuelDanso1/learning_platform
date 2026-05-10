@@ -7,6 +7,7 @@ from wtforms.validators import ValidationError
 from flask_wtf.csrf import generate_csrf,validate_csrf, CSRFError
 from learning_app.extensions import db, mail  
 from learning_app.realmind.models import JobPost, Application, User, CVTutorial
+from learning_app.realmind.utils.util import optimize_image as _optimize_image
 from flask_mail import Message
 from learning_app.realmind.utils.util import allowed_document , allowed_profile_pic
 
@@ -179,6 +180,7 @@ def edit_profile():
 
             file_path = os.path.join(upload_path, filename)
             pic.save(file_path)
+            _optimize_image(file_path, max_width=400)
 
             # Delete old picture
             if current_user.profile_pic:

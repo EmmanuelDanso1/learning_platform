@@ -35,12 +35,12 @@
           <!-- IMAGE -->
           <td class="text-center">
            {% if product.bookshop_image_url %}
-              <img src="{{ product.bookshop_image_url }}"
+              <img src="{{ product.bookshop_image_url }}" loading="lazy"
                   width="60" height="60"
                   class="rounded"
                   style="object-fit: cover;">
             {% elif product.image_filename %}
-              <img src="{{ url_for('static', filename='uploads/' ~ product.image_filename) }}"
+              <img src="{{ url_for('static', filename='uploads/' ~ product.image_filename) }}" loading="lazy"
                   width="60" height="60"
                   class="rounded"
                   style="object-fit: cover;">

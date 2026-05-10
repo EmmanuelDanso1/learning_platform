@@ -234,9 +234,10 @@
                 <div class="carousel-item {% if loop.first %}active{% endif %}">
                   <div class="card border-0 rounded-4 shadow-sm">
                     {% if news.image_url %}
-                      <img src="{{ url_for('static', filename=news.image_url) }}" 
-                          class="card-img-top rounded-top-4" 
-                          style="height: 300px; object-fit: cover;" 
+                      <img src="{{ url_for('static', filename=news.image_url) }}"
+                          class="card-img-top rounded-top-4"
+                          style="height: 300px; object-fit: cover;"
+                          loading="lazy"
                           alt="{{ news.title }}">
                     {% endif %}
                     <div class="card-body text-start">
@@ -275,9 +276,10 @@
               {% for item in gallery_slides %}
                 <div class="carousel-item {% if loop.first %}active{% endif %}">
                   <div class="card border-0 rounded-4 shadow-sm">
-                    <img src="{{ url_for('static', filename='uploads/gallery/' ~ item.filename) }}" 
-                         class="card-img-top rounded-4" 
-                         style="height: 300px; object-fit: cover;" 
+                    <img src="{{ url_for('static', filename='uploads/gallery/' ~ item.filename) }}"
+                         class="card-img-top rounded-4"
+                         style="height: 300px; object-fit: cover;"
+                         loading="lazy"
                          alt="Gallery Image">
                   </div>
                 </div>

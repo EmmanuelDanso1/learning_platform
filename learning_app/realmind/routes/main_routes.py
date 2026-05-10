@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, abort, current_app
 from learning_app.realmind.models import News, Gallery, Partner
 from flask_mail import Message
-from flask_wtf.csrf import generate_csrf,validate_csrf, CSRFError
-from learning_app.extensions import mail
+from flask_wtf.csrf import generate_csrf, validate_csrf, CSRFError
+from learning_app.extensions import mail, cache
 from wtforms.validators import ValidationError
 
 
@@ -10,12 +10,23 @@ import os
 
 main_bp = Blueprint('main', __name__, template_folder='../templates')
 
-@main_bp.route('/')
-def home():
-    gallery_slides = Gallery.query.filter_by(file_type='image').order_by(Gallery.date_posted.desc()).limit(6).all()
+def _homepage_data():
+    """Queries cached for 5 min — safe because this data changes rarely."""
+    gallery_slides = Gallery.query.filter_by(file_type='image')\
+                            .order_by(Gallery.date_posted.desc()).limit(6).all()
     latest_news    = News.query.order_by(News.created_at.desc()).limit(5).all()
     partners       = Partner.query.filter_by(is_active=True)\
-                            .order_by(Partner.display_order.asc(), Partner.created_at.asc()).all()
+                            .order_by(Partner.display_order.asc(),
+                                      Partner.created_at.asc()).all()
+    return gallery_slides, latest_news, partners
+
+
+@main_bp.route('/')
+def home():
+    gallery_slides, latest_news, partners = cache.get('homepage_data') or (None, None, None)
+    if gallery_slides is None:
+        gallery_slides, latest_news, partners = _homepage_data()
+        cache.set('homepage_data', (gallery_slides, latest_news, partners), timeout=300)
     return render_template('home.html', latest_news=latest_news,
                            gallery_slides=gallery_slides, partners=partners)
 
