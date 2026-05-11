@@ -1306,3 +1306,10 @@ jinja2.exceptions.TemplateNotFound: admin/cv_tutorial.html
 [2026-05-10 13:10:27,468] INFO in app: Redis client initialized
 [2026-05-10 13:10:27,483] INFO in app: Flask extensions initialized
 [2026-05-10 13:10:27,618] INFO in app: Application startup complete
+[2026-05-11 12:10:22,031] INFO in app: Application startup initiated
+[2026-05-11 12:10:22,032] INFO in app: Redis client initialized
+[2026-05-11 12:10:22,062] INFO in app: Flask extensions initialized
+[2026-05-11 12:10:22,230] INFO in app: Application startup complete
+[2026-05-11 12:14:36,459] INFO in admin_routes: Deleting product ID 4
+[2026-05-11 12:14:36,460] INFO in admin_routes: Local image deleted: C:\Users\HP\Desktop\pro\learning_platform\learning_app\realmind\static\uploads\book-4806076_1280.jpg
+[2026-05-11 12:14:36,465] INFO in admin_routes: Product 4 fully deleted

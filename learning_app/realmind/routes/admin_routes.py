@@ -732,23 +732,32 @@ def edit_product(product_id):
 
         current_app.logger.info(f"Editing product ID {product.id}")
 
-        # Basic fields
-        product.name = request.form['name']
-        product.description = request.form['description']
+        # --- Basic fields ---
+        product.name = request.form['name'].strip()
+        product.description = request.form['description'].strip()
         product.price = float(request.form['price'])
-        product.in_stock = request.form.get('in_stock') == 'true'
+        product.in_stock = request.form.get('in_stock') in ('true', 'on', '1')
 
-        # Metadata
-        product.author = request.form.get('author')
-        product.grade = request.form.get('grade')
-        product.level = request.form.get('level')
-        product.subject = request.form.get('subject')
-        product.brand = request.form.get('brand')
+        # --- Metadata ---
+        product.author  = request.form.get('author', '').strip() or None
+        product.grade   = request.form.get('grade', '').strip() or None
+        product.level   = request.form.get('level', '').strip() or None
+        product.subject = request.form.get('subject', '').strip() or None
+        product.brand   = request.form.get('brand', '').strip() or None
+        product.source  = request.form.get('source', '').strip() or None
+
+        # Curriculum (with "Other" handling, same as add_product)
+        curriculum_select = request.form.get('curriculum', '').strip()
+        curriculum_other  = request.form.get('curriculum_other', '').strip()
+        product.curriculum = (
+            curriculum_other if curriculum_select == 'Other'
+            else (curriculum_select or None)
+        )
 
         discount_raw = request.form.get('discount_percentage')
         product.discount_percentage = float(discount_raw) if discount_raw else 0.0
 
-        # Category
+        # --- Category ---
         category_name = request.form.get('category_name', '').strip().title()
         if category_name:
             category = Category.query.filter_by(name=category_name).first()
@@ -758,80 +767,116 @@ def edit_product(product_id):
                 db.session.commit()
             product.category_id = category.id
 
-        # IMAGE
+        # --- Image (optional) ---
         image_file = request.files.get('image')
         upload_path = None
         if image_file and allowed_file(image_file.filename):
-            filename = secure_filename(image_file.filename)
+            ext = os.path.splitext(image_file.filename)[1].lower()
+            filename = f"{uuid.uuid4().hex}{ext}"
             upload_path = os.path.join(
-                current_app.current_app.static_folder,
-                'uploads',
-                'newsletters', filename
+                current_app.root_path, 'realmind', 'static', 'uploads', filename
             )
-            os.makedirs(os.path.dirname(upload_path), exist_ok=True)
-            image_file.save(upload_path)
-            product.image_filename = filename
-
-            current_app.logger.info(f"New image uploaded: {filename}")
+            try:
+                os.makedirs(os.path.dirname(upload_path), exist_ok=True)
+                image_file.save(upload_path)
+                optimize_image(upload_path, max_width=1200)
+                # Remove old local image
+                if product.image_filename:
+                    old_path = os.path.join(
+                        current_app.root_path, 'realmind', 'static', 'uploads',
+                        product.image_filename
+                    )
+                    if os.path.exists(old_path) and old_path != upload_path:
+                        os.remove(old_path)
+                product.image_filename = filename
+                current_app.logger.info(f"New image uploaded: {filename}")
+            except Exception as img_err:
+                current_app.logger.exception(f"Failed to save local image: {img_err}")
+                upload_path = None
 
         db.session.commit()
 
-        # ---- SYNC TO BOOKSHOP ----
+        # --- Sync to Bookshop (flat form fields, same protocol as add_product) ---
         if product.ecommerce_product_id:
             BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
-            API_TOKEN = os.getenv("API_TOKEN")
+            API_TOKEN    = os.getenv("API_TOKEN")
+
+            if not BOOKSHOP_API or not API_TOKEN:
+                current_app.logger.warning("Bookshop API env vars not set — skipping sync")
+                flash("Product updated locally. Bookshop sync skipped (API not configured).", "warning")
+                return redirect(url_for('admin.manage_products'))
+
+            product_payload = {
+                'name':                product.name,
+                'description':         product.description,
+                'price':               str(product.price),
+                'in_stock':            'true' if product.in_stock else 'false',
+                'category':            category_name or (product.category.name if product.category else ''),
+                'author':              product.author or '',
+                'grade':               product.grade or '',
+                'level':               product.level or '',
+                'subject':             product.subject or '',
+                'brand':               product.brand or '',
+                'curriculum':          product.curriculum or '',
+                'discount_percentage': str(product.discount_percentage),
+            }
 
             headers = {'Authorization': f'Bearer {API_TOKEN}'}
 
-            product_data = {
-                'name': product.name,
-                'description': product.description,
-                'price': product.price,
-                'in_stock': product.in_stock,
-                'author': product.author,
-                'grade': product.grade,
-                'level': product.level,
-                'subject': product.subject,
-                'brand': product.brand,
-                'discount_percentage': product.discount_percentage,
-                'category': category_name
-            }
-
-            files = None
-            if upload_path:
-                files = {
-                    'data': (None, json.dumps(product_data)),
-                    'image': open(upload_path, 'rb')
-                }
-            else:
-                files = {'data': (None, json.dumps(product_data))}
-
             try:
-                res = requests.put(
-                    f"{BOOKSHOP_API}/products/{product.ecommerce_product_id}",
-                    files=files,
-                    headers=headers,
-                    timeout=15
-                )
+                if upload_path and os.path.exists(upload_path):
+                    with open(upload_path, 'rb') as img_file:
+                        res = requests.put(
+                            f"{BOOKSHOP_API}/products/{product.ecommerce_product_id}",
+                            data=product_payload,
+                            files={'image': img_file},
+                            headers=headers,
+                            timeout=15,
+                        )
+                else:
+                    res = requests.put(
+                        f"{BOOKSHOP_API}/products/{product.ecommerce_product_id}",
+                        data=product_payload,
+                        headers=headers,
+                        timeout=15,
+                    )
 
                 current_app.logger.info(
-                    f"Bookshop update response {res.status_code}: {res.text}"
+                    f"Bookshop update response {res.status_code}: {res.text[:300]}"
                 )
 
                 if res.status_code == 200:
-                    data = res.json()
-                    product.bookshop_image_url = data.get('image_url')
-                    db.session.commit()
+                    resp_json = res.json()
+                    if resp_json.get('image_url'):
+                        product.bookshop_image_url = resp_json['image_url']
+                        db.session.commit()
+                    flash("Product updated and synced with Bookshop!", "success")
+                else:
+                    current_app.logger.error(
+                        f"Bookshop rejected update (HTTP {res.status_code}): {res.text[:500]}"
+                    )
+                    flash(
+                        f"Product updated locally but Bookshop sync failed "
+                        f"(HTTP {res.status_code}). Check server logs.",
+                        "warning"
+                    )
 
+            except requests.exceptions.ConnectionError:
+                current_app.logger.error(f"Cannot reach Bookshop API at {BOOKSHOP_API}")
+                flash("Product updated locally. Cannot connect to Bookshop.", "warning")
+            except requests.exceptions.Timeout:
+                current_app.logger.error("Bookshop API request timed out")
+                flash("Product updated locally. Bookshop sync timed out.", "warning")
             except Exception as e:
-                current_app.logger.error(f"Sync update failed: {e}")
+                current_app.logger.exception(f"Unexpected sync error: {e}")
+                flash("Product updated locally. Unexpected sync error — check logs.", "warning")
+        else:
+            flash("Product updated successfully.", "success")
 
-        flash("Product updated successfully.", "success")
         return redirect(url_for('admin.manage_products'))
 
     csrf_token = generate_csrf()
     return render_template('admin/edit_product.html', product=product, csrf_token=csrf_token)
-
 
 @admin_bp.route('/admin/delete-product/<int:product_id>', methods=['POST'])
 @login_required
@@ -843,48 +888,94 @@ def delete_product(product_id):
         abort(400, description="Invalid CSRF token")
 
     product = Product.query.get_or_404(product_id)
-    current_app.logger.info(f"Deleting product ID {product.id}")
+    current_app.logger.info(f"Deleting product ID {product.id} ({product.name})")
 
-    BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
-    API_TOKEN = os.getenv("API_TOKEN")
-
-    # ---- DELETE FROM BOOKSHOP ----
+    # --- Sync delete to Bookshop ---
     if product.ecommerce_product_id:
-        try:
+        BOOKSHOP_API = os.getenv("BOOKSHOP_API_BASE_URL")
+        API_TOKEN    = os.getenv("API_TOKEN")
+
+        if not BOOKSHOP_API or not API_TOKEN:
+            current_app.logger.warning(
+                "Bookshop API env vars not set — skipping remote delete"
+            )
+            flash("Bookshop API not configured. Local delete only.", "warning")
+        else:
             headers = {'Authorization': f'Bearer {API_TOKEN}'}
-            res = requests.delete(
-                f"{BOOKSHOP_API}/products/{product.ecommerce_product_id}",
-                headers=headers,
-                timeout=10
-            )
+            try:
+                res = requests.delete(
+                    f"{BOOKSHOP_API}/products/{product.ecommerce_product_id}",
+                    headers=headers,
+                    timeout=10,
+                )
+                current_app.logger.info(
+                    f"Bookshop delete response {res.status_code}: {res.text[:300]}"
+                )
 
-            current_app.logger.info(
-                f"Bookshop delete response {res.status_code}: {res.text}"
-            )
+                # 200 OK or 404 (already gone) — both mean "not on Bookshop anymore"
+                if res.status_code in (200, 404):
+                    pass  # safe to proceed
+                elif res.status_code == 400:
+                    # Bookshop refuses because the product is tied to orders
+                    current_app.logger.warning(
+                        f"Bookshop refused delete (in orders): {res.text[:200]}"
+                    )
+                    flash(
+                        "Cannot delete: this product is part of one or more orders on Bookshop.",
+                        "danger",
+                    )
+                    return redirect(url_for('admin.manage_products'))
+                else:
+                    current_app.logger.error(
+                        f"Bookshop delete failed (HTTP {res.status_code}): {res.text[:500]}"
+                    )
+                    flash(
+                        f"Failed to delete product from Bookshop (HTTP {res.status_code}). "
+                        "Aborting local delete to keep both sides in sync.",
+                        "danger",
+                    )
+                    return redirect(url_for('admin.manage_products'))
 
-            if res.status_code != 200:
-                flash("Failed to delete product from Bookshop.", "danger")
+            except requests.exceptions.ConnectionError:
+                current_app.logger.error(f"Cannot reach Bookshop API at {BOOKSHOP_API}")
+                flash(
+                    "Cannot connect to Bookshop. Aborting delete to keep both sides in sync.",
+                    "danger",
+                )
+                return redirect(url_for('admin.manage_products'))
+            except requests.exceptions.Timeout:
+                current_app.logger.error("Bookshop delete timed out")
+                flash("Bookshop delete timed out. Aborting to keep both sides in sync.", "danger")
+                return redirect(url_for('admin.manage_products'))
+            except Exception as e:
+                current_app.logger.exception(f"Unexpected Bookshop delete error: {e}")
+                flash("Unexpected sync error. Aborting delete — check server logs.", "danger")
                 return redirect(url_for('admin.manage_products'))
 
-        except Exception as e:
-            current_app.logger.error(f"Bookshop delete error: {e}")
-            flash("Error deleting product from Bookshop.", "danger")
-            return redirect(url_for('admin.manage_products'))
-
-    # ---- DELETE LOCAL IMAGE ----
+    # --- Delete local image ---
     if product.image_filename:
         image_path = os.path.join(
             current_app.root_path, 'realmind', 'static', 'uploads', product.image_filename
         )
         if os.path.exists(image_path):
-            os.remove(image_path)
-            current_app.logger.info(f"Local image deleted: {image_path}")
+            try:
+                os.remove(image_path)
+                current_app.logger.info(f"Local image deleted: {image_path}")
+            except OSError as e:
+                # Don't block delete if file removal fails
+                current_app.logger.warning(f"Failed to remove local image {image_path}: {e}")
 
-    db.session.delete(product)
-    db.session.commit()
+    # --- Delete from DB ---
+    try:
+        db.session.delete(product)
+        db.session.commit()
+        current_app.logger.info(f"Product {product.id} fully deleted")
+        flash("Product deleted successfully.", "success")
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.exception(f"DB delete failed: {e}")
+        flash("Local DB delete failed. Check logs.", "danger")
 
-    current_app.logger.info(f"Product {product.id} fully deleted")
-    flash("Product deleted successfully.", "success")
     return redirect(url_for('admin.manage_products'))
 
 
