@@ -22,7 +22,7 @@ limiter = Limiter(
     key_func=get_remote_address,
     default_limits=["200 per day", "50 per hour"],
     # testing/development
-    # storage_uri="memory://"
+    # storage_uri="memory://"S
     # production
     storage_uri=f"redis://:{REDIS_PASSWORD}@127.0.0.1:6379/0"
 )

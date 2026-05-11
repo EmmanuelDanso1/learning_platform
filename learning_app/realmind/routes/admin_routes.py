@@ -568,12 +568,15 @@ def add_product():
         )
 
         # Optional fields
-        author  = request.form.get('author')
-        grade   = request.form.get('grade')
-        level   = request.form.get('level')
-        subject = request.form.get('subject')
-        brand   = request.form.get('brand')
-        source  = request.form.get('source', '').strip() or None   # admin-only field
+        author     = request.form.get('author')
+        grade      = request.form.get('grade')
+        level      = request.form.get('level')
+        subject    = request.form.get('subject')
+        brand      = request.form.get('brand')
+        source     = request.form.get('source', '').strip() or None
+        curriculum_select = request.form.get('curriculum', '').strip()
+        curriculum_other  = request.form.get('curriculum_other', '').strip()
+        curriculum = curriculum_other if curriculum_select == 'Other' else curriculum_select or None
         discount_percentage = request.form.get('discount_percentage')
         discount_percentage = float(discount_percentage) if discount_percentage else 0.0
 
@@ -623,6 +626,7 @@ def add_product():
             level=level,
             subject=subject,
             brand=brand,
+            curriculum=curriculum,
             source=source,
             discount_percentage=discount_percentage
         )
@@ -652,6 +656,7 @@ def add_product():
             'level':               level or '',
             'subject':             subject or '',
             'brand':               brand or '',
+            'curriculum':          curriculum or '',
             'discount_percentage': str(discount_percentage),
         }
 
@@ -2501,7 +2506,7 @@ def export_products():
     headers = [
         'ID', 'Name', 'Description', 'Price (₵)', 'Discount (%)',
         'Discounted Price (₵)', 'Category', 'Author', 'Grade', 'Level',
-        'Subject', 'Brand', 'Source', 'In Stock', 'Date Created',
+        'Subject', 'Brand', 'Curriculum', 'Source', 'In Stock', 'Date Created',
         'Synced to Bookshop',
     ]
     _styled_header(ws, headers)
@@ -2520,6 +2525,7 @@ def export_products():
             p.level or '',
             p.subject or '',
             p.brand or '',
+            p.curriculum or '',
             p.source or '',
             'Yes' if p.in_stock else 'No',
             p.date_created.strftime('%Y-%m-%d %H:%M') if p.date_created else '',

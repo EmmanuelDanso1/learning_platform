@@ -65,6 +65,29 @@
         <label for="subject" class="form-label">Subject</label>
         <input type="text" name="subject" id="subject" class="form-control">
       </div>
+
+      <div class="col-md-6 mb-3">
+        <label for="curriculum" class="form-label">Curriculum</label>
+        <select name="curriculum" id="curriculum" class="form-select"
+                onchange="document.getElementById('curriculum_other_wrap')
+                          .classList.toggle('d-none', this.value !== 'Other')">
+          <option value="">— Select curriculum —</option>
+          <option value="GES New Curriculum">GES New Curriculum</option>
+          <option value="GES Old Curriculum">GES Old Curriculum</option>
+          <option value="BECE">BECE</option>
+          <option value="WASSCE">WASSCE</option>
+          <option value="Cambridge">Cambridge (IGCSE / AS / A-Level)</option>
+          <option value="IB">IB (International Baccalaureate)</option>
+          <option value="Montessori">Montessori</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div class="col-md-6 mb-3 d-none" id="curriculum_other_wrap">
+        <label for="curriculum_other" class="form-label">Specify Curriculum</label>
+        <input type="text" name="curriculum_other" id="curriculum_other"
+               class="form-control" placeholder="e.g. Waldorf, National TVET…">
+      </div>
     </div>
 
     <!-- Stock Status -->
