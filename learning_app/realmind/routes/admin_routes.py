@@ -2366,66 +2366,90 @@ def send_message_single(user_id):
 @admin_bp.route('/bulk_message', methods=['GET', 'POST'])
 @login_required
 def bulk_message():
-    # Only admins can use this route
     if not isinstance(current_user, Admin):
         abort(403)
 
-    # ------------------------------------------
-    # Admin selected checkboxes in user list
-    # ------------------------------------------
-    selected_ids_json = request.form.get("selected_ids")
+    # ----- Stage 1: arriving from the user list with selected IDs -----
+    # The user list submits a hidden field "selected_ids" containing a JSON array,
+    # OR multiple checkbox values named "selected_ids".
+    if request.method == 'POST' and 'selected_ids' in request.form and 'subject' not in request.form:
+        # Try JSON first (single field with JSON array), fall back to getlist (checkboxes)
+        raw = request.form.get('selected_ids', '')
+        try:
+            selected_ids = json.loads(raw) if raw.startswith('[') else request.form.getlist('selected_ids')
+        except (json.JSONDecodeError, TypeError):
+            selected_ids = request.form.getlist('selected_ids')
 
-    if selected_ids_json:
-        selected_ids = json.loads(selected_ids_json)
+        # Normalise to list of ints, drop anything invalid
+        try:
+            selected_ids = [int(x) for x in selected_ids if str(x).strip()]
+        except (TypeError, ValueError):
+            selected_ids = []
 
         if not selected_ids:
-            flash("Please select at least one user.", "warning")
+            flash('Please select at least one user.', 'warning')
             return redirect(url_for('admin.list_users'))
 
-        # Save selected user IDs in session so the next POST knows who to send to
         session['bulk_selected_users'] = selected_ids
+        return render_template(
+            'admin/bulk_message.html',
+            recipient_count=len(selected_ids),
+            csrf_token=generate_csrf(),
+        )
 
-        # Show the message writing form
-        return render_template("admin/bulk_message.html")
-
-    # ------------------------------------------
-    # Admin typed message + submitted form
-    # ------------------------------------------
+    # ----- Stage 2: admin submitted the compose form -----
     if request.method == 'POST':
-        selected_ids = session.get('bulk_selected_users')
-
+        selected_ids = session.get('bulk_selected_users') or []
         if not selected_ids:
-            flash("No users selected for bulk message.", "danger")
+            flash('Your selection expired. Please pick the users again.', 'warning')
             return redirect(url_for('admin.list_users'))
 
-        subject = request.form.get('subject')
-        body = request.form.get('message')
+        subject = (request.form.get('subject') or '').strip()
+        body    = (request.form.get('message') or '').strip()
+
+        if not subject or not body:
+            flash('Subject and message are both required.', 'danger')
+            return render_template(
+                'admin/bulk_message.html',
+                recipient_count=len(selected_ids),
+                csrf_token=generate_csrf(),
+            )
 
         users = User.query.filter(User.id.in_(selected_ids)).all()
-
         if not users:
-            flash("Selected users not found.", "danger")
+            flash('Selected users not found.', 'danger')
+            session.pop('bulk_selected_users', None)
             return redirect(url_for('admin.list_users'))
 
-        # Send email
+        sent, failed = 0, 0
         for user in users:
-            msg = Message(
-                subject=subject,
-                recipients=[user.email],
-                body=body,
-                sender="realmindxgh@gmail.com"
-            )
-            mail.send(msg)
+            try:
+                msg = Message(
+                    subject=subject,
+                    recipients=[user.email],
+                    body=body,
+                    sender='realmindxgh@gmail.com',
+                )
+                mail.send(msg)
+                sent += 1
+            except Exception as e:
+                failed += 1
+                current_app.logger.error(
+                    f'Bulk mail failed for user {user.id} ({user.email}): {e}'
+                )
 
-        flash(f"Message sent to {len(users)} users!", "success")
-
-        # Clear selections after sending
         session.pop('bulk_selected_users', None)
+
+        if failed:
+            flash(f'Sent to {sent} users. {failed} failed — check logs.', 'warning')
+        else:
+            flash(f'Message sent to {sent} users.', 'success')
 
         return redirect(url_for('admin.list_users'))
 
-    # GET request: Show empty page (if someone just visits /bulk_message)
-    return render_template("admin/bulk_message.html")
+    # ----- GET: someone navigated to /bulk_message directly -----
+    flash('Start by selecting users from the list first.', 'info')
+    return redirect(url_for('admin.list_users'))
 
 @admin_bp.route('/delete_user/<int:user_id>', methods=['POST'])
 @login_required
