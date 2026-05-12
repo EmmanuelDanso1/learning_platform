@@ -22,7 +22,16 @@
         <div class="card-body p-4">
 
             <form method="POST">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                {% if recipient_count %}
+                <p class="text-muted small mb-3">
+                    <i class="fas fa-users me-1"></i>
+                    This message will be sent to
+                    <strong>{{ recipient_count }}</strong>
+                    user{{ '' if recipient_count == 1 else 's' }}.
+                </p>
+                {% endif %}
 
                 <!-- Subject -->
                 <div class="mb-3">
