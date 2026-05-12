@@ -2377,7 +2377,13 @@ def send_message_single(user_id):
             )
 
         try:
-            send_email(user.email, subject, body)
+            msg = Message(
+                subject=subject,
+                recipients=[user.email],
+                body=body,
+                sender='realmindxgh@gmail.com',
+            )
+            mail.send(msg)
             current_app.logger.info(
                 f"Direct message sent to user {user.id} ({user.email})"
             )
@@ -2400,6 +2406,7 @@ def send_message_single(user_id):
         user=user,
         csrf_token=generate_csrf(),
     )
+    
 
 @admin_bp.route('/bulk_message', methods=['GET', 'POST'])
 @login_required
