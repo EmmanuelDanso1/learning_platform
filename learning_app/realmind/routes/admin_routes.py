@@ -2346,22 +2346,60 @@ def list_users():
     return render_template('admin/users_list.html', users=users)
 
 # send individual message/email
+from flask_wtf.csrf import generate_csrf, validate_csrf, CSRFError
+
 @admin_bp.route('/message/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 def send_message_single(user_id):
+    if not isinstance(current_user, Admin):
+        abort(403)
+
     user = User.query.get_or_404(user_id)
 
     if request.method == 'POST':
-        subject = request.form['subject']
-        body = request.form['body']
+        try:
+            validate_csrf(request.form.get('csrf_token'))
+        except CSRFError:
+            current_app.logger.warning(
+                f"Invalid CSRF on send_message_single (user_id={user_id})"
+            )
+            abort(400, description="Invalid CSRF token")
 
-        # send email
-        send_email(user.email, subject, body)
+        subject = (request.form.get('subject') or '').strip()
+        body    = (request.form.get('body') or '').strip()
 
-        flash('Message sent successfully', 'success')
+        if not subject or not body:
+            flash('Subject and message are both required.', 'danger')
+            return render_template(
+                'admin/message_single.html',
+                user=user,
+                csrf_token=generate_csrf(),
+            )
+
+        try:
+            send_email(user.email, subject, body)
+            current_app.logger.info(
+                f"Direct message sent to user {user.id} ({user.email})"
+            )
+            flash('Message sent successfully.', 'success')
+        except Exception as e:
+            current_app.logger.exception(
+                f"Failed to send direct message to user {user.id}: {e}"
+            )
+            flash('Failed to send message. Check logs.', 'danger')
+            return render_template(
+                'admin/message_single.html',
+                user=user,
+                csrf_token=generate_csrf(),
+            )
+
         return redirect(url_for('admin.list_users'))
 
-    return render_template('admin/message_single.html', user=user)
+    return render_template(
+        'admin/message_single.html',
+        user=user,
+        csrf_token=generate_csrf(),
+    )
 
 @admin_bp.route('/bulk_message', methods=['GET', 'POST'])
 @login_required
@@ -2369,21 +2407,24 @@ def bulk_message():
     if not isinstance(current_user, Admin):
         abort(403)
 
-    # ----- Stage 1: arriving from the user list with selected IDs -----
-    # The user list submits a hidden field "selected_ids" containing a JSON array,
-    # OR multiple checkbox values named "selected_ids".
-    if request.method == 'POST' and 'selected_ids' in request.form and 'subject' not in request.form:
-        # Try JSON first (single field with JSON array), fall back to getlist (checkboxes)
-        raw = request.form.get('selected_ids', '')
-        try:
-            selected_ids = json.loads(raw) if raw.startswith('[') else request.form.getlist('selected_ids')
-        except (json.JSONDecodeError, TypeError):
-            selected_ids = request.form.getlist('selected_ids')
+    # Reject anything that isn't a POST
+    if request.method != 'POST':
+        flash('Start by selecting users from the list first.', 'info')
+        return redirect(url_for('admin.list_users'))
 
-        # Normalise to list of ints, drop anything invalid
+    # CSRF (Flask-WTF handles this globally, but be explicit to match other admin routes)
+    try:
+        validate_csrf(request.form.get('csrf_token'))
+    except CSRFError:
+        current_app.logger.warning("Invalid CSRF on bulk_message")
+        abort(400, description="Invalid CSRF token")
+
+    # ----- Stage 1: arrived from the user list (selected_ids present, subject absent) -----
+    if 'selected_ids' in request.form and 'subject' not in request.form:
+        raw_ids = request.form.getlist('selected_ids')
         try:
-            selected_ids = [int(x) for x in selected_ids if str(x).strip()]
-        except (TypeError, ValueError):
+            selected_ids = [int(x) for x in raw_ids if str(x).strip()]
+        except ValueError:
             selected_ids = []
 
         if not selected_ids:
@@ -2398,57 +2439,53 @@ def bulk_message():
         )
 
     # ----- Stage 2: admin submitted the compose form -----
-    if request.method == 'POST':
-        selected_ids = session.get('bulk_selected_users') or []
-        if not selected_ids:
-            flash('Your selection expired. Please pick the users again.', 'warning')
-            return redirect(url_for('admin.list_users'))
-
-        subject = (request.form.get('subject') or '').strip()
-        body    = (request.form.get('message') or '').strip()
-
-        if not subject or not body:
-            flash('Subject and message are both required.', 'danger')
-            return render_template(
-                'admin/bulk_message.html',
-                recipient_count=len(selected_ids),
-                csrf_token=generate_csrf(),
-            )
-
-        users = User.query.filter(User.id.in_(selected_ids)).all()
-        if not users:
-            flash('Selected users not found.', 'danger')
-            session.pop('bulk_selected_users', None)
-            return redirect(url_for('admin.list_users'))
-
-        sent, failed = 0, 0
-        for user in users:
-            try:
-                msg = Message(
-                    subject=subject,
-                    recipients=[user.email],
-                    body=body,
-                    sender='realmindxgh@gmail.com',
-                )
-                mail.send(msg)
-                sent += 1
-            except Exception as e:
-                failed += 1
-                current_app.logger.error(
-                    f'Bulk mail failed for user {user.id} ({user.email}): {e}'
-                )
-
-        session.pop('bulk_selected_users', None)
-
-        if failed:
-            flash(f'Sent to {sent} users. {failed} failed — check logs.', 'warning')
-        else:
-            flash(f'Message sent to {sent} users.', 'success')
-
+    selected_ids = session.get('bulk_selected_users') or []
+    if not selected_ids:
+        flash('Your selection expired. Please pick the users again.', 'warning')
         return redirect(url_for('admin.list_users'))
 
-    # ----- GET: someone navigated to /bulk_message directly -----
-    flash('Start by selecting users from the list first.', 'info')
+    subject = (request.form.get('subject') or '').strip()
+    body    = (request.form.get('message') or '').strip()
+
+    if not subject or not body:
+        flash('Subject and message are both required.', 'danger')
+        return render_template(
+            'admin/bulk_message.html',
+            recipient_count=len(selected_ids),
+            csrf_token=generate_csrf(),
+        )
+
+    users = User.query.filter(User.id.in_(selected_ids), User.is_active.is_(True)).all()
+    if not users:
+        flash('Selected users not found or are no longer active.', 'danger')
+        session.pop('bulk_selected_users', None)
+        return redirect(url_for('admin.list_users'))
+
+    sent, failed = 0, 0
+    for user in users:
+        try:
+            msg = Message(
+                subject=subject,
+                recipients=[user.email],
+                body=body,
+                sender='realmindxgh@gmail.com',
+            )
+            mail.send(msg)
+            sent += 1
+        except Exception as e:
+            failed += 1
+            current_app.logger.error(
+                f'Bulk mail failed for user {user.id} ({user.email}): {e}'
+            )
+
+    session.pop('bulk_selected_users', None)
+    current_app.logger.info(f'Bulk message complete: sent={sent}, failed={failed}')
+
+    if failed:
+        flash(f'Sent to {sent} users. {failed} failed — check logs.', 'warning')
+    else:
+        flash(f'Message sent to {sent} users.', 'success')
+
     return redirect(url_for('admin.list_users'))
 
 @admin_bp.route('/delete_user/<int:user_id>', methods=['POST'])

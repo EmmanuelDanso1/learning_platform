@@ -149,18 +149,21 @@
       </div>
 
       <!-- ✅ BULK MESSAGE FORM (SEPARATE & SAFE) -->
-      <form id="bulkMessageForm"
-            action="{{ url_for('admin.bulk_message') }}"
-            method="POST"
-            class="text-center mt-3">
+      <!-- BULK MESSAGE FORM -->
+    <form id="bulkMessageForm"
+          action="{{ url_for('admin.bulk_message') }}"
+          method="POST"
+          class="text-center mt-3">
 
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="hidden" name="selected_ids" id="selected_ids">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <!-- Hidden inputs for selected user IDs will be injected here by JS -->
+      <div id="selectedIdsContainer"></div>
 
-        <button type="submit" class="btn btn-warning">
-          Send Bulk Message
-        </button>
-      </form>
+      <button type="submit" id="bulkSubmitBtn" class="btn btn-warning" disabled>
+        Send Bulk Message
+        <span id="selectedCount" class="badge bg-light text-dark ms-1 d-none">0</span>
+      </button>
+    </form>
 
     </div>
   </div>
@@ -168,23 +171,59 @@
 
 <!-- ✅ JS -->
 <script>
-  const selectAll = document.getElementById("selectAll");
-  const checkboxes = document.querySelectorAll(".user-checkbox");
-  const selectedIds = document.getElementById("selected_ids");
+  const selectAll          = document.getElementById("selectAll");
+  const checkboxes         = document.querySelectorAll(".user-checkbox");
+  const bulkForm           = document.getElementById("bulkMessageForm");
+  const idsContainer       = document.getElementById("selectedIdsContainer");
+  const submitBtn          = document.getElementById("bulkSubmitBtn");
+  const countBadge         = document.getElementById("selectedCount");
 
+  function refreshSelectionState() {
+    const checked = Array.from(checkboxes).filter(cb => cb.checked && !cb.disabled);
+    submitBtn.disabled = checked.length === 0;
+
+    if (checked.length > 0) {
+      countBadge.textContent = checked.length;
+      countBadge.classList.remove("d-none");
+    } else {
+      countBadge.classList.add("d-none");
+    }
+  }
+
+  // "Select All" toggles every enabled row
   selectAll.addEventListener("change", () => {
     checkboxes.forEach(cb => {
       if (!cb.disabled) cb.checked = selectAll.checked;
     });
+    refreshSelectionState();
   });
 
-  document.getElementById("bulkMessageForm").addEventListener("submit", () => {
-    const ids = Array.from(checkboxes)
-      .filter(cb => cb.checked)
-      .map(cb => cb.value);
+  // Keep state in sync as individual rows are toggled
+  checkboxes.forEach(cb => cb.addEventListener("change", refreshSelectionState));
 
-    selectedIds.value = ids.join(",");
+  // On submit, inject one hidden input per selected user id
+  bulkForm.addEventListener("submit", (e) => {
+    // Clear previous injections (in case of resubmit)
+    idsContainer.innerHTML = "";
+
+    const checked = Array.from(checkboxes).filter(cb => cb.checked && !cb.disabled);
+
+    if (checked.length === 0) {
+      e.preventDefault();
+      return;
+    }
+
+    checked.forEach(cb => {
+      const input = document.createElement("input");
+      input.type  = "hidden";
+      input.name  = "selected_ids";
+      input.value = cb.value;
+      idsContainer.appendChild(input);
+    });
   });
+
+  // Initial state
+  refreshSelectionState();
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
