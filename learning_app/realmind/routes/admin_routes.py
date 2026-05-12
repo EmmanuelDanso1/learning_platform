@@ -2663,7 +2663,7 @@ def export_products():
     ws.title = 'Stock'
 
     headers = [
-        'ID', 'Name', 'Description', 'Price (₵)', 'Discount (%)',
+        'Name', 'Description', 'Price (₵)', 'Discount (%)',
         'Discounted Price (₵)', 'Category', 'Author', 'Grade', 'Level',
         'Subject', 'Brand', 'Curriculum', 'Source', 'In Stock', 'Date Created',
         'Synced to Bookshop',
@@ -2672,7 +2672,6 @@ def export_products():
 
     for p in products:
         ws.append([
-            p.id,
             p.name,
             p.description,
             round(p.price, 2),
@@ -2726,7 +2725,7 @@ def export_users():
     ws.title = 'Teachers'
 
     headers = [
-        'ID', 'Full Name', 'First Name', 'Surname', 'Other Names',
+        'Full Name', 'First Name', 'Surname', 'Other Names',
         'Email', 'Phone', 'Sex', 'Location',
         'Preferred Subject(s)', 'Preferred Level(s)',
         'CV Uploaded', 'Certificate Uploaded',
@@ -2736,7 +2735,6 @@ def export_users():
 
     for u in users:
         ws.append([
-            u.id,
             u.fullname or '',
             u.firstname or '',
             u.surname or '',
