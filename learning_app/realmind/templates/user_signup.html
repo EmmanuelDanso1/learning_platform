@@ -53,9 +53,31 @@
                         </div>
                     </div>
 
+                    <!-- Terms & Conditions checkbox -->
+                    <div class="mb-3 mt-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox"
+                                   id="acceptTerms" name="accept_terms"
+                                   required
+                                   onchange="document.getElementById('submitBtn')
+                                             .disabled = !this.checked;">
+                            <label class="form-check-label" for="acceptTerms">
+                                I have read and agree to the
+                                <a href="#" data-bs-toggle="modal"
+                                   data-bs-target="#termsModal"
+                                   class="fw-semibold text-decoration-underline">
+                                   Terms and Conditions
+                                </a>
+                            </label>
+                        </div>
+                    </div>
+
                     <!-- Submit Button -->
                     <div class="d-grid mt-3">
-                        <button type="submit" class="btn btn-primary fw-semibold">Submit</button>
+                        <button type="submit" id="submitBtn"
+                                class="btn btn-primary fw-semibold" disabled>
+                            Submit
+                        </button>
                     </div>
                 </form>
 
@@ -69,6 +91,118 @@
         </div>
     </div>
 </div>
+
+<!-- ── Terms & Conditions Modal ───────────────────────────────────────────── -->
+<div class="modal fade" id="termsModal" tabindex="-1"
+     aria-labelledby="termsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <div class="modal-header" style="background:#0C2E60;">
+        <h5 class="modal-title text-white fw-bold" id="termsModalLabel">
+          RealMindX Education Limited — Bookshop Terms &amp; Conditions
+        </h5>
+        <button type="button" class="btn-close btn-close-white"
+                data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body" style="font-size:0.92rem; line-height:1.75;">
+
+        <p class="text-muted mb-1"><strong>RealMindX Education Limited | Customer Service Department</strong></p>
+        <p class="text-muted">Accra, Ghana &nbsp;|&nbsp; +233 55803 9190 &nbsp;|&nbsp;
+           realmindxgh@gmail.com &nbsp;|&nbsp;
+           <a href="https://bookshop.realmindxgh.com" target="_blank" rel="noopener">
+             bookshop.realmindxgh.com
+           </a>
+        </p>
+        <hr>
+
+        <p>These Terms and Conditions ("T&amp;C") govern the use of the RealMindX Education Limited Bookshop, including all purchases made through its official website and delivery services. By accessing the website, browsing available products, or placing an order, customers agree to be bound by the policies outlined herein.</p>
+        <p><strong>Consumer Law Compliance:</strong> These Terms and Conditions are designed to comply with the Consumer Protection Act, 2012 (Act 851) of Ghana. Nothing herein shall limit, waive, or exclude any consumer right protected under Act 851 or any other applicable Ghanaian legislation.</p>
+
+        <h6 class="fw-bold mt-4">1. Purpose of the Bookshop</h6>
+        <p>The RealMindX Education Limited Bookshop makes educational resources accessible — simply, reliably, and without unnecessary friction. Products include:</p>
+        <ul>
+          <li>Textbooks, Exercise Books, Drawing Books, Notebooks, Writing Books</li>
+          <li>Other Books (dictionaries, atlases, Bibles, reference materials)</li>
+          <li>Stationery</li>
+        </ul>
+        <p>Availability is subject to stock levels and may fluctuate.</p>
+
+        <h6 class="fw-bold mt-4">2. Ordering Procedure</h6>
+        <p>Customers must provide full name, active phone number, accurate delivery address, preferred delivery location, and preferred payment method. RealMindX reserves the right to decline orders for failure to confirm payment, incorrect information, or suspected fraudulent activity.</p>
+
+        <h6 class="fw-bold mt-4">3. Payment Policy</h6>
+        <p>Accepted methods: Mobile Money (MTN, Telecel, AirtelTigo), Bank transfer, Debit/credit card, Cash (applicable scenarios).</p>
+        <p><strong>Bulk Purchases (GHS 3,000+):</strong> A minimum 20% advance payment is required before delivery. Failure within 48 hours may result in cancellation.</p>
+        <p><strong>Payment-on-Delivery:</strong> Customers must be ready to pay on receipt. Refusal may result in cancellation, future restrictions, and liability for delivery costs.</p>
+
+        <h6 class="fw-bold mt-4">4. Delivery Policy</h6>
+        <p><strong>Within Accra:</strong> Typically within 24 hours after payment confirmation.</p>
+        <p><strong>Outside Accra:</strong> Typically within 48 hours via intercity courier. All out-of-Accra delivery costs are borne by the customer.</p>
+
+        <h6 class="fw-bold mt-4">5. Customer Responsibility for Delivery</h6>
+        <p>Customers must provide accurate delivery details. Failed deliveries due to incorrect information incur re-delivery costs payable by the customer.</p>
+
+        <h6 class="fw-bold mt-4">6. Inspection of Items</h6>
+        <p>Inspect items immediately upon receipt for correct items, quantities, and condition. Any issues must be reported within <strong>24 hours</strong> of receipt.</p>
+
+        <h6 class="fw-bold mt-4">7. Return and Exchange Policy</h6>
+        <p>Permitted for: wrong item delivered, manufacturing/printing defect, or damage prior to delivery. Item must be unused, in original condition, and the request made within <strong>48 hours</strong> of receipt.</p>
+        <p><strong>Non-returnable:</strong> used materials, customer-damaged items, special order items.</p>
+        <p>Approved returns result in a replacement, store credit, or full refund at the customer's election. Refunds processed within 7 business days.</p>
+
+        <h6 class="fw-bold mt-4">8. Discount Policy</h6>
+        <p>Bulk discounts apply exclusively to Textbooks for schools and retailers ordering 10+ copies of the same title. The final discount rate is negotiated and confirmed in writing. Discounts apply to product costs only; delivery fees are excluded.</p>
+
+        <h6 class="fw-bold mt-4">9. Product Availability</h6>
+        <p>Items are subject to stock availability. If unavailable after ordering, the customer will be notified and offered a replacement or refund.</p>
+
+        <h6 class="fw-bold mt-4">10. Intellectual Property</h6>
+        <p>All website content remains the property of RealMindX Education Limited or its licensed partners. Unauthorised reproduction is strictly prohibited.</p>
+
+        <h6 class="fw-bold mt-4">11. Limitation of Liability</h6>
+        <p>RealMindX is not liable for delays caused by force majeure (courier disruptions, weather, public holidays, national emergencies). RealMindX remains liable for loss or damage caused by its own negligence.</p>
+
+        <h6 class="fw-bold mt-4">12. Privacy and Customer Information</h6>
+        <p>Customer data is collected solely for order processing and delivery, in accordance with the Data Protection Act, 2012 (Act 843) of Ghana. Information is not sold or shared beyond operational requirements. Customers may access, correct, or request deletion of their data.</p>
+
+        <h6 class="fw-bold mt-4">13. Amendments to Terms and Conditions</h6>
+        <p>These Terms may be updated at any time. Material changes will be communicated via the website with reasonable prior notice. Continued use of the Bookshop constitutes acceptance of revised terms. Amendments do not apply retrospectively to confirmed orders.</p>
+
+        <h6 class="fw-bold mt-4">14. Governing Law</h6>
+        <p>These Terms are governed by the laws of Ghana. Disputes fall under the jurisdiction of Ghanaian courts.</p>
+
+        <h6 class="fw-bold mt-4">15. Consumer Dispute Resolution</h6>
+        <p><strong>Step 1 – Internal Complaint:</strong> Submit a written complaint to the Customer Service Department within 14 days of the event. RealMindX will acknowledge within 3 business days and resolve within 10 business days.</p>
+        <p><strong>Step 2 – Alternative Dispute Resolution (ADR):</strong> If unresolved, either party may refer the matter to mediation or arbitration under the Alternative Dispute Resolution Act, 2010 (Act 798) of Ghana.</p>
+
+        <h6 class="fw-bold mt-4">16. Contact Information</h6>
+        <address>
+          <strong>RealMindX Education Limited</strong><br>
+          Accra, Ghana<br>
+          Phone: +233 55803 9190<br>
+          Email: realmindxgh@gmail.com<br>
+          Website: <a href="https://bookshop.realmindxgh.com" target="_blank" rel="noopener">bookshop.realmindxgh.com</a>
+        </address>
+
+      </div><!-- /.modal-body -->
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary"
+                data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary fw-semibold"
+                data-bs-dismiss="modal"
+                onclick="document.getElementById('acceptTerms').checked = true;
+                         document.getElementById('submitBtn').disabled = false;">
+          I Accept
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+<!-- ── End Terms Modal ────────────────────────────────────────────────────── -->
 
 <!-- Password Toggle Script -->
 <script>

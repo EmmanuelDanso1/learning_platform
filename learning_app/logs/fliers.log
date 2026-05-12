@@ -1477,3 +1477,8 @@ redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. No c
 [2026-05-11 15:38:04,725] INFO in app: Redis client initialized
 [2026-05-11 15:38:04,740] INFO in app: Flask extensions initialized
 [2026-05-11 15:38:04,820] INFO in app: Application startup complete
+2026-05-12 19:43:59,841 INFO [learning_app.app] File logging enabled.
+2026-05-12 19:43:59,842 INFO [learning_app.app] Application startup initiated
+2026-05-12 19:43:59,843 INFO [learning_app.app] Redis client initialized
+2026-05-12 19:43:59,881 INFO [learning_app.app] Flask extensions initialized
+2026-05-12 19:44:00,149 INFO [learning_app.app] Application startup complete
