@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for,jsonify, flash, 
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 # using the imports from __init__.py file
-from learning_app.realmind.models import Admin, Application, JobPost, News, Gallery, Newsletter, Product, Category, PromotionFlier, InfoDocument, ReceivedOrder, ReceivedOrderItem, ExternalSubscriber, CVTutorial, Partner
+from learning_app.realmind.models import Admin, Application, JobPost, News, Gallery, Newsletter, Product, Category, PromotionFlier, InfoDocument, ReceivedOrder, ReceivedOrderItem, ExternalSubscriber, CVTutorial, Partner, TermsAndConditions
 from learning_app.realmind.forms import JobPostForm
 from learning_app.realmind.forms.jobs import LEVEL_CHOICES
 
@@ -2869,3 +2869,48 @@ def delete_partner(partner_id):
     return redirect(url_for('admin.manage_partners'))
 
 # ── End Partner management ─────────────────────────────────────────────────────
+
+
+# ── Terms and Conditions management ───────────────────────────────────────────
+
+@admin_bp.route('/admin/terms', methods=['GET', 'POST'])
+@login_required
+def manage_terms():
+    if not isinstance(current_user, Admin):
+        abort(403)
+
+    terms = TermsAndConditions.query.order_by(
+        TermsAndConditions.updated_at.desc()
+    ).first()
+
+    if request.method == 'POST':
+        try:
+            validate_csrf(request.form.get('csrf_token'))
+        except CSRFError:
+            abort(400, description="Invalid CSRF token")
+
+        content = request.form.get('content', '').strip()
+        if not content:
+            flash('Content cannot be empty.', 'danger')
+        else:
+            if terms:
+                terms.content    = content
+                terms.updated_at = datetime.utcnow()
+                terms.admin_id   = current_user.id
+            else:
+                terms = TermsAndConditions(
+                    content=content,
+                    admin_id=current_user.id,
+                )
+                db.session.add(terms)
+            db.session.commit()
+            flash('Terms and Conditions updated successfully.', 'success')
+            return redirect(url_for('admin.manage_terms'))
+
+    return render_template(
+        'admin/terms.html',
+        terms=terms,
+        csrf_token=generate_csrf(),
+    )
+
+# ── End Terms and Conditions management ───────────────────────────────────────

@@ -266,6 +266,36 @@
         </div>
       </div>
     </div>
+
+    <hr class="my-5">
+
+    <!-- SchoolMS -->
+    <div id="school-ms" class="row g-4 align-items-stretch mb-5">
+      <div class="col-lg-5 d-flex">
+        <div class="service-img-wrapper w-100">
+          <img src="{{ url_for('static', filename='images/schoolms.jpg') }}"
+               alt="SchoolMS — School Management Platform"
+               class="img-fluid rounded shadow-sm"
+               onerror="this.style.display='none'">
+        </div>
+      </div>
+      <div class="col-lg-7 d-flex flex-column justify-content-center">
+        <div>
+          <h4 class="fw-bold mb-3">SchoolMS</h4>
+          <p>SchoolMS is a complete school management platform built specifically for schools who are ready to take the world by storm. Every role, everything connected — from the morning attendance register to the end-of-term report card sitting in a parent's inbox before they even ask for it.</p>
+          <ul>
+            <li>Upload a spreadsheet and your entire school is onboarded within minutes</li>
+            <li>Parents pay fees from their phones directly into your school's account</li>
+            <li>Attendance is taken in two minutes and absent parents are notified automatically</li>
+            <li>AI companionship and seamless integration to help your school grow</li>
+            <li>Teachers, parents, and students each get their own portal with exactly what they need</li>
+          </ul>
+          <p class="fw-semibold">Is your school ready to leave the paperwork behind?</p>
+          <a href="{{ url_for('main.book_service') }}" class="btn btn-warning fw-bold rounded-pill px-3 py-2">Get in touch</a>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 <!--This ensures that when the browser scrolls to an anchor (like #teacher-development), 

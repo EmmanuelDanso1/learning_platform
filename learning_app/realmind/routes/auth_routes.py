@@ -4,7 +4,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_mail import Message
 # using the content from __init__.py
-from learning_app.realmind.models import User, Admin
+from learning_app.realmind.models import User, Admin, TermsAndConditions
 from learning_app.realmind.forms import PasswordResetRequestForm, LoginForm, AdminSignupForm, UserSignupForm, PasswordResetForm
 from learning_app.extensions import db, mail
 import os
@@ -143,7 +143,10 @@ def user_signup():
         flash('Account created! Check your email for the verification code.', 'success')
         return redirect(url_for('auth.verify_otp', user_id=new_user.id))
 
-    return render_template('user_signup.html', form=form)
+    terms = TermsAndConditions.query.order_by(
+        TermsAndConditions.updated_at.desc()
+    ).first()
+    return render_template('user_signup.html', form=form, terms=terms)
 
 # Verify otp
 @auth_bp.route('/verify-otp/<int:user_id>', methods=['GET', 'POST'])
