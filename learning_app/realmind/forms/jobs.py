@@ -4,6 +4,24 @@ from wtforms import StringField, TextAreaField, SubmitField, SelectField, DateTi
 from wtforms.validators import DataRequired, Length, Optional
 from flask_wtf.file import FileField, FileAllowed
 
+# Standard subject values — anything not in this set is treated as "Other"
+STANDARD_SUBJECTS = {
+    'Mathematics','English','Integrated Science','Creative Arts',
+    'Our World and Our People','Ghanaian Language','Computing',
+    'Physical Education','Religious and Moral Education','Elective Mathematics',
+    'Biology','Physics','Chemistry','General Agriculture','Animal Husbandry',
+    'Crop Husbandry','Fisheries','Forestry','Food and Nutrition',
+    'Management in Living','Textile Studies','Visual Arts','Graphic Design',
+    'Sculpture','Ceramics','Picture Making','General Knowledge in Art','Music',
+    'French','Literature in English','Government','History','Geography',
+    'Economics','Business Management','Financial Accounting','Cost Accounting',
+    'Elective ICT','Christian Religious Studies','Islamic Religious Studies',
+    'Arabic','Tourism','Auto Mechanics','Welding and Fabrication',
+    'Building Construction','Technical Drawing','Electrical Engineering Technology',
+    'Plumbing','Applied Electricity','Electronics','Woodwork','Metalwork',
+    'Printing Craft','Spanish','Sewing','Pottery',
+}
+
 LEVEL_CHOICES = [
     ('Early Childhood', 'Early Childhood'),
     ('Primary', 'Primary'),
@@ -79,9 +97,17 @@ class JobPostForm(FlaskForm):
         ('Spanish', 'Spanish'),
         ('Sewing', 'Sewing'),
         ('Pottery', 'Pottery'),
-        ('Other', 'Other')
+        ('Other', 'Other — specify below'),
     ])
-    application_deadline = DateTimeField('Application Deadline (Optional)', validators=[Optional()], format='%Y-%m-%d %H:%M')
+    # Free-text used when admin selects "Other" for subject
+    subject_other = StringField('Other Subject(s)', validators=[Optional(), Length(max=255)])
+
+    # format matches <input type="datetime-local"> which sends YYYY-MM-DDTHH:MM
+    application_deadline = DateTimeField(
+        'Application Deadline (Optional)',
+        validators=[Optional()],
+        format='%Y-%m-%dT%H:%M',
+    )
     submit = SubmitField('Post Job')
 
 class ApplyJobForm(FlaskForm):

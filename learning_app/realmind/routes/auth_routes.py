@@ -236,6 +236,7 @@ def user_login():
             return redirect(url_for('auth.verify_otp', user_id=user.id))
 
         # Successful login
+        session.permanent = True   # honour PERMANENT_SESSION_LIFETIME (8 h)
         login_user(user, remember=False)
 
         # Handle next page redirection
@@ -264,6 +265,7 @@ def admin_login():
             return redirect(url_for("auth.admin_login"))
         
         if admin.password and check_password_hash(admin.password, form.password.data):
+            session.permanent = True   # honour PERMANENT_SESSION_LIFETIME (8 h)
             login_user(admin)
             return redirect(url_for('admin.admin_dashboard'))
             

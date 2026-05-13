@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 # using the imports from __init__.py file
 from learning_app.realmind.models import Admin, Application, JobPost, News, Gallery, Newsletter, Product, Category, PromotionFlier, InfoDocument, ReceivedOrder, ReceivedOrderItem, ExternalSubscriber, CVTutorial, Partner, TermsAndConditions
 from learning_app.realmind.forms import JobPostForm
-from learning_app.realmind.forms.jobs import LEVEL_CHOICES
+from learning_app.realmind.forms.jobs import LEVEL_CHOICES, STANDARD_SUBJECTS
 
 _PREDEFINED_LEVELS = {value for value, _ in LEVEL_CHOICES}
 from learning_app.extensions import db, mail
@@ -238,8 +238,18 @@ def post_job():
         other = (form.level_other.data or '').strip()
         if other:
             selected.append(other)
+        # Resolve subject — use free-text if "Other" was chosen
+        subject = form.subject.data
+        if subject == 'Other':
+            subject = request.form.get('subject_other', '').strip()
+            if not subject:
+                flash('Please specify the subject(s) in the "Other" field.', 'danger')
+                subject = None
+
         if not selected:
             flash('Please select at least one level or specify one in "Other".', 'danger')
+        elif subject is None:
+            pass  # subject flash already shown above
         else:
             job = JobPost(
                 title=form.title.data,
@@ -247,7 +257,7 @@ def post_job():
                 requirements=form.requirements.data,
                 location=form.location.data,
                 level=', '.join(selected),
-                subject=form.subject.data,
+                subject=subject,
                 application_deadline=form.application_deadline.data,
                 admin_id=current_user.id
             )
@@ -321,27 +331,41 @@ def edit_job(job_id):
         form.description.data = job.description
         form.requirements.data = job.requirements
         form.location.data = job.location
-        form.subject.data = job.subject
         form.application_deadline.data = job.application_deadline
         stored = [l.strip() for l in job.level.split(',') if l.strip()]
         form.level.data = [l for l in stored if l in _PREDEFINED_LEVELS]
-        other = [l for l in stored if l not in _PREDEFINED_LEVELS]
-        form.level_other.data = ', '.join(other)
+        other_lvls = [l for l in stored if l not in _PREDEFINED_LEVELS]
+        form.level_other.data = ', '.join(other_lvls)
+        # Subject: if stored value is non-standard, show it in the "Other" box
+        if job.subject in STANDARD_SUBJECTS:
+            form.subject.data = job.subject
+        else:
+            form.subject.data = 'Other'
+            form.subject_other.data = job.subject
 
     if form.validate_on_submit():
         selected = list(form.level.data or [])
-        other = (form.level_other.data or '').strip()
-        if other:
-            selected.append(other)
+        other_lvl = (form.level_other.data or '').strip()
+        if other_lvl:
+            selected.append(other_lvl)
         if not selected:
             flash('Please select at least one level or specify one in "Other".', 'danger')
             return render_template('admin/edit_job.html', form=form, job=job)
+
+        # Resolve subject
+        subject = form.subject.data
+        if subject == 'Other':
+            subject = request.form.get('subject_other', '').strip()
+            if not subject:
+                flash('Please specify the subject(s) in the "Other" field.', 'danger')
+                return render_template('admin/edit_job.html', form=form, job=job)
+
         job.title = form.title.data
         job.description = form.description.data
         job.requirements = form.requirements.data
         job.location = form.location.data
         job.level = ', '.join(selected)
-        job.subject = form.subject.data
+        job.subject = subject
         job.application_deadline = form.application_deadline.data
         db.session.commit()
         flash("Job updated successfully!", "success")

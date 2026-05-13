@@ -55,7 +55,17 @@
     <!-- Subject -->
     <div class="mb-3">
       {{ form.subject.label(class="form-label") }}
-      {{ form.subject(class="form-control") }}
+      {{ form.subject(class="form-control", id="subjectSelect",
+         onchange="toggleSubjectOther(this.value)") }}
+    </div>
+    <div class="mb-3 {% if form.subject.data != 'Other' %}d-none{% endif %}"
+         id="subjectOtherWrap">
+      <label class="form-label">
+        Specify subject(s)
+        <span class="text-muted fw-normal small">— you can list multiple, e.g. Mathematics, Physics</span>
+      </label>
+      {{ form.subject_other(class="form-control", id="subject_other",
+         placeholder="e.g. Mathematics, Physics, Chemistry") }}
     </div>
 
     <!-- Location -->
@@ -64,11 +74,11 @@
       {{ form.location(class="form-control", placeholder="e.g., Accra, Kumasi, Tema") }}
     </div>
 
-    <!-- Application Deadline -->
+    <!-- Application Deadline — native date/time picker -->
     <div class="mb-3">
       {{ form.application_deadline.label(class="form-label") }}
-      {{ form.application_deadline(class="form-control", placeholder="YYYY-MM-DD HH:MM") }}
-      <small class="form-text text-muted">Leave blank for no deadline. Applications are automatically closed after this date and time.</small>
+      {{ form.application_deadline(class="form-control", type="datetime-local") }}
+      <small class="form-text text-muted">Leave blank for no deadline. Applications close automatically at this date and time.</small>
     </div>
 
     <button type="submit" class="btn btn-primary">Update Job</button>
@@ -78,17 +88,29 @@
 
 <script>
 (function () {
+    // Level "Other" toggle
     var toggle = document.getElementById('level_other_toggle');
     var box    = document.getElementById('level_other_box');
     var input  = document.getElementById('level_other');
     toggle.addEventListener('change', function () {
-        if (this.checked) {
-            box.classList.remove('d-none');
-        } else {
-            box.classList.add('d-none');
-            input.value = '';
-        }
+        if (this.checked) { box.classList.remove('d-none'); }
+        else { box.classList.add('d-none'); input.value = ''; }
     });
+
+    // Subject "Other" toggle
+    function toggleSubjectOther(val) {
+        var wrap = document.getElementById('subjectOtherWrap');
+        if (val === 'Other') { wrap.classList.remove('d-none'); }
+        else {
+            wrap.classList.add('d-none');
+            document.getElementById('subject_other').value = '';
+        }
+    }
+    window.toggleSubjectOther = toggleSubjectOther;
+
+    // Ensure correct state on load (edit form already has a value)
+    var sel = document.getElementById('subjectSelect');
+    if (sel && sel.value === 'Other') toggleSubjectOther('Other');
 })();
 </script>
 {% endblock %}

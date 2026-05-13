@@ -39,7 +39,10 @@ def create_app():
     app.logger.info(f"Static folder: {app.static_folder}")
     app.logger.info(f"Static folder absolute: {os.path.abspath(app.static_folder)}")
     # SESSION CONFIGURATION
-    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
+    # 8 hours — long enough for a full working day without forcing re-login
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=8)
+    # CSRF token must live at least as long as the session
+    app.config['WTF_CSRF_TIME_LIMIT'] = 8 * 3600  # seconds
 
     # Load config
     app.config.from_object("learning_app.config.ProductionConfig")
