@@ -61,11 +61,12 @@
                                    required
                                    onchange="document.getElementById('submitBtn')
                                              .disabled = !this.checked;">
-                            <label class="form-check-label" for="acceptTerms">
+                            <label class="form-check-label" for="acceptTerms"
+                                   style="font-size:0.8rem; color:#555;">
                                 I have read and agree to the
                                 <a href="#" data-bs-toggle="modal"
                                    data-bs-target="#termsModal"
-                                   class="fw-semibold text-decoration-underline">
+                                   style="font-size:0.8rem; color:#0066cc; text-decoration:underline;">
                                    Terms and Conditions
                                 </a>
                             </label>
@@ -106,7 +107,19 @@
                 data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
-      <div class="modal-body" style="font-size:0.92rem; line-height:1.75;">
+      <div class="modal-body p-4" style="font-size:0.9rem; line-height:1.65; font-family:'Arimo',sans-serif;">
+
+        <!-- Normalise Quill-generated headings and lists so they fit neatly inside the modal -->
+        <style>
+          #termsModal .modal-body h1 { font-size:1.15rem; font-weight:700; margin:1rem 0 0.35rem; color:#0C2E60; }
+          #termsModal .modal-body h2 { font-size:1.05rem; font-weight:700; margin:0.9rem 0 0.3rem;  color:#0C2E60; }
+          #termsModal .modal-body h3 { font-size:0.97rem; font-weight:600; margin:0.75rem 0 0.25rem; }
+          #termsModal .modal-body p  { margin-bottom:0.55rem; }
+          #termsModal .modal-body ul,
+          #termsModal .modal-body ol { padding-left:1.25rem; margin-bottom:0.55rem; }
+          #termsModal .modal-body li { margin-bottom:0.2rem; }
+          #termsModal .modal-body strong { font-weight:600; }
+        </style>
 
         {% if terms and terms.content %}
           {{ terms.content | safe }}

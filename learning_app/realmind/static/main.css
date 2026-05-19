@@ -12,6 +12,7 @@ html, body {
   overflow-x: hidden;
   scroll-behavior: smooth;
   scroll-padding-top: 100px;
+  /* opacity: 0.2; */
 }
 
 .user-dashboard-nav .nav-link-divider {
@@ -322,6 +323,7 @@ p, a, span, li, button {
   text-transform: uppercase;
 }
 
+
 /* Equal height columns */
 .services-section .row {
   display: flex;
@@ -362,15 +364,16 @@ p, a, span, li, button {
   transform: translateY(-2px);
 }
 
-/* Responsive adjustments */
+/* Responsive adjustments — tablet */
 @media (max-width: 991px) {
   .services-section {
+    margin: 40px auto;
     padding: 40px 20px;
   }
 
   .services-section h2 {
     font-size: 2rem;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
   }
 
   .service-item {
@@ -380,6 +383,49 @@ p, a, span, li, button {
   .learn-more-btn {
     font-size: 1rem;
     padding: 12px 35px;
+  }
+}
+
+/* Responsive adjustments — phone */
+@media (max-width: 767px) {
+  .services-section {
+    margin: 20px auto;
+    padding: 24px 12px;
+  }
+
+  .services-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+  }
+
+  /* Kill Bootstrap mb-4 on every column and mb-2 on every row
+     so items sit close together instead of being spread out */
+  .service-grid .col-md-4 {
+    margin-bottom: 0 !important;
+  }
+
+  .service-grid .row {
+    margin-bottom: 0 !important;
+  }
+
+  .service-item {
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+    gap: 8px;
+  }
+
+  .service-item i {
+    font-size: 1.1rem;
+  }
+
+  .service-item a {
+    font-size: 0.95rem;
+  }
+
+  .learn-more-btn {
+    font-size: 0.9rem;
+    padding: 10px 28px;
+    margin-top: 12px;
   }
 }
 

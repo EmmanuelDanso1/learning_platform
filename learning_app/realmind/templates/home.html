@@ -301,73 +301,10 @@
 
   </div>
 </section>
-<!-- Partners Section (only rendered when at least one active partner exists) -->
-{% if partners %}
-<section class="py-5" style="background:#f8f9fa; border-top:1px solid #e9ecef;">
-  <div class="container">
-
-    <h2 class="fw-bold text-center mb-2"
-        style="font-family:'Montserrat',sans-serif; color:#0C2E60;">
-      OUR PARTNERS
-    </h2>
-    <p class="text-center text-muted mb-5"
-       style="font-family:'Arimo',sans-serif;">
-      Trusted organisations we work with to deliver quality education services.
-    </p>
-
-    <div class="d-flex flex-wrap justify-content-center align-items-center gap-4">
-      {% for partner in partners %}
-      <div class="text-center" style="min-width:130px; max-width:180px;">
-
-        {% if partner.website_url %}
-        <a href="{{ partner.website_url }}" target="_blank" rel="noopener"
-           title="{{ partner.name }}"
-           class="d-block p-3 rounded-3 shadow-sm bg-white text-decoration-none"
-           style="transition:transform .2s;"
-           onmouseover="this.style.transform='scale(1.06)'"
-           onmouseout="this.style.transform='scale(1)'">
-        {% else %}
-        <div class="d-block p-3 rounded-3 shadow-sm bg-white">
-        {% endif %}
-
-          {% if partner.logo_filename %}
-          <img src="{{ url_for('static', filename='uploads/partners/' ~ partner.logo_filename) }}"
-               alt="{{ partner.name }}"
-               style="max-height:70px; max-width:150px; object-fit:contain; display:block; margin:0 auto;">
-          {% else %}
-          <div class="fw-bold text-dark" style="font-size:1.05rem; line-height:1.3;">
-            {{ partner.name }}
-          </div>
-          {% endif %}
-
-          {% if partner.description %}
-          <p class="mt-2 mb-0 text-muted" style="font-size:0.78rem; line-height:1.3;">
-            {{ partner.description }}
-          </p>
-          {% elif partner.logo_filename %}
-          <p class="mt-2 mb-0 text-dark fw-semibold" style="font-size:0.82rem;">
-            {{ partner.name }}
-          </p>
-          {% endif %}
-
-        {% if partner.website_url %}
-        </a>
-        {% else %}
-        </div>
-        {% endif %}
-
-      </div>
-      {% endfor %}
-    </div>
-
-  </div>
-</section>
-{% endif %}
-
 <!-- Bookshop Section -->
 <section class="text-center py-5 bg-light">
   <div class="container">
-    <h2 class="fw-bold mb-4 text-dark" target="_blank">OUR BOOKSHOP</h2>
+    <h2 class="fw-bold mb-4 text-dark">OUR BOOKSHOP</h2>
     <p class="fs-5 mb-2">
       Purchase all your stationeries at wholesale/retail prices at <strong>RealMindX Bookshop</strong>.
     </p>
@@ -379,6 +316,37 @@
     </a>
   </div>
 </section>
+
+<!-- Partners Section — after Bookshop, before testimonials -->
+{% if partners %}
+<section class="py-5" style="background:#f8f9fa;">
+  <div class="container">
+
+    <h2 class="fw-bold text-center mb-2"
+        style="font-family:'Montserrat',sans-serif;">
+      OUR PARTNERS
+    </h2>
+    <p class="text-center text-muted mb-5"
+       style="font-family:'Arimo',sans-serif;">
+      Trusted organisations we work with to deliver quality education services.
+    </p>
+
+    <div class="d-flex flex-wrap justify-content-center align-items-center gap-5">
+      {% for partner in partners %}
+        {% if partner.logo_filename %}
+        <div>
+          <img src="{{ url_for('static', filename='uploads/partners/' ~ partner.logo_filename) }}"
+               alt="{{ partner.name }}"
+               loading="lazy"
+               style="max-height:120px; max-width:240px; object-fit:contain; display:block;">
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+{% endif %}
 
 {% endblock %}
 
